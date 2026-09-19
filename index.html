@@ -3,18 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TIME MACHINE — Travel Through Time</title>
+
+<title>TIME MACHINE</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap');
 
 *{
-    box-sizing:border-box;
     margin:0;
     padding:0;
+    box-sizing:border-box;
 }
 
-html,body{
+html,
+body{
     width:100%;
     height:100%;
     overflow:hidden;
@@ -26,87 +28,109 @@ body{
     font-family:Inter,sans-serif;
 }
 
-/* =========================
+/* =========================================
    INTRO
-========================= */
+========================================= */
 
 #intro{
     position:fixed;
     inset:0;
-    z-index:1000;
-    background:
-        radial-gradient(circle at center,#222 0%,#090909 38%,#000 75%);
+    z-index:9999;
+
     display:flex;
     align-items:center;
     justify-content:center;
     flex-direction:column;
-    transition:opacity 1.2s ease, visibility 1.2s;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #202020 0%,
+            #0a0a0a 40%,
+            #000 80%
+        );
+
+    transition:
+        opacity 1s ease,
+        visibility 1s ease;
 }
 
-#intro.hide{
+#intro.hidden{
     opacity:0;
     visibility:hidden;
     pointer-events:none;
 }
 
 .intro-small{
+    font-size:10px;
     letter-spacing:8px;
-    font-size:11px;
-    opacity:.55;
+    opacity:.45;
     margin-bottom:25px;
 }
 
 .intro-title{
     font-family:Cinzel,serif;
-    font-size:clamp(55px,9vw,130px);
-    letter-spacing:12px;
+    font-size:clamp(55px,10vw,140px);
     font-weight:400;
+    letter-spacing:12px;
     text-align:center;
 }
 
 .intro-line{
-    width:120px;
+    width:100px;
     height:1px;
     background:white;
-    opacity:.35;
+    opacity:.3;
     margin:35px 0;
 }
 
-.start-btn{
-    border:1px solid rgba(255,255,255,.4);
+.enter-button{
     background:transparent;
+    border:1px solid rgba(255,255,255,.4);
     color:white;
-    padding:16px 35px;
+
+    padding:16px 38px;
+
+    font-size:10px;
     letter-spacing:4px;
-    font-size:11px;
+
     cursor:pointer;
+
     transition:.4s;
 }
 
-.start-btn:hover{
+.enter-button:hover{
     background:white;
     color:black;
 }
 
-/* =========================
-   MACHINE
-========================= */
+
+/* =========================================
+   TIME MACHINE
+========================================= */
 
 #machine{
     position:fixed;
     inset:0;
-    background:
-        radial-gradient(circle at center,
-        rgba(255,255,255,.08),
-        transparent 25%),
-        linear-gradient(#080808,#020202);
+
     display:flex;
     align-items:center;
     justify-content:center;
-    transition:opacity .8s;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255,255,255,.08),
+            transparent 25%
+        ),
+        linear-gradient(#090909,#010101);
+
+    transition:opacity .7s ease;
+
+    z-index:100;
 }
 
-.machine-content{
+.machine-inner{
     width:min(900px,90vw);
     text-align:center;
 }
@@ -115,7 +139,7 @@ body{
     font-size:10px;
     letter-spacing:7px;
     opacity:.45;
-    margin-bottom:30px;
+    margin-bottom:25px;
 }
 
 .machine-year{
@@ -125,123 +149,165 @@ body{
     line-height:1;
 }
 
-.machine-sub{
-    margin-top:30px;
-    opacity:.5;
+.machine-instruction{
+    margin-top:35px;
+    font-size:9px;
     letter-spacing:4px;
-    font-size:10px;
+    opacity:.4;
 }
 
-/* DIAL */
 
-.dial-area{
-    position:relative;
+/* =========================================
+   DIAL
+========================================= */
+
+.dial-wrapper{
     width:330px;
     height:330px;
     margin:45px auto 0;
+    position:relative;
 }
 
 .dial{
     width:100%;
     height:100%;
+
     border-radius:50%;
-    border:1px solid rgba(255,255,255,.2);
+
     background:
         repeating-conic-gradient(
             from 0deg,
             rgba(255,255,255,.3) 0deg 1deg,
-            transparent 1deg 15deg
+            transparent 1deg 12deg
         ),
-        radial-gradient(circle,#161616,#070707 70%);
+        radial-gradient(
+            circle,
+            #1d1d1d,
+            #080808 70%
+        );
+
+    border:1px solid rgba(255,255,255,.25);
+
     box-shadow:
-        0 0 80px rgba(255,255,255,.05),
-        inset 0 0 40px #000;
+        inset 0 0 60px #000,
+        0 0 80px rgba(255,255,255,.04);
+
     position:relative;
+
     cursor:grab;
-    transition:transform .2s;
+
+    touch-action:none;
+
+    transition:transform .15s ease;
 }
 
 .dial:active{
     cursor:grabbing;
 }
 
-.dial-ring{
+.dial-inner{
     position:absolute;
-    inset:25px;
+    inset:28px;
+
     border-radius:50%;
+
     border:1px solid rgba(255,255,255,.12);
 }
 
 .dial-center{
     position:absolute;
+
     width:95px;
     height:95px;
-    border-radius:50%;
+
     left:50%;
     top:50%;
+
     transform:translate(-50%,-50%);
-    background:radial-gradient(circle,#333,#0a0a0a);
-    border:1px solid rgba(255,255,255,.35);
-    box-shadow:0 0 30px #000;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #3a3a3a,
+            #080808 70%
+        );
+
+    border:1px solid rgba(255,255,255,.3);
+
+    box-shadow:
+        inset 0 0 20px #000,
+        0 0 25px rgba(255,255,255,.04);
 }
 
 .dial-center::after{
     content:"";
+
     position:absolute;
+
     width:8px;
     height:8px;
+
     border-radius:50%;
+
     background:white;
+
     left:50%;
     top:50%;
-    transform:translate(-50%,-50%);
-    box-shadow:0 0 20px white;
-}
 
-.dial-years{
-    position:absolute;
-    inset:0;
-    pointer-events:none;
+    transform:translate(-50%,-50%);
+
+    box-shadow:0 0 20px white;
 }
 
 .dial-year{
     position:absolute;
+
     font-family:Cinzel,serif;
-    font-size:14px;
-    opacity:.4;
+
+    font-size:13px;
+
+    opacity:.45;
+
     transform:translate(-50%,-50%);
 }
 
-.dial-year:nth-child(1){
-    left:50%;
+.year-top{
     top:8%;
-}
-
-.dial-year:nth-child(2){
-    right:4%;
-    top:50%;
-}
-
-.dial-year:nth-child(3){
     left:50%;
-    bottom:2%;
 }
 
-.dial-year:nth-child(4){
-    left:5%;
+.year-right{
     top:50%;
+    left:92%;
 }
 
-/* =========================
-   ERA
-========================= */
+.year-bottom{
+    top:92%;
+    left:50%;
+}
+
+.year-left{
+    top:50%;
+    left:8%;
+}
+
+
+/* =========================================
+   ERA WORLD
+========================================= */
 
 #era{
     position:fixed;
     inset:0;
+
     opacity:0;
     pointer-events:none;
-    transition:opacity 1s;
+
+    transition:opacity .8s ease;
+
+    z-index:200;
 }
 
 #era.active{
@@ -252,36 +318,86 @@ body{
 .era-background{
     position:absolute;
     inset:0;
-    transition:background 1.2s;
+
+    transition:background 1s ease;
 }
 
-/* different atmosphere */
+
+/* 1998 */
 
 .era-1998 .era-background{
     background:
-        radial-gradient(circle at 70% 35%,rgba(255,185,100,.18),transparent 25%),
-        linear-gradient(120deg,#38251c,#11100e 60%,#1b1712);
+        radial-gradient(
+            circle at 70% 30%,
+            rgba(255,170,80,.17),
+            transparent 28%
+        ),
+        linear-gradient(
+            125deg,
+            #38261d,
+            #11100e 55%,
+            #1d1712
+        );
 }
+
+
+/* 2008 */
 
 .era-2008 .era-background{
     background:
-        radial-gradient(circle at 30% 30%,rgba(80,140,255,.18),transparent 30%),
-        linear-gradient(130deg,#101820,#080d13 60%,#15100e);
+        radial-gradient(
+            circle at 25% 30%,
+            rgba(80,140,255,.18),
+            transparent 30%
+        ),
+        linear-gradient(
+            125deg,
+            #111b24,
+            #080d12 55%,
+            #16100e
+        );
 }
+
+
+/* 2018 */
 
 .era-2018 .era-background{
     background:
-        radial-gradient(circle at 65% 20%,rgba(255,90,160,.16),transparent 30%),
-        linear-gradient(120deg,#171018,#08090e 60%,#121018);
+        radial-gradient(
+            circle at 70% 20%,
+            rgba(255,80,160,.16),
+            transparent 30%
+        ),
+        linear-gradient(
+            125deg,
+            #191019,
+            #09090e 55%,
+            #141018
+        );
 }
+
+
+/* 2026 */
 
 .era-2026 .era-background{
     background:
-        radial-gradient(circle at 50% 30%,rgba(70,255,220,.13),transparent 28%),
-        linear-gradient(120deg,#061312,#020807 60%,#0a1012);
+        radial-gradient(
+            circle at 50% 25%,
+            rgba(70,255,220,.15),
+            transparent 30%
+        ),
+        linear-gradient(
+            125deg,
+            #061412,
+            #020807 55%,
+            #0a1112
+        );
 }
 
-/* ROOM */
+
+/* =========================================
+   ROOM
+========================================= */
 
 .room{
     position:absolute;
@@ -289,389 +405,470 @@ body{
     overflow:hidden;
 }
 
-/* floor */
-
 .floor{
     position:absolute;
-    bottom:-10%;
+
     left:-10%;
+    bottom:-15%;
+
     width:120%;
     height:45%;
-    transform:perspective(500px) rotateX(55deg);
+
+    transform:
+        perspective(500px)
+        rotateX(55deg);
+
     background:
         repeating-linear-gradient(
             90deg,
-            rgba(255,255,255,.03) 0 2px,
+            rgba(255,255,255,.025) 0 2px,
             transparent 2px 90px
         ),
-        linear-gradient(#161616,#050505);
+        linear-gradient(
+            #171717,
+            #050505
+        );
 }
-
-/* wall light */
 
 .wall-light{
     position:absolute;
-    width:500px;
-    height:300px;
+
+    width:650px;
+    height:400px;
+
     left:50%;
-    top:30%;
+    top:32%;
+
     transform:translate(-50%,-50%);
-    background:radial-gradient(
-        ellipse,
-        rgba(255,255,255,.08),
-        transparent 65%
-    );
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(255,255,255,.08),
+            transparent 65%
+        );
 }
 
-/* =========================
+
+/* =========================================
    OBJECTS
-========================= */
+========================================= */
 
 .object{
     position:absolute;
+
     border:1px solid rgba(255,255,255,.12);
-    background:rgba(0,0,0,.3);
-    backdrop-filter:blur(4px);
+
+    background:rgba(0,0,0,.25);
+
+    backdrop-filter:blur(5px);
+
     cursor:pointer;
-    transition:.45s;
+
+    transition:
+        transform .4s ease,
+        border-color .4s ease,
+        box-shadow .4s ease;
 }
 
 .object:hover{
-    transform:translateY(-8px) scale(1.04);
-    border-color:rgba(255,255,255,.45);
-    box-shadow:0 20px 50px rgba(0,0,0,.45);
-}
+    transform:
+        translateY(-8px)
+        scale(1.04);
 
-.object-icon{
-    font-size:38px;
+    border-color:rgba(255,255,255,.5);
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.5);
 }
 
 .object-name{
-    font-size:9px;
+    font-size:8px;
     letter-spacing:3px;
-    margin-top:9px;
-    opacity:.7;
+    opacity:.6;
+    margin-top:12px;
+    text-align:center;
 }
 
-.obj-tv{
-    width:180px;
+
+/* TV */
+
+.tv-object{
+    width:190px;
     height:145px;
+
     left:7%;
-    top:22%;
-    padding:25px;
+    top:20%;
+
+    padding:22px;
 }
 
 .tv-screen{
     width:100%;
     height:75px;
-    background:#080808;
+
     border:7px solid #292929;
+
+    background:#050505;
+
     display:flex;
     align-items:center;
     justify-content:center;
-    font-family:monospace;
+
     color:#777;
-    font-size:11px;
+
+    font-family:monospace;
+    font-size:10px;
 }
 
-.obj-phone{
+
+/* PHONE */
+
+.phone-object{
     width:130px;
     height:180px;
-    right:10%;
+
+    right:9%;
     top:18%;
+
     padding:20px;
+
     text-align:center;
 }
 
 .phone-body{
     width:55px;
     height:105px;
+
     margin:auto;
-    border-radius:8px;
+
     border:2px solid #555;
+
+    border-radius:8px;
+
     background:#080808;
+
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:10px;
+
+    font-size:12px;
 }
 
-.obj-camera{
+
+/* CAMERA */
+
+.camera-object{
     width:150px;
-    height:120px;
-    left:23%;
-    bottom:19%;
-    padding:25px;
+    height:125px;
+
+    left:21%;
+    bottom:17%;
+
+    padding:24px;
+
     text-align:center;
 }
 
 .camera-body{
     width:70px;
     height:45px;
+
     margin:auto;
+
     background:#222;
+
     border:2px solid #666;
+
     position:relative;
 }
 
 .camera-lens{
     position:absolute;
+
     width:25px;
     height:25px;
+
     border-radius:50%;
+
     background:#080808;
+
     border:2px solid #777;
+
     left:50%;
     top:50%;
+
     transform:translate(-50%,-50%);
 }
 
-.obj-fashion{
+
+/* FASHION */
+
+.fashion-object{
     width:170px;
-    height:230px;
-    right:24%;
-    bottom:13%;
-    padding:22px;
-    text-align:center;
-}
+    height:225px;
 
-.clothing{
-    font-size:70px;
-    line-height:100px;
-}
+    right:23%;
+    bottom:12%;
 
-.obj-desk{
-    width:200px;
-    height:130px;
-    left:44%;
-    bottom:16%;
-    padding:22px;
-    text-align:center;
-}
-
-.obj-music{
-    width:160px;
-    height:120px;
-    right:6%;
-    bottom:20%;
     padding:20px;
+
     text-align:center;
 }
 
-/* 2026 AI object */
+.fashion-icon{
+    font-size:70px;
+    height:125px;
 
-.obj-ai{
-    width:180px;
-    height:150px;
-    left:8%;
-    top:20%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+
+/* WORK */
+
+.work-object{
+    width:190px;
+    height:130px;
+
+    left:43%;
+    bottom:14%;
+
     padding:25px;
+
+    text-align:center;
+}
+
+.work-icon{
+    font-size:42px;
+}
+
+
+/* MUSIC */
+
+.music-object{
+    width:165px;
+    height:120px;
+
+    right:5%;
+    bottom:20%;
+
+    padding:20px;
+
+    text-align:center;
+}
+
+.music-icon{
+    font-size:38px;
+}
+
+
+/* FUTURE */
+
+.future-object{
+    width:180px;
+    height:145px;
+
+    left:7%;
+    top:47%;
+
+    padding:25px;
+
     text-align:center;
 }
 
 .ai-core{
     width:60px;
     height:60px;
-    border-radius:50%;
+
     margin:auto;
-    border:1px solid rgba(100,255,230,.6);
-    box-shadow:0 0 35px rgba(100,255,230,.3);
+
+    border-radius:50%;
+
+    border:1px solid rgba(100,255,230,.7);
+
+    box-shadow:
+        0 0 35px rgba(100,255,230,.25);
+
     display:flex;
     align-items:center;
     justify-content:center;
+
+    font-size:12px;
 }
 
-/* =========================
-   INFO STRIP
-========================= */
 
-.info{
-    position:absolute;
-    left:50%;
-    bottom:35px;
-    transform:translateX(-50%);
-    width:min(700px,85vw);
-    text-align:center;
-    pointer-events:none;
-}
-
-.info-title{
-    font-family:Cinzel,serif;
-    font-size:13px;
-    letter-spacing:4px;
-}
-
-.info-text{
-    margin-top:9px;
-    font-size:11px;
-    opacity:.55;
-}
-
-/* =========================
-   OBJECT DETAIL
-========================= */
-
-#detail{
-    position:fixed;
-    left:0;
-    bottom:0;
-    width:100%;
-    min-height:180px;
-    background:linear-gradient(
-        to top,
-        rgba(0,0,0,.97),
-        rgba(0,0,0,.88),
-        transparent
-    );
-    padding:60px 8vw 35px;
-    transform:translateY(100%);
-    transition:transform .7s cubic-bezier(.22,.8,.2,1);
-    z-index:50;
-}
-
-#detail.show{
-    transform:translateY(0);
-}
-
-.detail-content{
-    max-width:900px;
-}
-
-.detail-kicker{
-    font-size:9px;
-    letter-spacing:5px;
-    opacity:.45;
-}
-
-.detail-title{
-    font-family:Cinzel,serif;
-    font-size:30px;
-    margin:8px 0;
-}
-
-.detail-text{
-    max-width:700px;
-    line-height:1.7;
-    font-size:13px;
-    opacity:.72;
-}
-
-.detail-extra{
-    margin-top:15px;
-    font-size:11px;
-    opacity:.45;
-}
-
-.close-detail{
-    position:absolute;
-    right:40px;
-    top:35px;
-    background:none;
-    color:white;
-    border:0;
-    font-size:20px;
-    cursor:pointer;
-    opacity:.5;
-}
-
-/* =========================
+/* =========================================
    TOP UI
-========================= */
+========================================= */
 
 .top-ui{
     position:absolute;
+
     top:28px;
     left:35px;
     right:35px;
+
     display:flex;
     justify-content:space-between;
     align-items:center;
-    z-index:30;
+
+    z-index:20;
 }
 
 .logo{
     font-family:Cinzel,serif;
+    font-size:11px;
     letter-spacing:5px;
-    font-size:12px;
 }
 
 .controls{
     display:flex;
-    gap:10px;
+    gap:8px;
 }
 
-.ui-btn{
-    background:rgba(0,0,0,.25);
-    color:white;
-    border:1px solid rgba(255,255,255,.2);
-    padding:9px 13px;
-    font-size:9px;
-    letter-spacing:2px;
-    cursor:pointer;
-}
-
-.ui-btn:hover{
-    background:white;
-    color:black;
-}
-
-/* =========================
-   ERA NAV
-========================= */
-
-.era-nav{
-    position:absolute;
-    right:30px;
-    top:50%;
-    transform:translateY(-50%);
-    display:flex;
-    flex-direction:column;
-    gap:18px;
-    z-index:30;
-}
-
-.era-dot{
-    width:38px;
-    height:38px;
-    border-radius:50%;
-    border:1px solid rgba(255,255,255,.2);
+.ui-button{
     background:rgba(0,0,0,.3);
+
+    border:1px solid rgba(255,255,255,.2);
+
     color:white;
-    cursor:pointer;
+
+    padding:9px 13px;
+
     font-size:8px;
+
+    letter-spacing:2px;
+
+    cursor:pointer;
+
     transition:.3s;
 }
 
-.era-dot:hover,
-.era-dot.active{
+.ui-button:hover{
     background:white;
     color:black;
 }
 
-/* =========================
-   MUSIC
-========================= */
+
+/* =========================================
+   YEAR NAVIGATION
+========================================= */
+
+.year-navigation{
+    position:absolute;
+
+    right:28px;
+    top:50%;
+
+    transform:translateY(-50%);
+
+    display:flex;
+    flex-direction:column;
+
+    gap:15px;
+
+    z-index:20;
+}
+
+.year-button{
+    width:38px;
+    height:38px;
+
+    border-radius:50%;
+
+    border:1px solid rgba(255,255,255,.2);
+
+    background:rgba(0,0,0,.3);
+
+    color:white;
+
+    font-size:8px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.year-button:hover,
+.year-button.active{
+    background:white;
+    color:black;
+}
+
+
+/* =========================================
+   BOTTOM INFO
+========================================= */
+
+.world-info{
+    position:absolute;
+
+    left:50%;
+    bottom:30px;
+
+    transform:translateX(-50%);
+
+    width:min(700px,80vw);
+
+    text-align:center;
+
+    pointer-events:none;
+
+    z-index:15;
+}
+
+.world-title{
+    font-family:Cinzel,serif;
+
+    font-size:13px;
+
+    letter-spacing:4px;
+}
+
+.world-description{
+    margin-top:8px;
+
+    font-size:10px;
+
+    line-height:1.6;
+
+    opacity:.5;
+}
+
+
+/* =========================================
+   MUSIC PLAYER
+========================================= */
 
 .music-player{
     position:absolute;
-    left:30px;
-    bottom:30px;
-    z-index:30;
+
+    left:28px;
+    bottom:28px;
+
     display:flex;
     align-items:center;
-    gap:12px;
-    max-width:280px;
+
+    gap:10px;
+
+    z-index:30;
 }
 
 .music-disc{
-    width:35px;
-    height:35px;
+    width:38px;
+    height:38px;
+
     border-radius:50%;
+
     border:1px solid rgba(255,255,255,.3);
+
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:10px;
+
+    font-size:11px;
 }
 
 .music-disc.playing{
@@ -679,73 +876,186 @@ body{
 }
 
 @keyframes spin{
-    to{transform:rotate(360deg)}
+    to{
+        transform:rotate(360deg);
+    }
 }
 
-.music-name{
-    font-size:9px;
-    letter-spacing:2px;
+.music-title{
+    max-width:230px;
+
+    font-size:8px;
+
+    letter-spacing:1.5px;
+
     opacity:.55;
 }
 
-/* =========================
-   GLITCH
-========================= */
 
-.glitch{
+/* =========================================
+   DETAIL
+========================================= */
+
+#detail{
     position:fixed;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    min-height:210px;
+
+    padding:
+        60px
+        8vw
+        35px;
+
+    background:
+        linear-gradient(
+            to top,
+            rgba(0,0,0,.98),
+            rgba(0,0,0,.9),
+            transparent
+        );
+
+    transform:translateY(100%);
+
+    transition:
+        transform .7s
+        cubic-bezier(.22,.8,.2,1);
+
+    z-index:100;
+}
+
+#detail.show{
+    transform:translateY(0);
+}
+
+.detail-kicker{
+    font-size:8px;
+    letter-spacing:5px;
+    opacity:.4;
+}
+
+.detail-title{
+    font-family:Cinzel,serif;
+
+    font-size:30px;
+
+    margin:8px 0;
+}
+
+.detail-text{
+    max-width:720px;
+
+    font-size:12px;
+
+    line-height:1.8;
+
+    opacity:.7;
+}
+
+.detail-extra{
+    margin-top:12px;
+
+    font-size:9px;
+
+    letter-spacing:2px;
+
+    opacity:.4;
+}
+
+.close-detail{
+    position:absolute;
+
+    right:35px;
+    top:30px;
+
+    background:none;
+
+    border:0;
+
+    color:white;
+
+    font-size:24px;
+
+    cursor:pointer;
+
+    opacity:.5;
+}
+
+
+/* =========================================
+   GLITCH
+========================================= */
+
+#glitch{
+    position:fixed;
+
     inset:0;
+
     background:white;
+
     opacity:0;
+
     pointer-events:none;
-    z-index:500;
+
+    z-index:10000;
 }
 
-.glitch.active{
-    animation:glitch .8s steps(7);
+#glitch.travel{
+    animation:glitchAnimation .7s steps(8);
 }
 
-@keyframes glitch{
-    0%{opacity:0}
-    10%{opacity:.08}
-    20%{opacity:0}
-    30%{opacity:.12}
-    40%{opacity:0}
-    50%{opacity:.06}
-    60%{opacity:0}
-    70%{opacity:.15}
-    100%{opacity:0}
+@keyframes glitchAnimation{
+
+    0%{
+        opacity:0;
+    }
+
+    15%{
+        opacity:.08;
+    }
+
+    30%{
+        opacity:0;
+    }
+
+    45%{
+        opacity:.13;
+    }
+
+    60%{
+        opacity:0;
+    }
+
+    75%{
+        opacity:.08;
+    }
+
+    100%{
+        opacity:0;
+    }
 }
 
-/* =========================
-   LANGUAGE
-========================= */
 
-.hy{
-    display:none;
-}
-
-/* =========================
+/* =========================================
    RESPONSIVE
-========================= */
+========================================= */
 
 @media(max-width:700px){
 
-    .dial-area{
+    .dial-wrapper{
         width:270px;
         height:270px;
     }
 
     .object{
-        transform:scale(.78);
+        transform:scale(.75);
     }
 
     .object:hover{
-        transform:scale(.84);
-    }
-
-    .era-nav{
-        right:10px;
+        transform:scale(.8);
     }
 
     .top-ui{
@@ -754,32 +1064,39 @@ body{
     }
 
     .logo{
-        font-size:9px;
+        font-size:8px;
+    }
+
+    .year-navigation{
+        right:8px;
     }
 
     .music-player{
+        left:12px;
         bottom:15px;
-        left:15px;
     }
 
-    .info{
+    .world-info{
         bottom:20px;
     }
 
-    .obj-fashion{
-        right:5%;
+    .fashion-object{
+        right:0;
     }
+
 }
 </style>
 </head>
 
+
 <body>
 
-<!-- =========================
-     INTRO
-========================= -->
 
-<section id="intro">
+<!-- =========================================
+     INTRO
+========================================= -->
+
+<div id="intro">
 
     <div class="intro-small">
         TEMPORAL ACCESS SYSTEM
@@ -791,40 +1108,60 @@ body{
 
     <div class="intro-line"></div>
 
-    <button class="start-btn" onclick="enterMachine()">
+    <button
+        class="enter-button"
+        onclick="enterMachine()">
+
         ENTER
+
     </button>
 
-</section>
+</div>
 
 
-<!-- =========================
+<!-- =========================================
      TIME MACHINE
-========================= -->
+========================================= -->
 
-<section id="machine">
+<div id="machine">
 
-    <div class="machine-content">
+    <div class="machine-inner">
 
         <div class="machine-label">
             SELECT DESTINATION
         </div>
 
-        <div class="machine-year" id="machineYear">
+        <div
+            class="machine-year"
+            id="machineYear">
+
             1998
+
         </div>
 
-        <div class="dial-area">
 
-            <div class="dial" id="dial">
+        <div class="dial-wrapper">
 
-                <div class="dial-ring"></div>
+            <div
+                class="dial"
+                id="dial">
 
-                <div class="dial-years">
-                    <span class="dial-year">1998</span>
-                    <span class="dial-year">2008</span>
-                    <span class="dial-year">2018</span>
-                    <span class="dial-year">2026</span>
+                <div class="dial-inner"></div>
+
+                <div class="dial-year year-top">
+                    1998
+                </div>
+
+                <div class="dial-year year-right">
+                    2008
+                </div>
+
+                <div class="dial-year year-bottom">
+                    2018
+                </div>
+
+                <div class="dial-year year-left">
+                    2026
                 </div>
 
                 <div class="dial-center"></div>
@@ -833,36 +1170,41 @@ body{
 
         </div>
 
-        <div class="machine-sub">
+
+        <div class="machine-instruction">
             DRAG THE DIAL · RELEASE TO TRAVEL
         </div>
 
     </div>
 
-</section>
+</div>
 
 
-<!-- =========================
-     ERA
-========================= -->
+<!-- =========================================
+     ERA WORLD
+========================================= -->
 
-<section id="era">
+<div id="era">
 
     <div class="era-background"></div>
 
     <div class="room">
 
         <div class="floor"></div>
+
         <div class="wall-light"></div>
 
 
         <!-- TV -->
 
-        <div class="object obj-tv"
-             onclick="showObject('tv')">
+        <div
+            class="object tv-object"
+            onclick="showObject('tv')">
 
             <div class="tv-screen">
-                <span id="tvText">NO SIGNAL</span>
+                <span id="tvText">
+                    NO SIGNAL
+                </span>
             </div>
 
             <div class="object-name">
@@ -874,11 +1216,16 @@ body{
 
         <!-- PHONE -->
 
-        <div class="object obj-phone"
-             onclick="showObject('phone')">
+        <div
+            class="object phone-object"
+            onclick="showObject('phone')">
 
-            <div class="phone-body" id="phoneVisual">
-                PHONE
+            <div
+                class="phone-body"
+                id="phoneVisual">
+
+                ☎
+
             </div>
 
             <div class="object-name">
@@ -890,11 +1237,14 @@ body{
 
         <!-- CAMERA -->
 
-        <div class="object obj-camera"
-             onclick="showObject('camera')">
+        <div
+            class="object camera-object"
+            onclick="showObject('camera')">
 
             <div class="camera-body">
+
                 <div class="camera-lens"></div>
+
             </div>
 
             <div class="object-name">
@@ -906,11 +1256,16 @@ body{
 
         <!-- FASHION -->
 
-        <div class="object obj-fashion"
-             onclick="showObject('fashion')">
+        <div
+            class="object fashion-object"
+            onclick="showObject('fashion')">
 
-            <div class="clothing" id="clothingVisual">
+            <div
+                class="fashion-icon"
+                id="fashionVisual">
+
                 👕
+
             </div>
 
             <div class="object-name">
@@ -920,12 +1275,13 @@ body{
         </div>
 
 
-        <!-- DESK -->
+        <!-- WORK -->
 
-        <div class="object obj-desk"
-             onclick="showObject('work')">
+        <div
+            class="object work-object"
+            onclick="showObject('work')">
 
-            <div class="object-icon">
+            <div class="work-icon">
                 💼
             </div>
 
@@ -938,10 +1294,11 @@ body{
 
         <!-- MUSIC -->
 
-        <div class="object obj-music"
-             onclick="showObject('music')">
+        <div
+            class="object music-object"
+            onclick="showObject('music')">
 
-            <div class="object-icon">
+            <div class="music-icon">
                 💿
             </div>
 
@@ -952,10 +1309,12 @@ body{
         </div>
 
 
-        <!-- AI -->
+        <!-- FUTURE -->
 
-        <div class="object obj-ai"
-             onclick="showObject('future')">
+        <div
+            class="object future-object"
+            id="futureObject"
+            onclick="showObject('future')">
 
             <div class="ai-core">
                 AI
@@ -967,7 +1326,6 @@ body{
 
         </div>
 
-
     </div>
 
 
@@ -976,19 +1334,32 @@ body{
     <div class="top-ui">
 
         <div class="logo">
-            T.M. / <span id="eraTop">1998</span>
+
+            T.M. /
+            <span id="eraYear">
+                1998
+            </span>
+
         </div>
+
 
         <div class="controls">
 
-            <button class="ui-btn"
-                    onclick="returnToMachine()">
+            <button
+                class="ui-button"
+                onclick="returnToMachine()">
+
                 ← TIME MACHINE
+
             </button>
 
-            <button class="ui-btn"
-                    onclick="toggleLanguage()">
+
+            <button
+                class="ui-button"
+                onclick="toggleLanguage()">
+
                 EN / HY
+
             </button>
 
         </div>
@@ -998,26 +1369,38 @@ body{
 
     <!-- YEAR NAV -->
 
-    <div class="era-nav">
+    <div class="year-navigation">
 
-        <button class="era-dot active"
-                onclick="travelTo(1998)">
+        <button
+            class="year-button active"
+            onclick="travelTo(1998)">
+
             98
+
         </button>
 
-        <button class="era-dot"
-                onclick="travelTo(2008)">
+        <button
+            class="year-button"
+            onclick="travelTo(2008)">
+
             08
+
         </button>
 
-        <button class="era-dot"
-                onclick="travelTo(2018)">
+        <button
+            class="year-button"
+            onclick="travelTo(2018)">
+
             18
+
         </button>
 
-        <button class="era-dot"
-                onclick="travelTo(2026)">
+        <button
+            class="year-button"
+            onclick="travelTo(2026)">
+
             26
+
         </button>
 
     </div>
@@ -1027,808 +1410,1167 @@ body{
 
     <div class="music-player">
 
-        <button class="ui-btn"
-                onclick="toggleMusic()">
+        <button
+            class="ui-button"
+            onclick="toggleMusic()">
+
             PLAY / PAUSE
+
         </button>
 
-        <div class="music-disc"
-             id="musicDisc">
+        <div
+            class="music-disc"
+            id="musicDisc">
+
             ♪
+
         </div>
 
-        <div class="music-name"
-             id="musicName">
+        <div
+            class="music-title"
+            id="musicTitle">
+
             Cher — Believe
+
         </div>
 
     </div>
 
 
-    <!-- BOTTOM INFO -->
+    <!-- WORLD INFO -->
 
-    <div class="info">
+    <div class="world-info">
 
-        <div class="info-title"
-             id="eraTitle">
+        <div
+            class="world-title"
+            id="worldTitle">
+
             THE WORLD OF 1998
+
         </div>
 
-        <div class="info-text"
-             id="eraDescription">
-            Click objects around you to discover the era.
+        <div
+            class="world-description"
+            id="worldDescription">
+
+            A world of CDs, film cameras, CRT televisions and landline phones.
+
         </div>
 
     </div>
 
-</section>
+</div>
 
 
-<!-- =========================
+<!-- =========================================
      DETAIL
-========================= -->
+========================================= -->
 
-<section id="detail">
+<div id="detail">
 
-    <button class="close-detail"
-            onclick="closeDetail()">
+    <button
+        class="close-detail"
+        onclick="closeDetail()">
+
         ×
+
     </button>
 
-    <div class="detail-content">
 
-        <div class="detail-kicker"
-             id="detailKicker">
-            OBJECT
-        </div>
+    <div class="detail-kicker"
+         id="detailKicker">
 
-        <div class="detail-title"
-             id="detailTitle">
-            Television
-        </div>
-
-        <div class="detail-text"
-             id="detailText">
-        </div>
-
-        <div class="detail-extra"
-             id="detailExtra">
-        </div>
+        1998 / EXPERIENCE
 
     </div>
 
-</section>
+
+    <div class="detail-title"
+         id="detailTitle">
+
+        Television
+
+    </div>
 
 
-<div class="glitch" id="glitch"></div>
+    <div class="detail-text"
+         id="detailText">
 
-<audio id="audioPlayer"></audio>
+    </div>
+
+
+    <div class="detail-extra"
+         id="detailExtra">
+
+    </div>
+
+</div>
+
+
+<!-- GLITCH -->
+
+<div id="glitch"></div>
+
+
+<!-- AUDIO -->
+
+<audio
+    id="audioPlayer"
+    preload="auto">
+
+</audio>
 
 
 <script>
 
-/* =========================================================
+/* =========================================
    LANGUAGE
-========================================================= */
+========================================= */
 
 let language = "en";
 
 
-/* =========================================================
+/* =========================================
    ERA DATA
-========================================================= */
+========================================= */
 
 const eras = {
 
-1998:{
+    1998: {
 
-    track:"Cher — Believe",
+        track: "Cher — Believe",
 
-    audio:"music/Cher - Believe (Lyrics) - Audioandlyrics.m4a",
+        audio:
+            "music/Cher - Believe (Lyrics) - Audioandlyrics.m4a",
 
-    title:{
-        en:"THE WORLD OF 1998",
-        hy:"1998-Ի ԱՇԽԱՐՀԸ"
+        title: {
+            en: "THE WORLD OF 1998",
+            hy: "1998-Ի ԱՇԽԱՐՀԸ"
+        },
+
+        description: {
+            en:
+                "A world of CDs, film cameras, CRT televisions and landline phones.",
+            hy:
+                "CD-ների, ժապավենային տեսախցիկների, CRT հեռուստացույցների և ֆիքսված հեռախոսների աշխարհ։"
+        },
+
+        objects: {
+
+            tv: {
+                title: {
+                    en: "CRT TELEVISION",
+                    hy: "CRT ՀԵՌՈՒՍՏԱՑՈՒՅՑ"
+                },
+
+                text: {
+                    en:
+                        "Large CRT televisions dominated living rooms. People watched scheduled programs instead of choosing instantly from streaming libraries.",
+                    hy:
+                        "Մեծ CRT հեռուստացույցները տարածված էին տներում։ Մարդիկ դիտում էին նախապես նախատեսված հաղորդումներ, ոչ թե streaming գրադարաններ։"
+                },
+
+                extra: {
+                    en:
+                        "Technology · Analog TV · VHS · Cable",
+                    hy:
+                        "Տեխնոլոգիա · Անալոգային TV · VHS · Կաբելային TV"
+                }
+            },
+
+
+            phone: {
+                title: {
+                    en: "LANDLINE PHONE",
+                    hy: "ՖԻՔՍՎԱԾ ՀԵՌԱԽՈՍ"
+                },
+
+                text: {
+                    en:
+                        "Calling someone meant using a physical telephone. Mobile phones existed, but they were nowhere near today's pocket computers.",
+                    hy:
+                        "Մեկին զանգահարելը նշանակում էր օգտագործել ֆիզիկական հեռախոս։ Բջջայինները կային, բայց դեռ չէին դարձել այսօրվա գրպանի համակարգիչները։"
+                },
+
+                extra: {
+                    en:
+                        "No social feeds · No instant messaging",
+                    hy:
+                        "Չկային social feeds · Չկային instant messaging հավելվածներ"
+                }
+            },
+
+
+            camera: {
+                title: {
+                    en: "FILM CAMERA",
+                    hy: "ԺԱՊԱՎԵՆԱՅԻՆ ՏԵՍԱԽՑԻԿ"
+                },
+
+                text: {
+                    en:
+                        "You could not instantly see the photograph you had taken. The film had to be developed before you could discover the result.",
+                    hy:
+                        "Լուսանկարելուց հետո արդյունքը անմիջապես չէիր տեսնում։ Ժապավենը պետք էր մշակել, որպեսզի տեսնեիր լուսանկարը։"
+                },
+
+                extra: {
+                    en:
+                        "Take → Wait → Develop → Discover",
+                    hy:
+                        "Լուսանկարել → Սպասել → Մշակել → Բացահայտել"
+                }
+            },
+
+
+            fashion: {
+                title: {
+                    en: "1998 FASHION",
+                    hy: "1998-Ի ՆՈՐԱՁԵՎՈՒԹՅՈՒՆ"
+                },
+
+                text: {
+                    en:
+                        "Denim, crop tops, slip dresses, sporty looks and minimalist late-90s silhouettes shaped the era.",
+                    hy:
+                        "Դենիմը, crop top-երը, slip զգեստները, սպորտային ոճը և 90-ականների մինիմալիստական ուրվագծերը բնորոշ էին ժամանակաշրջանին։"
+                },
+
+                extra: {
+                    en:
+                        "DENIM · MINIMALISM · SPORTY",
+                    hy:
+                        "ԴԵՆԻՄ · ՄԻՆԻՄԱԼԻԶՄ · ՍՊՈՐՏԱՅԻՆ"
+                }
+            },
+
+
+            work: {
+                title: {
+                    en: "WORK & MONEY",
+                    hy: "ԱՇԽԱՏԱՆՔ ԵՎ ԳՈՒՄԱՐ"
+                },
+
+                text: {
+                    en:
+                        "Offices relied on desktop computers, paper documents, fax machines and face-to-face communication.",
+                    hy:
+                        "Գրասենյակները օգտագործում էին desktop համակարգիչներ, թղթային փաստաթղթեր, ֆաքս և անմիջական հաղորդակցություն։"
+                },
+
+                extra: {
+                    en:
+                        "PAPER · FAX · DESKTOP COMPUTER",
+                    hy:
+                        "ԹՈՒՂԹ · ՖԱՔՍ · DESKTOP ՀԱՄԱԿԱՐԳԻՉ"
+                }
+            },
+
+
+            music: {
+                title: {
+                    en: "MUSIC",
+                    hy: "ԵՐԱԺՇՏՈՒԹՅՈՒՆ"
+                },
+
+                text: {
+                    en:
+                        "Music lived on CDs, cassette tapes and radio. Cher's Believe became one of the defining pop songs of the era.",
+                    hy:
+                        "Երաժշտությունը տարածվում էր CD-ներով, ձայներիզներով և ռադիոյով։ Cher-ի Believe-ը դարձավ ժամանակաշրջանի հայտնի փոփ երգերից մեկը։"
+                },
+
+                extra: {
+                    en:
+                        "NOW PLAYING · CHER — BELIEVE",
+                    hy:
+                        "ՀԻՄԱ ՀՆՉՈՒՄ Է · CHER — BELIEVE"
+                }
+            },
+
+
+            future: {
+                title: {
+                    en: "A GLIMPSE AHEAD",
+                    hy: "ՀԱՅԱՑՔ ԴԵՊԻ ԱՊԱԳԱ"
+                },
+
+                text: {
+                    en:
+                        "Imagine telling someone in 1998 that one day their phone would replace their camera, music player, map, wallet and computer.",
+                    hy:
+                        "Պատկերացրեք՝ 1998-ին ինչ-որ մեկին ասում եք, որ ապագայում հեռախոսը կփոխարինի տեսախցիկին, երաժշտական սարքին, քարտեզին, դրամապանակին և համակարգչին։"
+                },
+
+                extra: {
+                    en:
+                        "THE FUTURE SOUNDED IMPOSSIBLE",
+                    hy:
+                        "ԱՊԱԳԱՆ ԱՆՀՆԱՐԻՆ ԷՐ ԹՎՈՒՄ"
+                }
+            }
+
+        }
+
     },
 
-    description:{
-        en:"A world of CDs, film cameras, CRT televisions and landline phones.",
-        hy:"CD-ների, ժապավենային տեսախցիկների, CRT հեռուստացույցների և ֆիքսված հեռախոսների աշխարհ։"
+
+    2008: {
+
+        track: "Alicia Keys — No One",
+
+        audio:
+            "music/Alicia Keys - No One.mp3",
+
+        title: {
+            en: "THE WORLD OF 2008",
+            hy: "2008-Ի ԱՇԽԱՐՀԸ"
+        },
+
+        description: {
+            en:
+                "The internet is becoming social. Digital cameras, laptops and MP3 players are everywhere.",
+            hy:
+                "Ինտերնետը դառնում է սոցիալական։ Թվային տեսախցիկները, laptop-ները և MP3 նվագարկիչները տարածված են։"
+        },
+
+        objects: {
+
+            tv: {
+                title: {
+                    en: "FLAT SCREEN ERA",
+                    hy: "ՀԱՐԹ ԷԿՐԱՆՆԵՐԻ ԺԱՄԱՆԱԿԱՇՐՋԱՆ"
+                },
+
+                text: {
+                    en:
+                        "Flat-screen televisions were becoming increasingly common and were replacing bulky CRT televisions.",
+                    hy:
+                        "Հարթ էկրանով հեռուստացույցները ավելի տարածված էին դառնում և փոխարինում էին մեծ CRT հեռուստացույցներին։"
+                },
+
+                extra: {
+                    en:
+                        "LCD · DVD · DIGITAL TV",
+                    hy:
+                        "LCD · DVD · ԹՎԱՅԻՆ TV"
+                }
+            },
+
+
+            phone: {
+                title: {
+                    en: "EARLY SMARTPHONE",
+                    hy: "ՎԱՂ SMARTPHONE"
+                },
+
+                text: {
+                    en:
+                        "BlackBerry and early touchscreen phones were changing mobile communication and introducing a more connected lifestyle.",
+                    hy:
+                        "BlackBerry-ն և առաջին touchscreen հեռախոսները փոխում էին բջջային հաղորդակցությունը և ստեղծում ավելի connected lifestyle։"
+                },
+
+                extra: {
+                    en:
+                        "THE SMARTPHONE REVOLUTION BEGINS",
+                    hy:
+                        "SMARTPHONE-Ի ՀԵՂԱՓՈԽՈՒԹՅՈՒՆԸ ՍԿՍՎՈՒՄ Է"
+                }
+            },
+
+
+            camera: {
+                title: {
+                    en: "DIGITAL CAMERA",
+                    hy: "ԹՎԱՅԻՆ ՏԵՍԱԽՑԻԿ"
+                },
+
+                text: {
+                    en:
+                        "Digital cameras removed the wait for film development. Photos could be viewed immediately.",
+                    hy:
+                        "Թվային տեսախցիկները վերացրեցին ժապավենի մշակման սպասումը։ Լուսանկարները կարելի էր անմիջապես տեսնել։"
+                },
+
+                extra: {
+                    en:
+                        "PHOTOGRAPHY BECOMES INSTANT",
+                    hy:
+                        "ԼՈՒՍԱՆԿԱՐՉՈՒԹՅՈՒՆԸ ԴԱՌՆՈՒՄ Է ԱԿՆԹԱՐԹԱՅԻՆ"
+                }
+            },
+
+
+            fashion: {
+                title: {
+                    en: "2008 FASHION",
+                    hy: "2008-Ի ՆՈՐԱՁԵՎՈՒԹՅՈՒՆ"
+                },
+
+                text: {
+                    en:
+                        "Skinny jeans, graphic tees, leggings, oversized sunglasses and layered outfits defined the late 2000s.",
+                    hy:
+                        "Skinny jeans-ը, graphic շապիկները, leggings-ը, մեծ արևային ակնոցները և layered outfit-ները բնորոշ էին 2000-ականների վերջին։"
+                },
+
+                extra: {
+                    en:
+                        "SKINNY JEANS · GRAPHIC TEES · ACCESSORIES",
+                    hy:
+                        "SKINNY JEANS · GRAPHIC ՇԱՊԻԿՆԵՐ · ԱՔՍԵՍՈՒԱՐՆԵՐ"
+                }
+            },
+
+
+            work: {
+                title: {
+                    en: "WORK & MONEY",
+                    hy: "ԱՇԽԱՏԱՆՔ ԵՎ ԳՈՒՄԱՐ"
+                },
+
+                text: {
+                    en:
+                        "Email, office software and the web were becoming essential workplace tools. Online shopping and banking were growing.",
+                    hy:
+                        "Email-ը, office ծրագրերը և web-ը դառնում էին աշխատանքի հիմնական գործիքներ։ Online shopping-ը և banking-ը զարգանում էին։"
+                },
+
+                extra: {
+                    en:
+                        "THE DIGITAL WORKPLACE",
+                    hy:
+                        "ԹՎԱՅԻՆ ԱՇԽԱՏԱՎԱՅՐ"
+                }
+            },
+
+
+            music: {
+                title: {
+                    en: "MUSIC",
+                    hy: "ԵՐԱԺՇՏՈՒԹՅՈՒՆ"
+                },
+
+                text: {
+                    en:
+                        "Digital music and MP3 players changed how people carried their music. Alicia Keys' No One was one of the era's major songs.",
+                    hy:
+                        "Թվային երաժշտությունը և MP3 նվագարկիչները փոխեցին երաժշտություն պահելու ձևը։ Alicia Keys-ի No One-ը ժամանակաշրջանի հայտնի երգերից էր։"
+                },
+
+                extra: {
+                    en:
+                        "NOW PLAYING · ALICIA KEYS — NO ONE",
+                    hy:
+                        "ՀԻՄԱ ՀՆՉՈՒՄ Է · ALICIA KEYS — NO ONE"
+                }
+            },
+
+
+            future: {
+                title: {
+                    en: "THE SOCIAL INTERNET",
+                    hy: "ՍՈՑԻԱԼԱԿԱՆ ԻՆՏԵՐՆԵՏ"
+                },
+
+                text: {
+                    en:
+                        "Social networks are changing how people communicate, share photographs and present themselves online.",
+                    hy:
+                        "Սոցիալական ցանցերը փոխում են մարդկանց հաղորդակցվելու, լուսանկարներ տարածելու և իրենց online ներկայացնելու ձևը։"
+                },
+
+                extra: {
+                    en:
+                        "THE SOCIAL WEB IS TAKING SHAPE",
+                    hy:
+                        "ՍՈՑԻԱԼԱԿԱՆ WEB-Ը ՁԵՎԱՎՈՐՎՈՒՄ Է"
+                }
+            }
+
+        }
+
     },
 
-    objects:{
 
-        tv:{
-            title:{
-                en:"CRT TELEVISION",
-                hy:"CRT ՀԵՌՈՒՍՏԱՑՈՒՅՑ"
-            },
-            text:{
-                en:"Televisions were still dominated by large CRT screens. Families commonly gathered around the TV for scheduled programs rather than streaming whatever they wanted instantly.",
-                hy:"Հեռուստացույցները հիմնականում մեծ CRT էկրաններ ունեին։ Ընտանիքները հաճախ հավաքվում էին հեռուստացույցի շուրջ՝ նախապես սահմանված հաղորդումներ դիտելու համար։"
-            },
-            extra:{
-                en:"Technology: analog television · VHS · cable TV",
-                hy:"Տեխնոլոգիա՝ անալոգային TV · VHS · կաբելային TV"
-            }
+    2018: {
+
+        track: "Drake — God's Plan",
+
+        audio:
+            "music/Drake - God's Plan (Lyrics).mp3",
+
+        title: {
+            en: "THE WORLD OF 2018",
+            hy: "2018-Ի ԱՇԽԱՐՀԸ"
         },
 
-        phone:{
-            title:{
-                en:"LANDLINE PHONE",
-                hy:"ՖԻՔՍՎԱԾ ՀԵՌԱԽՈՍ"
-            },
-            text:{
-                en:"Communication meant calling a physical telephone. Mobile phones existed, but they were far from being the universal pocket computers they would become.",
-                hy:"Հաղորդակցությունը հիմնականում նշանակում էր զանգահարել ֆիքսված հեռախոսով։ Բջջայինները կային, բայց դեռ չէին դարձել այն բազմաֆունկցիոնալ սարքերը, որոնք հետագայում դարձան։"
-            },
-            extra:{
-                en:"No instant messaging. No social media feeds.",
-                hy:"Չկային ակնթարթային մեսենջերներ և սոցիալական մեդիայի հոսքեր։"
-            }
+        description: {
+            en:
+                "Smartphones, streaming, social media and online shopping dominate everyday life.",
+            hy:
+                "Smartphone-ները, streaming-ը, սոցիալական մեդիան և online shopping-ը գերիշխում են առօրյայում։"
         },
 
-        camera:{
-            title:{
-                en:"FILM CAMERA",
-                hy:"ԺԱՊԱՎԵՆԱՅԻՆ ՏԵՍԱԽՑԻԿ"
+        objects: {
+
+            tv: {
+                title: {
+                    en: "STREAMING SCREEN",
+                    hy: "STREAMING ԷԿՐԱՆ"
+                },
+
+                text: {
+                    en:
+                        "Television is no longer only about scheduled broadcasts. Streaming lets viewers choose what to watch and when.",
+                    hy:
+                        "Հեռուստացույցը այլևս միայն նախապես որոշված հաղորդումների մասին չէ։ Streaming-ը թույլ է տալիս ընտրել՝ ինչ և երբ դիտել։"
+                },
+
+                extra: {
+                    en:
+                        "ON DEMAND",
+                    hy:
+                        "ON DEMAND"
+                }
             },
-            text:{
-                en:"Photography meant film. You couldn't instantly check your photograph. You took the roll to a laboratory and waited for it to be developed.",
-                hy:"Լուսանկարելը նշանակում էր ժապավեն օգտագործել։ Լուսանկարը անմիջապես չէիր տեսնում․ ժապավենը տանում էին լաբորատորիա և սպասում մշակմանը։"
+
+
+            phone: {
+                title: {
+                    en: "SMARTPHONE",
+                    hy: "SMARTPHONE"
+                },
+
+                text: {
+                    en:
+                        "The smartphone has become a camera, map, wallet, social network, music player and communication device.",
+                    hy:
+                        "Smartphone-ը դարձել է տեսախցիկ, քարտեզ, դրամապանակ, սոցիալական ցանց, երաժշտական և հաղորդակցության սարք։"
+                },
+
+                extra: {
+                    en:
+                        "ONE DEVICE · MANY FUNCTIONS",
+                    hy:
+                        "ՄԵԿ ՍԱՐՔ · ԲԱԶՄԱԹԻՎ ԳՈՐԾԱՌՈՒՅԹՆԵՐ"
+                }
             },
-            extra:{
-                en:"Take the photo → wait → develop → discover.",
-                hy:"Լուսանկարել → սպասել → մշակել → տեսնել արդյունքը։"
+
+
+            camera: {
+                title: {
+                    en: "PHONE CAMERA",
+                    hy: "ՀԵՌԱԽՈՍԻ ՏԵՍԱԽՑԻԿ"
+                },
+
+                text: {
+                    en:
+                        "Photography has moved into everyone's pocket. Photos can be taken, edited and shared almost instantly.",
+                    hy:
+                        "Լուսանկարչությունը տեղափոխվել է բոլորի գրպանը։ Լուսանկարները կարելի է նկարել, խմբագրել և տարածել գրեթե ակնթարթորեն։"
+                },
+
+                extra: {
+                    en:
+                        "TAKE → EDIT → POST",
+                    hy:
+                        "ՆԿԱՐԵԼ → ԽՄԲԱԳՐԵԼ → ՀՐԱՊԱՐԱԿԵԼ"
+                }
+            },
+
+
+            fashion: {
+                title: {
+                    en: "2018 FASHION",
+                    hy: "2018-Ի ՆՈՐԱՁԵՎՈՒԹՅՈՒՆ"
+                },
+
+                text: {
+                    en:
+                        "Streetwear, sneakers, oversized silhouettes and athleisure shaped the visual culture of the era.",
+                    hy:
+                        "Streetwear-ը, sneakers-ը, oversized ձևվածքները և athleisure-ը ձևավորում էին ժամանակաշրջանի նորաձևությունը։"
+                },
+
+                extra: {
+                    en:
+                        "STREETWEAR · SNEAKERS · ATHLEISURE",
+                    hy:
+                        "STREETWEAR · SNEAKERS · ATHLEISURE"
+                }
+            },
+
+
+            work: {
+                title: {
+                    en: "WORK & MONEY",
+                    hy: "ԱՇԽԱՏԱՆՔ ԵՎ ԳՈՒՄԱՐ"
+                },
+
+                text: {
+                    en:
+                        "Freelancing, online businesses, remote work and the creator economy were becoming increasingly visible.",
+                    hy:
+                        "Freelancing-ը, online բիզնեսները, remote աշխատանքը և creator economy-ն ավելի տարածված էին դառնում։"
+                },
+
+                extra: {
+                    en:
+                        "WORK MOVES ONLINE",
+                    hy:
+                        "ԱՇԽԱՏԱՆՔԸ ՏԵՂԱՓՈԽՎՈՒՄ Է ONLINE"
+                }
+            },
+
+
+            music: {
+                title: {
+                    en: "MUSIC",
+                    hy: "ԵՐԱԺՇՏՈՒԹՅՈՒՆ"
+                },
+
+                text: {
+                    en:
+                        "Streaming transformed how people discovered music. Drake's God's Plan became one of the defining hits of the era.",
+                    hy:
+                        "Streaming-ը փոխեց երաժշտություն բացահայտելու ձևը։ Drake-ի God's Plan-ը դարձավ ժամանակաշրջանի հայտնի հիթերից մեկը։"
+                },
+
+                extra: {
+                    en:
+                        "NOW PLAYING · DRAKE — GOD'S PLAN",
+                    hy:
+                        "ՀԻՄԱ ՀՆՉՈՒՄ Է · DRAKE — GOD'S PLAN"
+                }
+            },
+
+
+            future: {
+                title: {
+                    en: "THE CONNECTED LIFE",
+                    hy: "ԿԱՊՎԱԾ ԿՅԱՆՔ"
+                },
+
+                text: {
+                    en:
+                        "Shopping, entertainment, work, communication and identity are increasingly connected to digital technology.",
+                    hy:
+                        "Գնումները, ժամանցը, աշխատանքը, հաղորդակցությունը և ինքնարտահայտումը ավելի ու ավելի են կապված թվային տեխնոլոգիաների հետ։"
+                },
+
+                extra: {
+                    en:
+                        "PHYSICAL + DIGITAL",
+                    hy:
+                        "ՖԻԶԻԿԱԿԱՆ + ԹՎԱՅԻՆ"
+                }
             }
+
+        }
+
+    },
+
+
+    2026: {
+
+        track: "Taylor Swift — The Fate of Ophelia",
+
+        audio:
+            "music/Taylor Swift - The Fate of Ophelia.mp3",
+
+        title: {
+            en: "THE WORLD OF 2026",
+            hy: "2026-Ի ԱՇԽԱՐՀԸ"
         },
 
-        fashion:{
-            title:{
-                en:"1998 FASHION",
-                hy:"1998-Ի ՆՈՐԱՁԵՎՈՒԹՅՈՒՆ"
-            },
-            text:{
-                en:"Denim, crop tops, slip dresses, sporty looks and strong late-90s silhouettes defined the visual language of the era.",
-                hy:"Դենիմը, կարճ վերնաշապիկները, slip զգեստները, սպորտային ոճը և 90-ականների ընդգծված ուրվագծերը բնորոշ էին այս ժամանակաշրջանին։"
-            },
-            extra:{
-                en:"Style: denim · minimalism · sporty silhouettes",
-                hy:"Ոճ՝ դենիմ · մինիմալիզմ · սպորտային ուրվագծեր"
-            }
+        description: {
+            en:
+                "AI, connected devices, digital payments and intelligent software shape everyday life.",
+            hy:
+                "AI-ն, connected սարքերը, թվային վճարումները և խելացի software-ը ձևավորում են առօրյան։"
         },
 
-        work:{
-            title:{
-                en:"WORK & MONEY",
-                hy:"ԱՇԽԱՏԱՆՔ ԵՎ ԳՈՒՄԱՐ"
-            },
-            text:{
-                en:"Many jobs were performed almost entirely offline. Offices relied on desktop computers, paper documents, fax machines and face-to-face communication.",
-                hy:"Շատ աշխատանքներ գրեթե ամբողջությամբ կատարվում էին offline։ Գրասենյակները օգտագործում էին համակարգիչներ, թղթային փաստաթղթեր, ֆաքս և անմիջական հաղորդակցություն։"
-            },
-            extra:{
-                en:"Common tools: paper files · fax · desktop computer",
-                hy:"Տարածված գործիքներ՝ թղթային ֆայլեր · ֆաքս · desktop համակարգիչ"
-            }
-        },
+        objects: {
 
-        music:{
-            title:{
-                en:"MUSIC",
-                hy:"ԵՐԱԺՇՏՈՒԹՅՈՒՆ"
-            },
-            text:{
-                en:"Music lived on CDs, cassette tapes and radio. Cher's 'Believe' became one of the defining pop songs of the era.",
-                hy:"Երաժշտությունը տարածվում էր CD-ներով, ձայներիզներով և ռադիոյով։ Cher-ի «Believe»-ը դարձավ այդ ժամանակաշրջանի նշանավոր փոփ երգերից մեկը։"
-            },
-            extra:{
-                en:"Now playing: Cher — Believe",
-                hy:"Հնչում է՝ Cher — Believe"
-            }
-        },
+            tv: {
+                title: {
+                    en: "CONNECTED DISPLAY",
+                    hy: "CONNECTED ԷԿՐԱՆ"
+                },
 
-        future:{
-            title:{
-                en:"A GLIMPSE AHEAD",
-                hy:"ԱՊԱԳԱՅԻ ՀԱՅԱՑՔ"
+                text: {
+                    en:
+                        "Screens connect to phones, computers, cloud services, entertainment systems and AI-powered software.",
+                    hy:
+                        "Էկրանները միանում են հեռախոսներին, համակարգիչներին, cloud ծառայություններին, entertainment համակարգերին և AI software-ին։"
+                },
+
+                extra: {
+                    en:
+                        "EVERYTHING IS CONNECTED",
+                    hy:
+                        "ԱՄԵՆ ԻՆՉ ԿԱՊՎԱԾ Է"
+                }
             },
-            text:{
-                en:"Imagine telling someone in 1998 that one day a phone would replace the camera, music player, map, television, wallet and computer.",
-                hy:"Պատկերացրեք՝ 1998-ին ինչ-որ մեկին ասում եք, որ ապագայում հեռախոսը կփոխարինի տեսախցիկին, երաժշտական սարքին, քարտեզին, հեռուստացույցին, դրամապանակին և համակարգչին։"
+
+
+            phone: {
+                title: {
+                    en: "AI PHONE",
+                    hy: "AI ՀԵՌԱԽՈՍ"
+                },
+
+                text: {
+                    en:
+                        "The smartphone is becoming an intelligent assistant rather than simply a communication device.",
+                    hy:
+                        "Smartphone-ը դառնում է խելացի օգնական և ոչ միայն հաղորդակցության սարք։"
+                },
+
+                extra: {
+                    en:
+                        "ASSISTANT · CAMERA · WALLET · COMPUTER",
+                    hy:
+                        "ՕԳՆԱԿԱՆ · ՏԵՍԱԽՑԻԿ · ԴՐԱՄԱՊԱՆԱԿ · ՀԱՄԱԿԱՐԳԻՉ"
+                }
             },
-            extra:{
-                en:"They probably wouldn't believe you.",
-                hy:"Հավանաբար նրանք չէին հավատա։"
+
+
+            camera: {
+                title: {
+                    en: "COMPUTATIONAL CAMERA",
+                    hy: "ՀԱՇՎԱՐԿԱՅԻՆ ՏԵՍԱԽՑԻԿ"
+                },
+
+                text: {
+                    en:
+                        "Modern cameras combine sensors, powerful processors, computational photography and machine learning.",
+                    hy:
+                        "Ժամանակակից տեսախցիկները համատեղում են սենսորները, հզոր պրոցեսորները, computational photography-ն և machine learning-ը։"
+                },
+
+                extra: {
+                    en:
+                        "THE CAMERA DOES MORE THAN CAPTURE",
+                    hy:
+                        "ՏԵՍԱԽՑԻԿԸ ԱՎԵԼԻՆ Է, ՔԱՆ ՆԿԱՐՈՒՄ"
+                }
+            },
+
+
+            fashion: {
+                title: {
+                    en: "2026 FASHION",
+                    hy: "2026-Ի ՆՈՐԱՁԵՎՈՒԹՅՈՒՆ"
+                },
+
+                text: {
+                    en:
+                        "Fashion is influenced by social media, nostalgia, AI-generated imagery and rapidly changing micro-trends.",
+                    hy:
+                        "Նորաձևության վրա ազդում են social media-ն, nostalgia-ն, AI-generated պատկերները և արագ փոփոխվող micro-trends-ը։"
+                },
+
+                extra: {
+                    en:
+                        "THE PAST RETURNS AT DIGITAL SPEED",
+                    hy:
+                        "ԱՆՑՅԱԼԸ ՎԵՐԱԴԱՌՆՈՒՄ Է ԹՎԱՅԻՆ ԱՐԱԳՈՒԹՅԱՄԲ"
+                }
+            },
+
+
+            work: {
+                title: {
+                    en: "WORK & MONEY",
+                    hy: "ԱՇԽԱՏԱՆՔ ԵՎ ԳՈՒՄԱՐ"
+                },
+
+                text: {
+                    en:
+                        "AI tools can assist with writing, coding, design, research, communication and many other tasks.",
+                    hy:
+                        "AI գործիքները կարող են օգնել writing-ի, coding-ի, design-ի, research-ի, communication-ի և բազմաթիվ այլ աշխատանքների ժամանակ։"
+                },
+
+                extra: {
+                    en:
+                        "HUMAN + MACHINE",
+                    hy:
+                        "ՄԱՐԴ + ՄԵՔԵՆԱ"
+                }
+            },
+
+
+            music: {
+                title: {
+                    en: "MUSIC",
+                    hy: "ԵՐԱԺՇՏՈՒԹՅՈՒՆ"
+                },
+
+                text: {
+                    en:
+                        "Music is streamed instantly, discovered through algorithms and increasingly shaped by digital creation tools.",
+                    hy:
+                        "Երաժշտությունը հասանելի է ակնթարթորեն, հայտնաբերվում է algorithms-ի միջոցով և ավելի շատ է կապված թվային ստեղծման գործիքների հետ։"
+                },
+
+                extra: {
+                    en:
+                        "NOW PLAYING · TAYLOR SWIFT — THE FATE OF OPHELIA",
+                    hy:
+                        "ՀԻՄԱ ՀՆՉՈՒՄ Է · TAYLOR SWIFT — THE FATE OF OPHELIA"
+                }
+            },
+
+
+            future: {
+                title: {
+                    en: "YOU ARE ALREADY HERE",
+                    hy: "ԴՈՒ ԱՐԴԵՆ ԱՅՍՏԵՂ ԵՍ"
+                },
+
+                text: {
+                    en:
+                        "The future imagined by people in 1998 is now ordinary life. What will the next destination look like?",
+                    hy:
+                        "Այն ապագան, որը մարդիկ պատկերացնում էին 1998-ին, այսօր սովորական կյանք է։ Իսկ ինչպիսի՞ն կլինի հաջորդ ուղղությունը։"
+                },
+
+                extra: {
+                    en:
+                        "TIME KEEPS MOVING",
+                    hy:
+                        "ԺԱՄԱՆԱԿԸ ՇԱՐՈՒՆԱԿՈՒՄ Է ՇԱՐԺՎԵԼ"
+                }
             }
+
         }
 
     }
-
-},
-
-
-2008:{
-
-    track:"Alicia Keys — No One",
-
-    audio:"music/Alicia Keys - No One.mp3",
-
-    title:{
-        en:"THE WORLD OF 2008",
-        hy:"2008-Ի ԱՇԽԱՐՀԸ"
-    },
-
-    description:{
-        en:"The internet is becoming social. Digital cameras, laptops and MP3 players are everywhere.",
-        hy:"Ինտերնետը դառնում է սոցիալական։ Թվային տեսախցիկները, laptop-ները և MP3 նվագարկիչները տարածված են։"
-    },
-
-    objects:{
-
-        tv:{
-            title:{
-                en:"FLAT SCREEN ERA",
-                hy:"ՀԱՐԹ ԷԿՐԱՆՆԵՐԻ ԺԱՄԱՆԱԿԱՇՐՋԱՆ"
-            },
-            text:{
-                en:"Flat-screen televisions were becoming increasingly common, changing the look of living rooms and replacing the bulky CRT aesthetic.",
-                hy:"Հարթ էկրանով հեռուստացույցները ավելի տարածված էին դառնում և փոխում էին տան ինտերիերի տեսքը։"
-            },
-            extra:{
-                en:"Technology: LCD · DVD · digital television",
-                hy:"Տեխնոլոգիա՝ LCD · DVD · թվային հեռուստատեսություն"
-            }
-        },
-
-        phone:{
-            title:{
-                en:"EARLY SMARTPHONE",
-                hy:"ՎԱՂ SMARTPHONE"
-            },
-            text:{
-                en:"Phones were beginning their transformation into connected devices. BlackBerry and early touchscreen smartphones changed mobile communication.",
-                hy:"Հեռախոսները սկսում էին վերածվել ինտերնետին միացված սարքերի։ BlackBerry-ն և առաջին touchscreen smartphone-ները փոխում էին հաղորդակցությունը։"
-            },
-            extra:{
-                en:"The smartphone revolution is beginning.",
-                hy:"Smartphone-ի հեղափոխությունը սկսվում է։"
-            }
-        },
-
-        camera:{
-            title:{
-                en:"DIGITAL CAMERA",
-                hy:"ԹՎԱՅԻՆ ՏԵՍԱԽՑԻԿ"
-            },
-            text:{
-                en:"Digital cameras removed the wait for film development. Photos could be viewed immediately and transferred to a computer.",
-                hy:"Թվային տեսախցիկները վերացրեցին ժապավենի մշակման սպասումը։ Լուսանկարները կարելի էր անմիջապես դիտել և փոխանցել համակարգչին։"
-            },
-            extra:{
-                en:"Photography becomes instant.",
-                hy:"Լուսանկարչությունը դառնում է ակնթարթային։"
-            }
-        },
-
-        fashion:{
-            title:{
-                en:"2008 FASHION",
-                hy:"2008-Ի ՆՈՐԱՁԵՎՈՒԹՅՈՒՆ"
-            },
-            text:{
-                en:"Skinny jeans, graphic tees, leggings, oversized sunglasses and layered outfits were strongly associated with the late 2000s.",
-                hy:"Skinny ջինսերը, graphic շապիկները, leggings-ները, մեծ արևային ակնոցները և layered outfit-ները բնորոշ էին 2000-ականների վերջին։"
-            },
-            extra:{
-                en:"Style: skinny jeans · graphic tees · statement accessories",
-                hy:"Ոճ՝ skinny jeans · graphic շապիկներ · ընդգծված աքսեսուարներ"
-            }
-        },
-
-        work:{
-            title:{
-                en:"WORK & MONEY",
-                hy:"ԱՇԽԱՏԱՆՔ ԵՎ ԳՈՒՄԱՐ"
-            },
-            text:{
-                en:"Email, office software and the web were becoming essential workplace tools. Online banking and e-commerce were becoming increasingly normal.",
-                hy:"Email-ը, office ծրագրերը և ինտերնետը դառնում էին աշխատանքի հիմնական գործիքներ։ Online banking-ը և e-commerce-ը ավելի սովորական էին դառնում։"
-            },
-            extra:{
-                en:"Digital work is accelerating.",
-                hy:"Թվային աշխատանքը արագ զարգանում է։"
-            }
-        },
-
-        music:{
-            title:{
-                en:"MUSIC",
-                hy:"ԵՐԱԺՇՏՈՒԹՅՈՒՆ"
-            },
-            text:{
-                en:"Digital music and MP3 players transformed how people carried their music. Alicia Keys' 'No One' was one of the major songs of the period.",
-                hy:"Թվային երաժշտությունը և MP3 նվագարկիչները փոխեցին երաժշտություն լսելու ձևը։ Alicia Keys-ի «No One»-ը այդ շրջանի հայտնի երգերից էր։"
-            },
-            extra:{
-                en:"Now playing: Alicia Keys — No One",
-                hy:"Հնչում է՝ Alicia Keys — No One"
-            }
-        },
-
-        future:{
-            title:{
-                en:"THE INTERNET GROWS",
-                hy:"ԻՆՏԵՐՆԵՏԸ ԶԱՐԳԱՆՈՒՄ Է"
-            },
-            text:{
-                en:"Social networks are changing how people communicate, discover music and present themselves online.",
-                hy:"Սոցիալական ցանցերը փոխում են մարդկանց հաղորդակցվելու, երաժշտություն բացահայտելու և իրենց online ներկայացնելու ձևը։"
-            },
-            extra:{
-                en:"The social web is taking shape.",
-                hy:"Սոցիալական web-ը ձևավորվում է։"
-            }
-        }
-
-    }
-
-},
-
-
-2018:{
-
-    track:"Drake — God's Plan",
-
-    audio:"music/Drake - God's Plan (Lyrics).mp3",
-
-    title:{
-        en:"THE WORLD OF 2018",
-        hy:"2018-Ի ԱՇԽԱՐՀԸ"
-    },
-
-    description:{
-        en:"Smartphones are central to everyday life. Streaming, social media and online shopping dominate.",
-        hy:"Smartphone-ները կենտրոնական դեր ունեն առօրյայում։ Streaming-ը, սոցիալական մեդիան և online shopping-ը տարածված են։"
-    },
-
-    objects:{
-
-        tv:{
-            title:{
-                en:"STREAMING SCREEN",
-                hy:"STREAMING ԷԿՐԱՆ"
-            },
-            text:{
-                en:"The television is no longer only about scheduled broadcasts. Streaming platforms allow viewers to decide what to watch and when.",
-                hy:"Հեռուստացույցը այլևս միայն նախապես որոշված հաղորդումների մասին չէ։ Streaming հարթակները թույլ են տալիս ընտրել՝ ինչ և երբ դիտել։"
-            },
-            extra:{
-                en:"On demand becomes normal.",
-                hy:"On-demand դիտումը դառնում է սովորական։"
-            }
-        },
-
-        phone:{
-            title:{
-                en:"SMARTPHONE",
-                hy:"SMARTPHONE"
-            },
-            text:{
-                en:"The smartphone has become a camera, map, wallet, social network, music player, shopping device and communication tool.",
-                hy:"Smartphone-ը դարձել է տեսախցիկ, քարտեզ, դրամապանակ, սոցիալական ցանց, երաժշտական սարք, գնումների և հաղորդակցության գործիք։"
-            },
-            extra:{
-                en:"One device replaces many.",
-                hy:"Մեկ սարքը փոխարինում է բազմաթիվ սարքերի։"
-            }
-        },
-
-        camera:{
-            title:{
-                en:"PHONE CAMERA",
-                hy:"ՀԵՌԱԽՈՍԻ ՏԵՍԱԽՑԻԿ"
-            },
-            text:{
-                en:"Photography has moved into everyone's pocket. Social platforms make taking and sharing a photograph almost instantaneous.",
-                hy:"Լուսանկարչությունը տեղափոխվել է բոլորի գրպանը։ Սոցիալական հարթակները թույլ են տալիս լուսանկարել և տարածել գրեթե ակնթարթորեն։"
-            },
-            extra:{
-                en:"Take → edit → post.",
-                hy:"Լուսանկարել → խմբագրել → հրապարակել։"
-            }
-        },
-
-        fashion:{
-            title:{
-                en:"2018 FASHION",
-                hy:"2018-Ի ՆՈՐԱՁԵՎՈՒԹՅՈՒՆ"
-            },
-            text:{
-                en:"Streetwear, sneakers, oversized silhouettes, athleisure and Instagram-driven fashion shaped the visual culture.",
-                hy:"Streetwear-ը, sneakers-ները, oversized ձևվածքները, athleisure-ը և Instagram-ի ազդեցությունը ձևավորում էին նորաձևությունը։"
-            },
-            extra:{
-                en:"Style: streetwear · sneakers · athleisure",
-                hy:"Ոճ՝ streetwear · sneakers · athleisure"
-            }
-        },
-
-        work:{
-            title:{
-                en:"WORK & MONEY",
-                hy:"ԱՇԽԱՏԱՆՔ ԵՎ ԳՈՒՄԱՐ"
-            },
-            text:{
-                en:"Remote work, freelance platforms, online businesses and the creator economy were becoming increasingly visible.",
-                hy:"Remote աշխատանքը, freelance հարթակները, online բիզնեսները և creator economy-ն ավելի տեսանելի էին դառնում։"
-            },
-            extra:{
-                en:"Work starts moving online.",
-                hy:"Աշխատանքը սկսում է տեղափոխվել online։"
-            }
-        },
-
-        music:{
-            title:{
-                en:"MUSIC",
-                hy:"ԵՐԱԺՇՏՈՒԹՅՈՒՆ"
-            },
-            text:{
-                en:"Streaming had transformed music discovery. Drake's 'God's Plan' became one of the defining streaming-era hits.",
-                hy:"Streaming-ը փոխել էր երաժշտություն բացահայտելու ձևը։ Drake-ի «God's Plan»-ը դարձավ streaming ժամանակաշրջանի հայտնի հիթերից մեկը։"
-            },
-            extra:{
-                en:"Now playing: Drake — God's Plan",
-                hy:"Հնչում է՝ Drake — God's Plan"
-            }
-        },
-
-        future:{
-            title:{
-                en:"THE CONNECTED LIFE",
-                hy:"ԿԱՊՎԱԾ ԿՅԱՆՔ"
-            },
-            text:{
-                en:"Almost every part of daily life is becoming connected: shopping, entertainment, work, communication and identity.",
-                hy:"Առօրյայի գրեթե բոլոր ոլորտները դառնում են connected՝ գնումներ, ժամանց, աշխատանք, հաղորդակցություն և ինքնարտահայտում։"
-            },
-            extra:{
-                en:"The physical and digital worlds merge.",
-                hy:"Ֆիզիկական և թվային աշխարհները միավորվում են։"
-            }
-        }
-
-    }
-
-},
-
-
-2026:{
-
-    track:"Taylor Swift — The Fate of Ophelia",
-
-    audio:"music/Taylor Swift - The Fate of Ophelia.mp3",
-
-    title:{
-        en:"THE WORLD OF 2026",
-        hy:"2026-Ի ԱՇԽԱՐՀԸ"
-    },
-
-    description:{
-        en:"AI, connected devices, digital payments and intelligent software shape everyday life.",
-        hy:"AI-ն, connected սարքերը, թվային վճարումները և խելացի software-ը ձևավորում են առօրյան։"
-    },
-
-    objects:{
-
-        tv:{
-            title:{
-                en:"CONNECTED DISPLAY",
-                hy:"CONNECTED ԷԿՐԱՆ"
-            },
-            text:{
-                en:"Screens are no longer isolated devices. They connect to phones, computers, cloud services, games and AI-powered systems.",
-                hy:"Էկրաններն այլևս առանձին սարքեր չեն։ Դրանք միանում են հեռախոսներին, համակարգիչներին, cloud ծառայություններին, խաղերին և AI համակարգերին։"
-            },
-            extra:{
-                en:"Everything communicates with everything.",
-                hy:"Ամեն ինչ հաղորդակցվում է ամեն ինչի հետ։"
-            }
-        },
-
-        phone:{
-            title:{
-                en:"AI PHONE",
-                hy:"AI ՀԵՌԱԽՈՍ"
-            },
-            text:{
-                en:"The smartphone is becoming an intelligent assistant rather than simply a communication device.",
-                hy:"Smartphone-ը դառնում է խելացի օգնական և ոչ միայն հաղորդակցության սարք։"
-            },
-            extra:{
-                en:"Assistant · camera · wallet · computer · identity",
-                hy:"Օգնական · տեսախցիկ · դրամապանակ · համակարգիչ · ինքնություն"
-            }
-        },
-
-        camera:{
-            title:{
-                en:"COMPUTATIONAL CAMERA",
-                hy:"ՀԱՇՎԱՐԿԱՅԻՆ ՏԵՍԱԽՑԻԿ"
-            },
-            text:{
-                en:"Modern cameras use computational photography, machine learning and powerful image processing to create photographs.",
-                hy:"Ժամանակակից տեսախցիկները օգտագործում են computational photography, machine learning և հզոր image processing։"
-            },
-            extra:{
-                en:"The camera doesn't just capture — it computes.",
-                hy:"Տեսախցիկը միայն չի նկարում․ այն հաշվարկում է։"
-            }
-        },
-
-        fashion:{
-            title:{
-                en:"2026 FASHION",
-                hy:"2026-Ի ՆՈՐԱՁԵՎՈՒԹՅՈՒՆ"
-            },
-            text:{
-                en:"Fashion is influenced by social media, AI-generated imagery, nostalgia and rapidly changing micro-trends.",
-                hy:"Նորաձևության վրա ազդում են social media-ն, AI-generated պատկերները, nostalgia-ն և արագ փոփոխվող micro-trends-ը։"
-            },
-            extra:{
-                en:"Past aesthetics return at digital speed.",
-                hy:"Անցյալի aesthetics-ը վերադառնում է թվային արագությամբ։"
-            }
-        },
-
-        work:{
-            title:{
-                en:"WORK & MONEY",
-                hy:"ԱՇԽԱՏԱՆՔ ԵՎ ԳՈՒՄԱՐ"
-            },
-            text:{
-                en:"AI tools can assist with writing, coding, design, research, communication and many other tasks. Digital work can happen almost anywhere.",
-                hy:"AI գործիքները կարող են օգնել writing-ի, coding-ի, design-ի, research-ի, communication-ի և այլ աշխատանքների ժամանակ։"
-            },
-            extra:{
-                en:"Human + machine collaboration.",
-                hy:"Մարդ + մեքենա համագործակցություն։"
-            }
-        },
-
-        music:{
-            title:{
-                en:"MUSIC",
-                hy:"ԵՐԱԺՇՏՈՒԹՅՈՒՆ"
-            },
-            text:{
-                en:"Music is streamed instantly, discovered through algorithms and increasingly influenced by digital creation tools.",
-                hy:"Երաժշտությունը հասանելի է ակնթարթորեն, հայտնաբերվում է algorithms-ի միջոցով և ավելի շատ է կապված թվային ստեղծման գործիքների հետ։"
-            },
-            extra:{
-                en:"Now playing: Taylor Swift — The Fate of Ophelia",
-                hy:"Հնչում է՝ Taylor Swift — The Fate of Ophelia"
-            }
-        },
-
-        future:{
-            title:{
-                en:"YOU ARE ALREADY HERE",
-                hy:"ԴՈՒ ԱՐԴԵՆ ԱՅՍՏԵՂ ԵՍ"
-            },
-            text:{
-                en:"The future that someone imagined in 1998 is now ordinary life. The question is: what will 2050 look like?",
-                hy:"Այն ապագան, որը 1998-ին մարդիկ պատկերացնում էին, այսօր սովորական կյանք է։ Հարցն այն է՝ ինչպիսի՞ն կլինի 2050-ը։"
-            },
-            extra:{
-                en:"Time keeps moving.",
-                hy:"Ժամանակը շարունակում է շարժվել։"
-            }
-        }
-
-    }
-
-}
 
 };
 
 
-/* =========================================================
-   STATE
-========================================================= */
+/* =========================================
+   VARIABLES
+========================================= */
 
 let currentYear = 1998;
-let audio = document.getElementById("audioPlayer");
+
+let language = "en";
+
+const audio =
+    document.getElementById("audioPlayer");
+
 let isPlaying = false;
 
 
-/* =========================================================
-   ENTER
-========================================================= */
+/* =========================================
+   ENTER MACHINE
+========================================= */
 
 function enterMachine(){
 
-    document.getElementById("intro")
-        .classList.add("hide");
+    document
+        .getElementById("intro")
+        .classList.add("hidden");
 
-    setTimeout(()=>{
-        document.getElementById("machine")
-            .style.opacity="1";
-    },300);
 }
 
 
-/* =========================================================
+/* =========================================
+   MUSIC
+========================================= */
+
+function playEraMusic(){
+
+    const era = eras[currentYear];
+
+    /*
+       IMPORTANT:
+       This function is called directly
+       from the user's year click.
+    */
+
+    audio.pause();
+
+    audio.src = era.audio;
+
+    audio.volume = 0.65;
+
+    audio.currentTime = 0;
+
+    audio.load();
+
+    const playPromise = audio.play();
+
+    if(playPromise !== undefined){
+
+        playPromise
+            .then(() => {
+
+                isPlaying = true;
+
+                document
+                    .getElementById("musicDisc")
+                    .classList.add("playing");
+
+                document
+                    .getElementById("musicTitle")
+                    .textContent =
+                    era.track;
+
+            })
+
+            .catch((error) => {
+
+                console.log(
+                    "Music could not start:",
+                    error
+                );
+
+                isPlaying = false;
+
+                document
+                    .getElementById("musicDisc")
+                    .classList.remove("playing");
+
+                document
+                    .getElementById("musicTitle")
+                    .textContent =
+                    era.track + " · CLICK PLAY";
+
+            });
+
+    }
+
+}
+
+
+/* =========================================
    TRAVEL
-========================================================= */
+========================================= */
 
 function travelTo(year){
 
-    if(year === currentYear && document.getElementById("era").classList.contains("active")){
-        return;
-    }
-
     currentYear = year;
 
-    const glitch = document.getElementById("glitch");
+    /*
+       MUSIC STARTS IMMEDIATELY
+       FROM THE USER CLICK.
+    */
 
-    glitch.classList.remove("active");
+    playEraMusic();
+
+    const glitch =
+        document.getElementById("glitch");
+
+    glitch.classList.remove("travel");
 
     void glitch.offsetWidth;
 
-    glitch.classList.add("active");
+    glitch.classList.add("travel");
 
-    setTimeout(()=>{
 
-        document.getElementById("machine")
-            .style.opacity="0";
+    setTimeout(() => {
 
-        document.getElementById("machine")
-            .style.pointerEvents="none";
+        document
+            .getElementById("machine")
+            .style.opacity = "0";
 
-        document.getElementById("era")
-            .className="era era-"+year+" active";
+        document
+            .getElementById("machine")
+            .style.pointerEvents = "none";
+
+
+        document
+            .getElementById("era")
+            .className =
+            "era era-" +
+            currentYear +
+            " active";
+
 
         updateEra();
 
-        startMusic();
-
-    },350);
+    },180);
 
 }
 
 
-/* =========================================================
-   UPDATE ERA
-========================================================= */
+/* =========================================
+   UPDATE WORLD
+========================================= */
 
 function updateEra(){
 
-    const data = eras[currentYear];
-
-    document.getElementById("machineYear").textContent=currentYear;
-
-    document.getElementById("eraTop").textContent=currentYear;
-
-    document.getElementById("eraTitle").textContent=
-        data.title[language];
-
-    document.getElementById("eraDescription").textContent=
-        data.description[language];
-
-    document.getElementById("musicName").textContent=
-        data.track;
-
-    document.querySelectorAll(".era-dot")
-        .forEach(btn=>btn.classList.remove("active"));
-
-    const yearIndex = [1998,2008,2018,2026].indexOf(currentYear);
-
-    if(yearIndex >= 0){
-        document.querySelectorAll(".era-dot")[yearIndex]
-            .classList.add("active");
-    }
-
-    /* Change visual objects */
-
-    const clothing = document.getElementById("clothingVisual");
-
-    if(currentYear===1998){
-        clothing.textContent="👕";
-    }
-
-    if(currentYear===2008){
-        clothing.textContent="👖";
-    }
-
-    if(currentYear===2018){
-        clothing.textContent="👟";
-    }
-
-    if(currentYear===2026){
-        clothing.textContent="🧥";
-    }
-
-    const phone = document.getElementById("phoneVisual");
-
-    if(currentYear===1998){
-        phone.textContent="☎";
-    }
-
-    if(currentYear===2008){
-        phone.textContent="📱";
-    }
-
-    if(currentYear===2018){
-        phone.textContent="📱";
-    }
-
-    if(currentYear===2026){
-        phone.textContent="AI";
-    }
-
-    const ai = document.querySelector(".obj-ai");
-
-    if(currentYear===2026){
-        ai.style.display="block";
-    }else{
-        ai.style.display="none";
-    }
-
-}
+    const era = eras[currentYear];
 
 
-/* =========================================================
-   MUSIC
-========================================================= */
+    document
+        .getElementById("machineYear")
+        .textContent =
+        currentYear;
 
-function startMusic(){
 
-    const data = eras[currentYear];
+    document
+        .getElementById("eraYear")
+        .textContent =
+        currentYear;
 
-    audio.src = data.audio;
 
-    audio.volume=.55;
+    document
+        .getElementById("worldTitle")
+        .textContent =
+        era.title[language];
 
-    audio.currentTime=0;
 
-    audio.play()
-        .then(()=>{
+    document
+        .getElementById("worldDescription")
+        .textContent =
+        era.description[language];
 
-            isPlaying=true;
 
-            document.getElementById("musicDisc")
-                .classList.add("playing");
+    document
+        .getElementById("musicTitle")
+        .textContent =
+        era.track;
 
-        })
-        .catch(()=>{
 
-            isPlaying=false;
+    /* YEAR BUTTONS */
 
-            document.getElementById("musicName")
-                .textContent=data.track+" · ADD AUDIO FILE";
+    document
+        .querySelectorAll(".year-button")
+        .forEach(button => {
+
+            button.classList.remove("active");
 
         });
 
+
+    const index =
+        [1998,2008,2018,2026]
+        .indexOf(currentYear);
+
+
+    if(index >= 0){
+
+        document
+            .querySelectorAll(".year-button")
+            [index]
+            .classList.add("active");
+
+    }
+
+
+    /* PHONE */
+
+    const phone =
+        document.getElementById("phoneVisual");
+
+
+    if(currentYear === 1998){
+
+        phone.textContent = "☎";
+
+    }
+
+    if(currentYear === 2008){
+
+        phone.textContent = "📱";
+
+    }
+
+    if(currentYear === 2018){
+
+        phone.textContent = "📱";
+
+    }
+
+    if(currentYear === 2026){
+
+        phone.textContent = "AI";
+
+    }
+
+
+    /* FASHION */
+
+    const fashion =
+        document.getElementById("fashionVisual");
+
+
+    if(currentYear === 1998){
+
+        fashion.textContent = "👕";
+
+    }
+
+    if(currentYear === 2008){
+
+        fashion.textContent = "👖";
+
+    }
+
+    if(currentYear === 2018){
+
+        fashion.textContent = "👟";
+
+    }
+
+    if(currentYear === 2026){
+
+        fashion.textContent = "🧥";
+
+    }
+
+
+    /* FUTURE OBJECT */
+
+    const future =
+        document.getElementById("futureObject");
+
+
+    if(currentYear === 2026){
+
+        future.style.display = "block";
+
+    }else{
+
+        future.style.display = "none";
+
+    }
+
 }
 
 
-/* =========================================================
-   MUSIC CONTROL
-========================================================= */
+/* =========================================
+   MUSIC PLAY / PAUSE
+========================================= */
 
 function toggleMusic(){
 
     if(audio.paused){
 
         audio.play()
-            .then(()=>{
+            .then(() => {
 
-                isPlaying=true;
+                isPlaying = true;
 
-                document.getElementById("musicDisc")
+                document
+                    .getElementById("musicDisc")
                     .classList.add("playing");
+
+            })
+            .catch(error => {
+
+                console.log(
+                    "Could not play audio:",
+                    error
+                );
 
             });
 
@@ -1836,9 +2578,10 @@ function toggleMusic(){
 
         audio.pause();
 
-        isPlaying=false;
+        isPlaying = false;
 
-        document.getElementById("musicDisc")
+        document
+            .getElementById("musicDisc")
             .classList.remove("playing");
 
     }
@@ -1846,53 +2589,70 @@ function toggleMusic(){
 }
 
 
-/* =========================================================
-   OBJECTS
-========================================================= */
+/* =========================================
+   OBJECT INFORMATION
+========================================= */
 
 function showObject(type){
 
-    const data = eras[currentYear].objects[type];
+    const object =
+        eras[currentYear]
+        .objects[type];
 
-    if(!data) return;
 
-    document.getElementById("detailKicker")
-        .textContent=
-        currentYear+" / EXPERIENCE";
+    if(!object){
+        return;
+    }
 
-    document.getElementById("detailTitle")
-        .textContent=
-        data.title[language];
 
-    document.getElementById("detailText")
-        .textContent=
-        data.text[language];
+    document
+        .getElementById("detailKicker")
+        .textContent =
+        currentYear +
+        " / EXPERIENCE";
 
-    document.getElementById("detailExtra")
-        .textContent=
-        data.extra[language];
 
-    document.getElementById("detail")
+    document
+        .getElementById("detailTitle")
+        .textContent =
+        object.title[language];
+
+
+    document
+        .getElementById("detailText")
+        .textContent =
+        object.text[language];
+
+
+    document
+        .getElementById("detailExtra")
+        .textContent =
+        object.extra[language];
+
+
+    document
+        .getElementById("detail")
         .classList.add("show");
 
 }
 
 
-/* =========================================================
-   CLOSE
-========================================================= */
+/* =========================================
+   CLOSE INFORMATION
+========================================= */
 
 function closeDetail(){
 
-    document.getElementById("detail")
+    document
+        .getElementById("detail")
         .classList.remove("show");
 
 }
 
 
-/* =========================================================
-   RETURN
-========================================================= */
+/* =========================================
+   RETURN TO MACHINE
+========================================= */
 
 function returnToMachine(){
 
@@ -1900,136 +2660,211 @@ function returnToMachine(){
 
     audio.pause();
 
-    document.getElementById("musicDisc")
+    isPlaying = false;
+
+    document
+        .getElementById("musicDisc")
         .classList.remove("playing");
 
-    document.getElementById("era")
+
+    document
+        .getElementById("era")
         .classList.remove("active");
 
-    document.getElementById("machine")
-        .style.opacity="1";
 
-    document.getElementById("machine")
-        .style.pointerEvents="auto";
+    document
+        .getElementById("machine")
+        .style.opacity = "1";
+
+
+    document
+        .getElementById("machine")
+        .style.pointerEvents = "auto";
 
 }
 
 
-/* =========================================================
+/* =========================================
    LANGUAGE
-========================================================= */
+========================================= */
 
 function toggleLanguage(){
 
     language =
-        language==="en"
+        language === "en"
         ? "hy"
         : "en";
+
 
     updateEra();
 
 }
 
 
-/* =========================================================
-   DRAG DIAL
-========================================================= */
+/* =========================================
+   DIAL
+========================================= */
 
-const dial = document.getElementById("dial");
+const dial =
+    document.getElementById("dial");
 
-let dragging=false;
-let startX=0;
-let rotation=0;
+let dragging = false;
 
-dial.addEventListener("pointerdown",(e)=>{
+let startX = 0;
 
-    dragging=true;
-
-    startX=e.clientX;
-
-    dial.setPointerCapture(e.pointerId);
-
-});
+let rotation = 0;
 
 
-dial.addEventListener("pointermove",(e)=>{
+dial.addEventListener(
+    "pointerdown",
+    function(event){
 
-    if(!dragging) return;
+        dragging = true;
 
-    const delta=e.clientX-startX;
+        startX = event.clientX;
 
-    rotation += delta*.5;
+        dial.setPointerCapture(
+            event.pointerId
+        );
 
-    dial.style.transform=
-        `rotate(${rotation}deg)`;
-
-    startX=e.clientX;
-
-});
-
-
-dial.addEventListener("pointerup",()=>{
-
-    dragging=false;
-
-    /*
-      Convert rotation into one of four years.
-    */
-
-    let normalized=
-        ((rotation%360)+360)%360;
-
-    let index=
-        Math.round(normalized/90)%4;
-
-    const years=[
-        1998,
-        2008,
-        2018,
-        2026
-    ];
-
-    travelTo(years[index]);
-
-});
+    }
+);
 
 
-/* =========================================================
+dial.addEventListener(
+    "pointermove",
+    function(event){
+
+        if(!dragging){
+            return;
+        }
+
+
+        const difference =
+            event.clientX -
+            startX;
+
+
+        rotation +=
+            difference * .7;
+
+
+        dial.style.transform =
+            "rotate(" +
+            rotation +
+            "deg)";
+
+
+        startX =
+            event.clientX;
+
+    }
+);
+
+
+dial.addEventListener(
+    "pointerup",
+    function(){
+
+        if(!dragging){
+            return;
+        }
+
+        dragging = false;
+
+
+        /*
+           Determine nearest year
+           from dial rotation.
+        */
+
+        let normalized =
+            ((rotation % 360) + 360) % 360;
+
+
+        let index =
+            Math.round(
+                normalized / 90
+            ) % 4;
+
+
+        const years =
+            [
+                1998,
+                2008,
+                2018,
+                2026
+            ];
+
+
+        travelTo(
+            years[index]
+        );
+
+    }
+);
+
+
+/* =========================================
    KEYBOARD
-========================================================= */
+========================================= */
 
-document.addEventListener("keydown",(e)=>{
+document.addEventListener(
+    "keydown",
+    function(event){
 
-    const years=[
-        1998,
-        2008,
-        2018,
-        2026
-    ];
+        const years =
+            [
+                1998,
+                2008,
+                2018,
+                2026
+            ];
 
-    let index=
-        years.indexOf(currentYear);
 
-    if(e.key==="ArrowRight"){
-        index=(index+1)%4;
-        travelTo(years[index]);
+        let index =
+            years.indexOf(
+                currentYear
+            );
+
+
+        if(event.key === "ArrowRight"){
+
+            index =
+                (index + 1) % 4;
+
+            travelTo(
+                years[index]
+            );
+
+        }
+
+
+        if(event.key === "ArrowLeft"){
+
+            index =
+                (index - 1 + 4) % 4;
+
+            travelTo(
+                years[index]
+            );
+
+        }
+
+
+        if(event.key === "Escape"){
+
+            closeDetail();
+
+        }
+
     }
-
-    if(e.key==="ArrowLeft"){
-        index=(index-1+4)%4;
-        travelTo(years[index]);
-    }
-
-    if(e.key==="Escape"){
-        closeDetail();
-    }
-
-});
+);
 
 
-/* =========================================================
-   INITIAL
-========================================================= */
+/* =========================================
+   INITIAL STATE
+========================================= */
 
 updateEra();
 
