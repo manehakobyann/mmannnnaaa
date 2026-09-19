@@ -3,1513 +3,1744 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>THE LAST MESSAGE — Interactive Mystery</title>
+
+<title>TIME MACHINE</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:wght@400;500;600&display=swap');
+
+
+/* =========================================================
+   VARIABLES
+========================================================= */
 
 :root{
-  --red:#b71925;
-  --red2:#e33a45;
-  --cream:#ddd7ca;
-  --dark:#08090b;
-  --panel:#111317;
-  --line:rgba(255,255,255,.12);
-  --muted:#858991;
+    --bg:#08090b;
+    --text:#f2eee5;
+    --muted:#9c9a94;
+    --line:rgba(255,255,255,.16);
+    --accent:#c6a96b;
+
+    --era-color:#c6a96b;
+    --era-glow:rgba(198,169,107,.20);
 }
+
+
+/* =========================================================
+   RESET
+========================================================= */
 
 *{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
-html,body{
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#050608;
-  color:white;
-  font-family:"IBM Plex Mono",monospace;
+html,
+body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#050608;
+    color:var(--text);
+}
+
+body{
+    font-family:"DM Mono",monospace;
 }
 
 button{
-  font:inherit;
-  color:inherit;
-  cursor:pointer;
+    font-family:inherit;
+    cursor:pointer;
 }
 
-#game{
-  width:100%;
-  height:100%;
-  position:relative;
-  overflow:hidden;
-  background:#050608;
-}
 
 /* =========================================================
-   GLOBAL ATMOSPHERE
+   MAIN
+========================================================= */
+
+#app{
+    position:relative;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:
+        radial-gradient(
+            circle at 50% 40%,
+            var(--era-glow),
+            transparent 45%
+        ),
+        #08090b;
+
+    transition:
+        background 1.5s ease,
+        filter 1s ease;
+}
+
+
+/* =========================================================
+   GRAIN
 ========================================================= */
 
 .grain{
-  pointer-events:none;
-  position:fixed;
-  inset:-50%;
-  z-index:100;
-  opacity:.075;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
-  animation:grain .18s steps(2) infinite;
+    position:absolute;
+    inset:-50%;
+    pointer-events:none;
+    z-index:100;
+
+    opacity:.06;
+
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+
+    animation:grainMove .18s steps(2) infinite;
 }
 
-@keyframes grain{
-  0%{transform:translate(0,0)}
-  25%{transform:translate(2%,1%)}
-  50%{transform:translate(-1%,2%)}
-  75%{transform:translate(1%,-2%)}
-  100%{transform:translate(-2%,0)}
+@keyframes grainMove{
+    0%{transform:translate(0,0)}
+    25%{transform:translate(2%,1%)}
+    50%{transform:translate(-1%,2%)}
+    75%{transform:translate(1%,-1%)}
+    100%{transform:translate(-2%,0)}
 }
 
-.vignette{
-  pointer-events:none;
-  position:fixed;
-  inset:0;
-  z-index:90;
-  background:
-    radial-gradient(circle at center,
-      transparent 35%,
-      rgba(0,0,0,.28) 65%,
-      rgba(0,0,0,.82) 100%);
-}
-
-#rain{
-  pointer-events:none;
-  position:absolute;
-  inset:0;
-  z-index:80;
-  opacity:.38;
-  overflow:hidden;
-}
-
-.drop{
-  position:absolute;
-  width:1px;
-  height:80px;
-  background:linear-gradient(transparent,rgba(180,205,220,.55));
-  transform:rotate(14deg);
-  animation:rain linear infinite;
-}
-
-@keyframes rain{
-  from{transform:translateY(-120px) rotate(14deg)}
-  to{transform:translateY(110vh) rotate(14deg)}
-}
 
 /* =========================================================
-   TOP HUD
+   VIGNETTE
 ========================================================= */
 
-#hud{
-  position:absolute;
-  top:24px;
-  left:28px;
-  right:28px;
-  z-index:120;
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  pointer-events:none;
+.vignette{
+    position:absolute;
+    inset:0;
+    z-index:90;
+    pointer-events:none;
+
+    background:
+        radial-gradient(
+            circle,
+            transparent 25%,
+            rgba(0,0,0,.25) 65%,
+            rgba(0,0,0,.85) 100%
+        );
 }
 
-.hud-left{
-  display:flex;
-  gap:14px;
-  align-items:center;
-}
-
-.case-number{
-  font-size:10px;
-  letter-spacing:4px;
-  color:#777b82;
-}
-
-.clue-counter{
-  font-size:10px;
-  letter-spacing:2px;
-  color:#c8c4bb;
-}
-
-.hud-right{
-  display:flex;
-  gap:10px;
-  pointer-events:auto;
-}
-
-.lang{
-  border:1px solid var(--line);
-  background:rgba(5,6,8,.55);
-  padding:8px 11px;
-  font-size:10px;
-  letter-spacing:2px;
-  transition:.25s;
-}
-
-.lang:hover{
-  border-color:#aaa;
-  background:#15171b;
-}
-
-.lang.active{
-  color:white;
-  border-color:var(--red);
-}
 
 /* =========================================================
    INTRO
 ========================================================= */
 
 #intro{
-  position:absolute;
-  inset:0;
-  z-index:200;
-  background:#020304;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:opacity 1.5s ease,visibility 1.5s;
+    position:absolute;
+    inset:0;
+    z-index:300;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:#030405;
+
+    transition:
+        opacity 1.5s ease,
+        visibility 1.5s ease;
 }
 
-#intro.hidden{
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
+#intro.hide{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
 }
 
-.intro-content{
-  width:min(800px,88%);
-  text-align:center;
+.intro-inner{
+    width:min(900px,90%);
+    text-align:center;
 }
 
-.intro-case{
-  color:#777;
-  letter-spacing:7px;
-  font-size:10px;
-  margin-bottom:30px;
+.intro-small{
+    font-size:10px;
+    letter-spacing:8px;
+    color:#777;
+    margin-bottom:35px;
 }
 
 .intro-title{
-  font-family:"Playfair Display",serif;
-  font-size:clamp(48px,9vw,110px);
-  letter-spacing:5px;
-  font-weight:500;
-  line-height:.95;
-  margin-bottom:34px;
+    font-family:"Playfair Display",serif;
+    font-size:clamp(60px,11vw,150px);
+    font-weight:400;
+    line-height:.85;
+    letter-spacing:-5px;
 }
 
-.intro-line{
-  width:0;
-  height:1px;
-  background:#aaa;
-  margin:0 auto 28px;
-  animation:introLine 2s 1s forwards;
+.intro-title span{
+    display:block;
 }
 
-@keyframes introLine{
-  to{width:220px}
+.intro-sub{
+    margin:35px auto 0;
+    max-width:570px;
+    color:#858585;
+    font-size:11px;
+    line-height:2;
 }
 
-.intro-text{
-  color:#aaa;
-  font-size:12px;
-  line-height:2;
-  max-width:620px;
-  margin:auto;
-  min-height:72px;
+.start{
+    margin-top:45px;
+
+    border:1px solid rgba(255,255,255,.25);
+    background:transparent;
+
+    color:white;
+
+    padding:15px 30px;
+
+    letter-spacing:4px;
+    font-size:9px;
+
+    transition:.35s;
 }
 
-.enter{
-  margin-top:40px;
-  padding:15px 30px;
-  border:1px solid rgba(255,255,255,.25);
-  background:transparent;
-  letter-spacing:4px;
-  font-size:10px;
-  transition:.3s;
+.start:hover{
+    background:white;
+    color:black;
 }
 
-.enter:hover{
-  background:#fff;
-  color:#000;
-}
 
 /* =========================================================
-   PHONE CALL
+   TOP NAV
 ========================================================= */
 
-#callScene{
-  position:absolute;
-  inset:0;
-  z-index:180;
-  background:#020204;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:opacity 1s,visibility 1s;
+.top{
+    position:absolute;
+    top:25px;
+    left:30px;
+    right:30px;
+
+    z-index:120;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-#callScene.hidden{
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
+.logo{
+    font-size:10px;
+    letter-spacing:5px;
 }
 
-.call-phone{
-  width:250px;
-  height:500px;
-  border:8px solid #22252b;
-  border-radius:38px;
-  background:#050608;
-  box-shadow:
-    0 0 80px rgba(255,255,255,.04),
-    inset 0 0 20px rgba(255,255,255,.03);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-  animation:phoneShake .18s infinite;
+.right-controls{
+    display:flex;
+    gap:8px;
 }
 
-@keyframes phoneShake{
-  0%,100%{transform:rotate(0)}
-  50%{transform:rotate(.7deg)}
+.control{
+    border:1px solid var(--line);
+    background:rgba(0,0,0,.25);
+    color:#ddd;
+
+    padding:9px 12px;
+
+    font-size:9px;
+    letter-spacing:2px;
+
+    transition:.3s;
 }
 
-.phone-screen{
-  width:calc(100% - 18px);
-  height:calc(100% - 18px);
-  border-radius:29px;
-  background:
-    radial-gradient(circle at 50% 20%,#24282e,#08090c 50%);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding-top:75px;
+.control:hover{
+    background:white;
+    color:black;
 }
 
-.incoming{
-  color:#777;
-  font-size:9px;
-  letter-spacing:3px;
-  margin-bottom:16px;
+.control.active{
+    border-color:var(--era-color);
+    color:var(--era-color);
 }
 
-.caller{
-  font-size:21px;
-  margin-bottom:45px;
-}
-
-.call-icon{
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:#171a1f;
-  border:1px solid #343840;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:23px;
-  animation:pulse 1.5s infinite;
-}
-
-@keyframes pulse{
-  50%{box-shadow:0 0 35px rgba(255,255,255,.12)}
-}
-
-.answer{
-  position:absolute;
-  bottom:65px;
-  border:1px solid #555;
-  background:transparent;
-  padding:12px 24px;
-  font-size:9px;
-  letter-spacing:3px;
-}
-
-.answer:hover{
-  background:white;
-  color:black;
-}
 
 /* =========================================================
-   MAIN ROOM
+   ERA SELECTOR
 ========================================================= */
 
-#world{
-  position:absolute;
-  inset:0;
-  opacity:0;
-  transform:scale(1.03);
-  transition:opacity 1.3s,transform 2s;
+#timeline{
+    position:absolute;
+    left:50%;
+    bottom:38px;
+
+    transform:translateX(-50%);
+
+    z-index:130;
+
+    display:flex;
+    align-items:center;
+    gap:0;
 }
 
-#world.visible{
-  opacity:1;
-  transform:scale(1);
+.year{
+    position:relative;
+
+    background:none;
+    border:0;
+
+    color:#65666a;
+
+    padding:10px 22px;
+
+    font-size:11px;
+    letter-spacing:2px;
+
+    transition:.4s;
 }
+
+.year:before{
+    content:"";
+
+    position:absolute;
+    left:50%;
+    bottom:-3px;
+
+    width:4px;
+    height:4px;
+
+    border-radius:50%;
+
+    background:#555;
+
+    transform:translateX(-50%);
+
+    transition:.4s;
+}
+
+.year:after{
+    content:"";
+
+    position:absolute;
+
+    right:-1px;
+    top:50%;
+
+    width:1px;
+    height:25px;
+
+    background:#292b2f;
+
+    transform:translateY(-50%);
+}
+
+.year:last-child:after{
+    display:none;
+}
+
+.year:hover{
+    color:white;
+}
+
+.year.active{
+    color:var(--era-color);
+}
+
+.year.active:before{
+    width:7px;
+    height:7px;
+    background:var(--era-color);
+    box-shadow:0 0 15px var(--era-color);
+}
+
+
+/* =========================================================
+   MAIN TIME DISPLAY
+========================================================= */
+
+#timeDisplay{
+    position:absolute;
+
+    left:50%;
+    top:14%;
+
+    transform:translateX(-50%);
+
+    z-index:50;
+
+    text-align:center;
+
+    pointer-events:none;
+
+    transition:
+        transform 1s ease,
+        opacity 1s ease;
+}
+
+.time-year{
+    font-size:clamp(80px,16vw,230px);
+    line-height:.8;
+
+    font-weight:300;
+
+    letter-spacing:-10px;
+
+    color:rgba(255,255,255,.08);
+
+    transition:
+        color 1s,
+        text-shadow 1s;
+}
+
+.time-caption{
+    margin-top:25px;
+
+    color:#8a8b8e;
+
+    font-size:10px;
+    letter-spacing:6px;
+}
+
+
+/* =========================================================
+   ERA SCENE
+========================================================= */
+
+#scene{
+    position:absolute;
+    inset:0;
+
+    transition:
+        opacity .8s,
+        transform 1s,
+        filter 1s;
+}
+
+#scene.transitioning{
+    opacity:0;
+    transform:scale(1.08);
+    filter:blur(8px);
+}
+
+
+/* =========================================================
+   ERA ROOM
+========================================================= */
 
 .room{
-  position:absolute;
-  inset:0;
-  overflow:hidden;
-  background:
-    linear-gradient(180deg,#111317 0%,#0c0e11 55%,#08090a 100%);
+    position:absolute;
+    inset:0;
+
+    overflow:hidden;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,255,255,.03),
+            transparent 50%
+        );
 }
 
-/* wall */
-
-.wall{
-  position:absolute;
-  left:0;
-  top:0;
-  width:100%;
-  height:67%;
-  background:
-    radial-gradient(circle at 25% 20%,rgba(100,105,110,.07),transparent 28%),
-    linear-gradient(90deg,#16191d,#101216 60%,#14171b);
-}
-
-/* floor */
-
-.floor{
-  position:absolute;
-  left:-10%;
-  bottom:-20%;
-  width:120%;
-  height:48%;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgba(255,255,255,.025) 0 2px,
-      transparent 2px 120px
-    ),
-    linear-gradient(180deg,#111214,#060708);
-  transform:perspective(600px) rotateX(45deg);
-  transform-origin:center top;
-}
-
-/* window */
-
-.window{
-  position:absolute;
-  width:min(31vw,400px);
-  height:min(48vh,500px);
-  top:12%;
-  right:10%;
-  border:12px solid #24272c;
-  background:
-    linear-gradient(90deg,transparent 49%,rgba(255,255,255,.08) 50%,transparent 51%),
-    linear-gradient(180deg,transparent 49%,rgba(255,255,255,.08) 50%,transparent 51%),
-    linear-gradient(180deg,#111827,#070a0e);
-  box-shadow:0 0 40px rgba(0,0,0,.6);
-  overflow:hidden;
-  cursor:pointer;
-}
-
-.window:hover{
-  border-color:#454951;
-}
-
-.city{
-  position:absolute;
-  bottom:0;
-  width:100%;
-  height:45%;
-  background:
-    linear-gradient(90deg,
-      #060708 0 10%,
-      #15181d 10% 17%,
-      #050608 17% 28%,
-      #181b20 28% 42%,
-      #07080a 42% 52%,
-      #191c21 52% 69%,
-      #050608 69% 80%,
-      #14171c 80% 100%);
-}
-
-.lightning{
-  position:absolute;
-  inset:0;
-  background:white;
-  opacity:0;
-  pointer-events:none;
-}
-
-.window.flash .lightning{
-  animation:lightning .45s;
-}
-
-@keyframes lightning{
-  0%,100%{opacity:0}
-  15%{opacity:.75}
-  20%{opacity:0}
-  40%{opacity:.5}
-  45%{opacity:0}
-}
-
-.silhouette{
-  position:absolute;
-  bottom:14%;
-  left:49%;
-  width:35px;
-  height:110px;
-  opacity:0;
-  background:#020304;
-  clip-path:polygon(40% 0,62% 0,72% 17%,100% 35%,82% 39%,75% 100%,25% 100%,18% 39%,0 35%,28% 17%);
-  transition:.4s;
-}
-
-.window.reveal .silhouette{
-  opacity:.85;
-}
-
-/* lamp */
-
-.lamp{
-  position:absolute;
-  left:17%;
-  bottom:27%;
-  width:130px;
-  height:210px;
-  cursor:pointer;
-}
-
-.lamp-shade{
-  position:absolute;
-  top:0;
-  left:15px;
-  width:100px;
-  height:65px;
-  background:#34363a;
-  clip-path:polygon(17% 0,83% 0,100% 100%,0 100%);
-  border-bottom:3px solid #8c7d65;
-}
-
-.lamp-stem{
-  position:absolute;
-  width:8px;
-  height:120px;
-  left:61px;
-  top:62px;
-  background:#303238;
-}
-
-.lamp-base{
-  position:absolute;
-  bottom:0;
-  left:30px;
-  width:70px;
-  height:15px;
-  border-radius:50%;
-  background:#2a2c30;
-}
-
-.lamp-glow{
-  position:absolute;
-  top:-70px;
-  left:-45px;
-  width:220px;
-  height:220px;
-  background:radial-gradient(circle,rgba(190,145,75,.32),transparent 65%);
-  opacity:0;
-  transition:.5s;
-  pointer-events:none;
-}
-
-.lamp.on .lamp-glow{
-  opacity:1;
-}
-
-.lamp.on .lamp-shade{
-  background:#b18b55;
-  box-shadow:0 -5px 30px rgba(215,165,83,.3);
-}
-
-/* table */
-
-.table{
-  position:absolute;
-  bottom:18%;
-  left:38%;
-  width:300px;
-  height:28px;
-  background:#25272b;
-  box-shadow:0 8px 15px rgba(0,0,0,.4);
-}
-
-.table:before,
-.table:after{
-  content:"";
-  position:absolute;
-  top:20px;
-  width:18px;
-  height:150px;
-  background:#17191c;
-}
-
-.table:before{left:25px}
-.table:after{right:25px}
-
-/* laptop */
-
-.laptop{
-  position:absolute;
-  left:48%;
-  bottom:24%;
-  width:170px;
-  height:110px;
-  cursor:pointer;
-  transition:.3s;
-}
-
-.laptop-screen{
-  position:absolute;
-  left:0;
-  top:0;
-  width:170px;
-  height:95px;
-  background:#080b0d;
-  border:7px solid #272a2f;
-  border-radius:7px 7px 2px 2px;
-  transform-origin:bottom;
-  transform:rotateX(-8deg);
-  transition:.7s;
-  overflow:hidden;
-}
-
-.laptop-screen-content{
-  padding:12px;
-  color:#65717c;
-  font-size:6px;
-  line-height:1.8;
-  opacity:.4;
-}
-
-.laptop-base{
-  position:absolute;
-  bottom:0;
-  left:-15px;
-  width:200px;
-  height:15px;
-  background:#292c30;
-  clip-path:polygon(6% 0,94% 0,100% 100%,0 100%);
-}
-
-.laptop.open .laptop-screen{
-  transform:rotateX(-30deg);
-}
-
-.laptop:hover{
-  transform:translateY(-4px);
-}
-
-/* picture */
-
-.picture{
-  position:absolute;
-  top:19%;
-  left:16%;
-  width:125px;
-  height:155px;
-  border:10px solid #25272a;
-  background:#141619;
-  transform:rotate(-2deg);
-  cursor:pointer;
-  transition:.5s;
-}
-
-.picture:hover{
-  transform:rotate(-2deg) scale(1.04);
-}
-
-.picture-inner{
-  position:absolute;
-  inset:10px;
-  background:
-    radial-gradient(circle at 48% 37%,#777 0 9%,transparent 10%),
-    linear-gradient(140deg,#25282c,#090a0c);
-}
-
-.picture-note{
-  position:absolute;
-  inset:10px;
-  background:#d6d0bf;
-  color:#111;
-  padding:15px;
-  font-size:9px;
-  line-height:1.8;
-  opacity:0;
-  transform:rotateY(180deg);
-  backface-visibility:hidden;
-  transition:.8s;
-}
-
-.picture.flipped .picture-inner{
-  opacity:0;
-}
-
-.picture.flipped .picture-note{
-  opacity:1;
-  transform:rotateY(0);
-}
-
-/* suitcase */
-
-.suitcase{
-  position:absolute;
-  left:27%;
-  bottom:10%;
-  width:190px;
-  height:110px;
-  cursor:pointer;
-  perspective:500px;
-}
-
-.case-bottom{
-  position:absolute;
-  bottom:0;
-  width:190px;
-  height:70px;
-  background:#29221d;
-  border:4px solid #46372c;
-  border-radius:8px;
-}
-
-.case-top{
-  position:absolute;
-  top:0;
-  width:190px;
-  height:70px;
-  background:#332a24;
-  border:4px solid #46372c;
-  border-radius:8px;
-  transform-origin:bottom;
-  transition:.8s;
-}
-
-.suitcase.open .case-top{
-  transform:rotateX(-105deg);
-}
-
-.handle{
-  position:absolute;
-  top:-14px;
-  left:70px;
-  width:50px;
-  height:25px;
-  border:4px solid #4c3c2f;
-  border-bottom:0;
-  border-radius:8px 8px 0 0;
-}
-
-/* door */
-
-.door{
-  position:absolute;
-  left:4%;
-  top:8%;
-  width:160px;
-  height:67%;
-  background:linear-gradient(90deg,#17191c,#202328);
-  border:8px solid #292c31;
-  cursor:pointer;
-}
-
-.door-handle{
-  position:absolute;
-  right:20px;
-  top:50%;
-  width:12px;
-  height:12px;
-  border-radius:50%;
-  background:#9a815c;
-}
-
-.door:hover{
-  filter:brightness(1.15);
-}
-
-/* breaker */
-
-.breaker{
-  position:absolute;
-  left:5.5%;
-  top:22%;
-  width:105px;
-  height:145px;
-  background:#25282c;
-  border:4px solid #3a3d41;
-  opacity:0;
-  pointer-events:none;
-  transform:translateX(-15px);
-  transition:.5s;
-}
-
-.breaker.visible{
-  opacity:1;
-  pointer-events:auto;
-  transform:none;
-}
-
-.switch{
-  position:absolute;
-  width:14px;
-  height:30px;
-  background:#111;
-  border:2px solid #666;
-  cursor:pointer;
-}
-
-.switch:nth-child(1){left:20px;top:25px}
-.switch:nth-child(2){left:45px;top:25px}
-.switch:nth-child(3){left:70px;top:25px}
-.switch:nth-child(4){left:20px;top:75px}
-.switch:nth-child(5){left:45px;top:75px}
-.switch:nth-child(6){left:70px;top:75px}
-
-.switch.on{
-  background:#b7a06c;
-  box-shadow:0 0 12px rgba(220,180,100,.4);
-}
 
 /* =========================================================
-   INTERACTION HINT
+   1998 STYLE
 ========================================================= */
 
-.interactive{
-  position:relative;
+.room::before{
+    content:"";
+
+    position:absolute;
+    inset:0;
+
+    background:
+        radial-gradient(
+            circle at 30% 45%,
+            rgba(255,180,90,.08),
+            transparent 30%
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.025),
+            transparent
+        );
+
+    pointer-events:none;
 }
 
-.interactive:after{
-  content:"";
-  position:absolute;
-  inset:-10px;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:50%;
-  opacity:0;
-  transition:.3s;
-  pointer-events:none;
-}
-
-.interactive:hover:after{
-  opacity:1;
-}
 
 /* =========================================================
-   RETURN BUTTON
+   ROOM OBJECTS
 ========================================================= */
 
-#returnBtn{
-  position:absolute;
-  left:28px;
-  bottom:28px;
-  z-index:150;
-  display:none;
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(5,6,8,.65);
-  backdrop-filter:blur(8px);
-  padding:12px 17px;
-  letter-spacing:3px;
-  font-size:9px;
-  transition:.3s;
+.object{
+    position:absolute;
+
+    cursor:pointer;
+
+    transition:
+        transform .4s,
+        filter .4s;
 }
 
-#returnBtn.visible{
-  display:block;
+.object:hover{
+    filter:brightness(1.25);
+    transform:translateY(-5px) scale(1.02);
 }
 
-#returnBtn:hover{
-  background:#fff;
-  color:#000;
+
+/* cassette */
+
+.cassette{
+    left:14%;
+    bottom:25%;
+
+    width:180px;
+    height:105px;
+
+    border-radius:8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1e2024,
+            #090a0c
+        );
+
+    border:2px solid #34363a;
+
+    box-shadow:
+        0 30px 70px rgba(0,0,0,.6);
 }
 
-/* =========================================================
-   CLOSE-UP WORLD
-========================================================= */
+.cassette:before{
+    content:"MIX TAPE";
 
-#focus{
-  position:absolute;
-  inset:0;
-  z-index:140;
-  pointer-events:none;
-  opacity:0;
-  background:#050608;
-  transition:opacity .7s;
-}
+    position:absolute;
 
-#focus.active{
-  opacity:1;
-  pointer-events:auto;
-}
-
-.focus-content{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* phone */
-
-.big-phone{
-  width:340px;
-  height:650px;
-  border:12px solid #292c32;
-  border-radius:48px;
-  background:#050607;
-  box-shadow:0 0 80px rgba(0,0,0,.8);
-  overflow:hidden;
-  transform:translateY(30px);
-  animation:focusIn .7s forwards;
-}
-
-@keyframes focusIn{
-  to{transform:none}
-}
-
-.big-phone-screen{
-  position:absolute;
-  inset:10px;
-  border-radius:36px;
-  background:#0a0d10;
-  overflow:hidden;
-  padding:55px 25px 30px;
-}
-
-.phone-time{
-  text-align:center;
-  color:#8c9299;
-  font-size:10px;
-  margin-bottom:35px;
-}
-
-.message{
-  background:#1b2026;
-  border-radius:16px 16px 16px 4px;
-  padding:17px;
-  font-size:11px;
-  line-height:1.9;
-  color:#d7d9db;
-  margin-bottom:15px;
-}
-
-.message small{
-  display:block;
-  color:#666d74;
-  margin-top:8px;
-  font-size:8px;
-}
-
-/* laptop focus */
-
-.big-laptop{
-  width:min(850px,85vw);
-  height:500px;
-  position:relative;
-}
-
-.big-monitor{
-  width:100%;
-  height:420px;
-  background:#0b1013;
-  border:15px solid #24282c;
-  border-radius:15px;
-  box-shadow:0 30px 70px #000;
-  padding:40px;
-  overflow:hidden;
-}
-
-.monitor-line{
-  width:70%;
-  height:1px;
-  background:#394047;
-  margin-bottom:30px;
-}
-
-.monitor-text{
-  color:#83919b;
-  font-size:11px;
-  line-height:2.2;
-  white-space:pre-line;
-}
-
-.monitor-secret{
-  margin-top:30px;
-  color:#d5c39d;
-  font-size:14px;
-  opacity:0;
-  transition:1s;
-}
-
-.monitor-secret.show{
-  opacity:1;
-}
-
-.keyboard{
-  width:90%;
-  height:45px;
-  margin:auto;
-  background:#202327;
-  clip-path:polygon(4% 0,96% 0,100% 100%,0 100%);
-}
-
-/* breaker focus */
-
-.big-breaker{
-  width:360px;
-  height:500px;
-  background:#22262a;
-  border:10px solid #383d42;
-  box-shadow:0 30px 80px #000;
-  padding:45px;
-  position:relative;
-}
-
-.big-switch{
-  width:42px;
-  height:80px;
-  background:#090a0c;
-  border:3px solid #62666b;
-  position:absolute;
-  cursor:pointer;
-}
-
-.big-switch:nth-child(1){left:70px;top:110px}
-.big-switch:nth-child(2){left:160px;top:110px}
-.big-switch:nth-child(3){left:250px;top:110px}
-.big-switch:nth-child(4){left:70px;top:250px}
-.big-switch:nth-child(5){left:160px;top:250px}
-.big-switch:nth-child(6){left:250px;top:250px}
-
-.big-switch.active{
-  background:#b99a63;
-  box-shadow:0 0 25px rgba(185,154,99,.4);
-}
-
-/* photo focus */
-
-.big-photo{
-  width:650px;
-  height:450px;
-  background:#d2c8b4;
-  padding:25px;
-  transform:rotate(-2deg);
-  box-shadow:0 40px 80px #000;
-}
-
-.photo-image{
-  height:100%;
-  background:
-    radial-gradient(circle at 50% 38%,#555 0 9%,transparent 10%),
-    linear-gradient(145deg,#34383c,#121416);
-  position:relative;
-}
-
-.photo-writing{
-  position:absolute;
-  bottom:20px;
-  right:20px;
-  color:#111;
-  font-size:18px;
-  background:#ded4bd;
-  padding:12px 18px;
-  transform:rotate(-5deg);
-}
-
-/* =========================================================
-   SUITCASE FOCUS
-========================================================= */
-
-.suitcase-inside{
-  width:min(720px,85vw);
-  height:430px;
-  background:#30271f;
-  border:10px solid #4a392c;
-  box-shadow:0 40px 80px #000;
-  padding:40px;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
-  position:relative;
-}
-
-.evidence-paper{
-  background:#d8d0bd;
-  color:#161616;
-  padding:22px;
-  font-size:10px;
-  line-height:1.9;
-  transform:rotate(-2deg);
-}
-
-.evidence-paper:nth-child(2){
-  transform:rotate(2deg);
-}
-
-/* =========================================================
-   DOOR FOCUS
-========================================================= */
-
-.door-focus{
-  width:500px;
-  height:700px;
-  background:linear-gradient(90deg,#16181b,#22252a);
-  border:12px solid #30343a;
-  box-shadow:0 40px 100px #000;
-  position:relative;
-}
-
-.lock{
-  position:absolute;
-  right:60px;
-  top:50%;
-  width:80px;
-  height:80px;
-  border:3px solid #887351;
-  border-radius:50%;
-}
-
-.lock-code{
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  width:230px;
-  background:#0c0e11;
-  border:1px solid #45494f;
-  padding:20px;
-  text-align:center;
-}
-
-.code-display{
-  font-size:20px;
-  letter-spacing:8px;
-  margin-bottom:15px;
-  color:#c4b693;
-}
-
-.code-buttons{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:7px;
-}
-
-.code-buttons button{
-  padding:10px;
-  background:#181b1f;
-  border:1px solid #2e3237;
-}
-
-.code-buttons button:hover{
-  background:#30343a;
-}
-
-.code-result{
-  margin-top:12px;
-  min-height:15px;
-  color:#c7c1b2;
-  font-size:9px;
-}
-
-/* =========================================================
-   FINAL BOARD
-========================================================= */
-
-#ending{
-  position:absolute;
-  inset:0;
-  z-index:210;
-  background:#050608;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-}
-
-#ending.show{
-  display:flex;
-}
-
-.ending-inner{
-  width:min(800px,90%);
-}
-
-.ending-kicker{
-  color:#777;
-  letter-spacing:5px;
-  font-size:10px;
-  margin-bottom:25px;
-}
-
-.ending-title{
-  font-family:"Playfair Display",serif;
-  font-size:clamp(40px,7vw,80px);
-  margin-bottom:30px;
-}
-
-.ending-text{
-  color:#9a9da1;
-  line-height:2;
-  font-size:12px;
-  max-width:650px;
-  margin:auto;
-}
-
-.restart{
-  margin-top:35px;
-  background:transparent;
-  border:1px solid #444;
-  padding:12px 25px;
-  letter-spacing:3px;
-  font-size:9px;
-}
-
-.restart:hover{
-  background:white;
-  color:black;
-}
-
-/* =========================================================
-   SMALL CLUE FLASH
-========================================================= */
-
-#clueFlash{
-  position:absolute;
-  left:50%;
-  top:80px;
-  transform:translateX(-50%) translateY(-10px);
-  z-index:300;
-  color:#d4c7a7;
-  font-size:10px;
-  letter-spacing:3px;
-  opacity:0;
-  pointer-events:none;
-  transition:.5s;
-}
-
-#clueFlash.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media(max-width:700px){
-
-  #hud{
+    left:20px;
+    right:20px;
     top:15px;
-    left:15px;
-    right:15px;
-  }
 
-  .window{
-    width:38vw;
-    height:36vh;
-    right:5%;
-  }
+    padding:8px;
 
-  .lamp{
-    left:7%;
-    transform:scale(.75);
-    transform-origin:bottom;
-  }
+    text-align:center;
 
-  .picture{
-    left:25%;
-    transform:scale(.7) rotate(-2deg);
-  }
+    color:#151515;
 
-  .table{
-    left:30%;
-    width:220px;
-  }
+    background:#c7bca1;
 
-  .laptop{
-    left:43%;
-    transform:scale(.75);
-    transform-origin:bottom;
-  }
-
-  .suitcase{
-    left:20%;
-    transform:scale(.8);
-    transform-origin:bottom;
-  }
-
-  .door{
-    left:1%;
-    width:120px;
-  }
-
-  .big-phone{
-    width:280px;
-    height:560px;
-  }
-
-  .big-photo{
-    width:85vw;
-    height:55vw;
-  }
-
-  .door-focus{
-    width:80vw;
-    height:85vh;
-  }
-
-  .suitcase-inside{
-    height:55vh;
-    grid-template-columns:1fr;
-    overflow:auto;
-  }
-
-  .big-laptop{
-    height:auto;
-  }
-
-  .big-monitor{
-    height:55vh;
-    padding:20px;
-  }
+    font-size:9px;
+    letter-spacing:2px;
 }
+
+.cassette:after{
+    content:"";
+
+    position:absolute;
+
+    left:45px;
+    right:45px;
+    bottom:15px;
+
+    height:25px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #333 0 20%,
+            #111 21% 35%,
+            #333 36% 45%,
+            #111 46%
+        );
+}
+
+
+/* CRT */
+
+.crt{
+    right:15%;
+    bottom:19%;
+
+    width:290px;
+    height:230px;
+
+    background:#24252a;
+
+    border-radius:20px 20px 12px 12px;
+
+    border:7px solid #34363b;
+
+    box-shadow:
+        0 35px 80px rgba(0,0,0,.7);
+}
+
+.crt-screen{
+    position:absolute;
+
+    left:20px;
+    top:20px;
+
+    width:245px;
+    height:155px;
+
+    background:#0b1510;
+
+    border-radius:18px;
+
+    border:5px solid #17191b;
+
+    overflow:hidden;
+}
+
+.crt-text{
+    padding:20px;
+
+    color:#7caa83;
+
+    font-size:8px;
+
+    line-height:2;
+
+    text-shadow:
+        0 0 8px rgba(120,200,130,.5);
+}
+
+.crt-light{
+    position:absolute;
+
+    width:7px;
+    height:7px;
+
+    border-radius:50%;
+
+    right:20px;
+    bottom:18px;
+
+    background:#b8a060;
+
+    box-shadow:
+        0 0 12px #b8a060;
+}
+
+
+/* camera */
+
+.camera{
+    left:43%;
+    bottom:20%;
+
+    width:180px;
+    height:110px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #25272a,
+            #0d0e10
+        );
+
+    border-radius:10px;
+
+    border:4px solid #34363a;
+}
+
+.camera:before{
+    content:"";
+
+    position:absolute;
+
+    left:48px;
+    top:23px;
+
+    width:75px;
+    height:55px;
+
+    border-radius:50%;
+
+    background:#050608;
+
+    border:8px solid #555;
+
+    box-shadow:
+        inset 0 0 20px #000;
+}
+
+.camera:after{
+    content:"";
+
+    position:absolute;
+
+    right:15px;
+    top:10px;
+
+    width:25px;
+    height:12px;
+
+    background:#777;
+
+    border-radius:3px;
+}
+
+
+/* vinyl */
+
+.vinyl{
+    right:38%;
+    bottom:16%;
+
+    width:150px;
+    height:150px;
+
+    border-radius:50%;
+
+    background:
+        repeating-radial-gradient(
+            circle,
+            #050505 0 3px,
+            #101010 4px 5px
+        );
+
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.6);
+}
+
+.vinyl:after{
+    content:"";
+
+    position:absolute;
+
+    width:35px;
+    height:35px;
+
+    border-radius:50%;
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%,-50%);
+
+    background:var(--era-color);
+
+    border:7px solid #111;
+}
+
+
+/* =========================================================
+   INFORMATION ZONE
+========================================================= */
+
+#info{
+    position:absolute;
+
+    left:6%;
+    top:32%;
+
+    width:320px;
+
+    z-index:80;
+
+    opacity:0;
+
+    transform:translateX(-30px);
+
+    transition:
+        opacity .7s,
+        transform .7s;
+}
+
+#info.visible{
+    opacity:1;
+    transform:none;
+}
+
+.info-category{
+    font-size:9px;
+    letter-spacing:4px;
+
+    color:var(--era-color);
+
+    margin-bottom:13px;
+}
+
+.info-title{
+    font-family:"Playfair Display",serif;
+
+    font-size:38px;
+
+    line-height:1;
+
+    margin-bottom:20px;
+}
+
+.info-description{
+    color:#98999c;
+
+    font-size:10px;
+
+    line-height:2;
+}
+
+
+/* =========================================================
+   CLICKABLE DISCOVERY
+========================================================= */
+
+#discovery{
+    position:absolute;
+
+    right:6%;
+    top:27%;
+
+    width:300px;
+
+    z-index:100;
+
+    pointer-events:none;
+}
+
+.discovery-line{
+    width:0;
+    height:1px;
+
+    background:var(--era-color);
+
+    margin-bottom:14px;
+
+    transition:width 1s;
+}
+
+#discovery.show .discovery-line{
+    width:100%;
+}
+
+.discovery-text{
+    color:#aaa;
+
+    font-size:9px;
+
+    line-height:2;
+
+    opacity:0;
+
+    transform:translateY(10px);
+
+    transition:
+        opacity .7s .4s,
+        transform .7s .4s;
+}
+
+#discovery.show .discovery-text{
+    opacity:1;
+    transform:none;
+}
+
+
+/* =========================================================
+   ERA DETAIL
+========================================================= */
+
+#detail{
+    position:absolute;
+    inset:0;
+
+    z-index:200;
+
+    background:
+        radial-gradient(
+            circle at 50% 40%,
+            var(--era-glow),
+            transparent 50%
+        ),
+        rgba(3,4,5,.97);
+
+    opacity:0;
+
+    visibility:hidden;
+
+    transition:
+        opacity .7s,
+        visibility .7s;
+}
+
+#detail.open{
+    opacity:1;
+    visibility:visible;
+}
+
+.detail-inner{
+    position:absolute;
+    inset:8% 7%;
+
+    overflow:auto;
+
+    padding:40px;
+
+    scrollbar-width:thin;
+}
+
+.detail-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+
+    margin-bottom:55px;
+}
+
+.detail-year{
+    font-size:clamp(60px,9vw,130px);
+
+    color:rgba(255,255,255,.12);
+
+    line-height:.8;
+}
+
+.close-detail{
+    border:1px solid var(--line);
+
+    background:transparent;
+
+    color:white;
+
+    padding:12px 16px;
+
+    font-size:9px;
+
+    letter-spacing:3px;
+
+    transition:.3s;
+}
+
+.close-detail:hover{
+    background:white;
+    color:black;
+}
+
+
+/* =========================================================
+   DETAIL GRID
+========================================================= */
+
+.detail-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+
+    gap:35px;
+
+    max-width:1100px;
+
+    margin:auto;
+}
+
+.detail-card{
+    min-height:270px;
+
+    border-top:1px solid var(--line);
+
+    padding-top:20px;
+}
+
+.card-label{
+    color:var(--era-color);
+
+    font-size:9px;
+
+    letter-spacing:4px;
+
+    margin-bottom:20px;
+}
+
+.card-title{
+    font-family:"Playfair Display",serif;
+
+    font-size:27px;
+
+    margin-bottom:15px;
+}
+
+.card-text{
+    color:#929397;
+
+    font-size:10px;
+
+    line-height:2;
+}
+
+
+/* =========================================================
+   FASHION
+========================================================= */
+
+.clothes{
+    display:flex;
+
+    gap:10px;
+
+    margin-top:25px;
+
+    flex-wrap:wrap;
+}
+
+.clothing{
+    width:80px;
+    height:105px;
+
+    position:relative;
+
+    overflow:hidden;
+
+    background:#191b1e;
+
+    border:1px solid #303236;
+
+    transition:.3s;
+}
+
+.clothing:hover{
+    transform:translateY(-7px);
+
+    border-color:var(--era-color);
+}
+
+.clothing img{
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    opacity:.8;
+}
+
+.clothing span{
+    position:absolute;
+
+    left:5px;
+    bottom:5px;
+
+    font-size:7px;
+
+    background:rgba(0,0,0,.75);
+
+    padding:4px;
+}
+
+
+/* =========================================================
+   PRODUCT CARDS
+========================================================= */
+
+.products{
+    display:flex;
+
+    gap:12px;
+
+    margin-top:20px;
+
+    flex-wrap:wrap;
+}
+
+.product{
+    width:110px;
+    min-height:110px;
+
+    background:#111316;
+
+    border:1px solid #282b2f;
+
+    padding:12px;
+
+    transition:.3s;
+}
+
+.product:hover{
+    border-color:var(--era-color);
+    transform:translateY(-5px);
+}
+
+.product-icon{
+    height:50px;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    font-size:28px;
+
+    margin-bottom:10px;
+}
+
+.product-name{
+    font-size:8px;
+
+    color:#ccc;
+}
+
+
+/* =========================================================
+   CELEBRITIES
+========================================================= */
+
+.people{
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:10px;
+}
+
+.person{
+    padding:11px 13px;
+
+    border:1px solid #303237;
+
+    color:#aaa;
+
+    font-size:9px;
+
+    transition:.3s;
+}
+
+.person:hover{
+    color:white;
+
+    border-color:var(--era-color);
+
+    transform:translateY(-3px);
+}
+
+
+/* =========================================================
+   MUSIC PLAYER
+========================================================= */
+
+#music{
+    position:absolute;
+
+    left:30px;
+    bottom:30px;
+
+    z-index:160;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+}
+
+.music-btn{
+    width:40px;
+    height:40px;
+
+    border-radius:50%;
+
+    border:1px solid var(--line);
+
+    background:rgba(0,0,0,.4);
+
+    color:white;
+
+    transition:.3s;
+}
+
+.music-btn:hover{
+    background:white;
+    color:black;
+}
+
+.music-info{
+    max-width:180px;
+}
+
+.music-year{
+    color:var(--era-color);
+
+    font-size:8px;
+
+    letter-spacing:2px;
+}
+
+.music-name{
+    margin-top:5px;
+
+    font-size:9px;
+
+    color:#999;
+}
+
+
+/* =========================================================
+   ERA INTRO TRANSITION
+========================================================= */
+
+#eraTransition{
+    position:absolute;
+
+    inset:0;
+
+    z-index:250;
+
+    pointer-events:none;
+
+    background:#050608;
+
+    transform:scaleY(0);
+
+    transform-origin:bottom;
+
+    transition:
+        transform .7s cubic-bezier(.7,0,.3,1);
+}
+
+#eraTransition.go{
+    transform:scaleY(1);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:800px){
+
+    .top{
+        left:15px;
+        right:15px;
+        top:15px;
+    }
+
+    #timeline{
+        bottom:18px;
+    }
+
+    .year{
+        padding:8px 9px;
+        font-size:8px;
+    }
+
+    .time-year{
+        font-size:28vw;
+    }
+
+    #info{
+        left:7%;
+        top:27%;
+        width:240px;
+    }
+
+    .info-title{
+        font-size:29px;
+    }
+
+    #discovery{
+        display:none;
+    }
+
+    .cassette{
+        left:8%;
+        transform:scale(.7);
+        transform-origin:bottom left;
+    }
+
+    .crt{
+        right:5%;
+        transform:scale(.7);
+        transform-origin:bottom right;
+    }
+
+    .camera{
+        left:38%;
+        transform:scale(.65);
+    }
+
+    .vinyl{
+        right:28%;
+        transform:scale(.65);
+    }
+
+    .detail-inner{
+        inset:4% 3%;
+        padding:25px;
+    }
+
+    .detail-grid{
+        grid-template-columns:1fr;
+    }
+
+    #music{
+        bottom:70px;
+        left:15px;
+    }
+
+}
+
 </style>
 </head>
 
+
 <body>
 
-<div id="game">
+
+<div id="app">
 
 <div class="grain"></div>
 <div class="vignette"></div>
-<div id="rain"></div>
-
-<!-- HUD -->
-<div id="hud">
-  <div class="hud-left">
-    <div class="case-number">CASE 017</div>
-    <div class="clue-counter">
-      <span data-i18n="clues">CLUES</span>
-      <span id="clueCount">0</span>/8
-    </div>
-  </div>
-
-  <div class="hud-right">
-    <button class="lang active" id="enBtn">EN</button>
-    <button class="lang" id="hyBtn">ՀԱՅ</button>
-  </div>
-</div>
 
 
-<!-- INTRO -->
+<!-- =====================================================
+     INTRO
+===================================================== -->
+
 <section id="intro">
 
-  <div class="intro-content">
+    <div class="intro-inner">
 
-    <div class="intro-case" data-i18n="caseFile">
-      CASE FILE 017 — MISSING PERSON
-    </div>
-
-    <h1 class="intro-title">THE LAST<br>MESSAGE</h1>
-
-    <div class="intro-line"></div>
-
-    <div class="intro-text" id="introText"></div>
-
-    <button class="enter" id="enterBtn" data-i18n="begin">
-      BEGIN INVESTIGATION
-    </button>
-
-  </div>
-
-</section>
-
-
-<!-- PHONE CALL -->
-<section id="callScene" class="hidden">
-
-  <div class="call-phone">
-
-    <div class="phone-screen">
-
-      <div class="incoming" data-i18n="incoming">
-        INCOMING CALL
-      </div>
-
-      <div class="caller">
-        UNKNOWN
-      </div>
-
-      <div class="call-icon">
-        ☎
-      </div>
-
-      <button class="answer" id="answerBtn" data-i18n="answer">
-        ANSWER
-      </button>
-
-    </div>
-
-  </div>
-
-</section>
-
-
-<!-- MAIN WORLD -->
-<section id="world">
-
-  <div class="room">
-
-    <div class="wall"></div>
-    <div class="floor"></div>
-
-    <!-- DOOR -->
-    <div
-      class="door interactive"
-      id="door"
-      title="Door">
-      <div class="door-handle"></div>
-    </div>
-
-    <!-- PICTURE -->
-    <div
-      class="picture interactive"
-      id="picture">
-
-      <div class="picture-inner"></div>
-
-      <div class="picture-note">
-        <strong>23 — 11 — 47</strong><br><br>
-        <span data-i18n="pictureNote">
-          You were here before.
-        </span>
-      </div>
-
-    </div>
-
-    <!-- WINDOW -->
-    <div
-      class="window interactive"
-      id="window">
-
-      <div class="city"></div>
-      <div class="silhouette"></div>
-      <div class="lightning"></div>
-
-    </div>
-
-    <!-- LAMP -->
-    <div class="lamp interactive" id="lamp">
-
-      <div class="lamp-glow"></div>
-      <div class="lamp-shade"></div>
-      <div class="lamp-stem"></div>
-      <div class="lamp-base"></div>
-
-    </div>
-
-    <!-- TABLE -->
-    <div class="table"></div>
-
-    <!-- LAPTOP -->
-    <div class="laptop interactive" id="laptop">
-
-      <div class="laptop-screen">
-        <div class="laptop-screen-content">
-          SYSTEM OFFLINE<br>
-          CONNECTION LOST<br><br>
-          USER: ELENA.M<br>
-          LAST ACCESS: 23:41<br><br>
-          [CLICK TO RESTORE]
+        <div class="intro-small">
+            TEMPORAL ARCHIVE / 001
         </div>
-      </div>
 
-      <div class="laptop-base"></div>
+        <h1 class="intro-title">
+            <span>TIME</span>
+            <span>MACHINE</span>
+        </h1>
 
-    </div>
+        <p class="intro-sub" data-i18n="introText">
+            What did the world feel like before you were here?
+            Step into another year and experience its music,
+            clothes, technology, work and culture.
+        </p>
 
-    <!-- SUITCASE -->
-    <div class="suitcase interactive" id="suitcase">
-
-      <div class="handle"></div>
-      <div class="case-top"></div>
-      <div class="case-bottom"></div>
-
-    </div>
-
-    <!-- BREAKER PANEL -->
-    <div class="breaker" id="breaker">
-
-      <div class="switch"></div>
-      <div class="switch"></div>
-      <div class="switch"></div>
-      <div class="switch"></div>
-      <div class="switch"></div>
-      <div class="switch"></div>
+        <button
+            class="start"
+            id="startBtn"
+            data-i18n="enter">
+            ENTER THE MACHINE
+        </button>
 
     </div>
-
-  </div>
 
 </section>
 
 
-<!-- FOCUS AREA -->
-<section id="focus">
+<!-- =====================================================
+     TOP
+===================================================== -->
 
-  <div class="focus-content" id="focusContent"></div>
+<header class="top">
 
-</section>
+    <div class="logo">
+        TM / ARCHIVE
+    </div>
+
+    <div class="right-controls">
+
+        <button
+            class="control active"
+            id="enBtn">
+            EN
+        </button>
+
+        <button
+            class="control"
+            id="hyBtn">
+            ՀԱՅ
+        </button>
+
+    </div>
+
+</header>
 
 
-<!-- RETURN -->
-<button id="returnBtn">
-  ↩ <span data-i18n="return">RETURN</span>
-</button>
+<!-- =====================================================
+     YEAR DISPLAY
+===================================================== -->
 
+<div id="timeDisplay">
 
-<!-- CLUE FLASH -->
-<div id="clueFlash">
-  <span data-i18n="clueFound">CLUE DISCOVERED</span>
+    <div
+        class="time-year"
+        id="yearText">
+        1998
+    </div>
+
+    <div
+        class="time-caption"
+        id="yearCaption">
+        THE WORLD BEFORE THE MILLENNIUM
+    </div>
+
 </div>
 
 
-<!-- ENDING -->
-<section id="ending">
+<!-- =====================================================
+     SCENE
+===================================================== -->
 
-  <div class="ending-inner">
+<section id="scene">
 
-    <div class="ending-kicker" data-i18n="caseClosed">
-      CASE FILE 017
+    <div class="room">
+
+        <!-- CASSETTE -->
+        <div
+            class="object cassette"
+            id="cassette"
+            title="Music">
+        </div>
+
+
+        <!-- CRT -->
+        <div
+            class="object crt"
+            id="crt">
+
+            <div class="crt-screen">
+
+                <div
+                    class="crt-text"
+                    id="crtText">
+
+                    SYSTEM READY<br>
+                    ARCHIVE 1998<br>
+                    CONNECTION: DIAL-UP<br>
+                    <br>
+                    CLICK TO EXPLORE
+
+                </div>
+
+            </div>
+
+            <div class="crt-light"></div>
+
+        </div>
+
+
+        <!-- CAMERA -->
+        <div
+            class="object camera"
+            id="camera">
+        </div>
+
+
+        <!-- VINYL -->
+        <div
+            class="object vinyl"
+            id="vinyl">
+        </div>
+
     </div>
-
-    <div class="ending-title" data-i18n="endingTitle">
-      SHE LEFT A TRACE.
-    </div>
-
-    <div class="ending-text" id="endingText"></div>
-
-    <button class="restart" onclick="location.reload()" data-i18n="restart">
-      REOPEN CASE
-    </button>
-
-  </div>
 
 </section>
+
+
+<!-- =====================================================
+     INFO
+===================================================== -->
+
+<section id="info">
+
+    <div
+        class="info-category"
+        id="infoCategory">
+        1998 / CULTURE
+    </div>
+
+    <h2
+        class="info-title"
+        id="infoTitle">
+        BEFORE EVERYTHING WENT ONLINE.
+    </h2>
+
+    <p
+        class="info-description"
+        id="infoDescription">
+        Music lived on CDs and cassettes.
+        People waited for photographs to be developed.
+        Phones were becoming smaller, but the internet
+        was still something you connected to.
+    </p>
+
+</section>
+
+
+<!-- =====================================================
+     DISCOVERY
+===================================================== -->
+
+<div id="discovery">
+
+    <div class="discovery-line"></div>
+
+    <div
+        class="discovery-text"
+        id="discoveryText">
+        Click objects around the room.
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     MUSIC
+===================================================== -->
+
+<div id="music">
+
+    <button
+        class="music-btn"
+        id="musicBtn">
+        ▶
+    </button>
+
+    <div class="music-info">
+
+        <div
+            class="music-year"
+            id="musicYear">
+            1998
+        </div>
+
+        <div
+            class="music-name"
+            id="musicName">
+            Add your licensed 1998 track
+        </div>
+
+    </div>
+
+</div>
+
+<audio
+    id="audio"
+    preload="auto">
+</audio>
+
+
+<!-- =====================================================
+     TIMELINE
+===================================================== -->
+
+<nav id="timeline">
+
+    <button
+        class="year active"
+        data-year="1998">
+        1998
+    </button>
+
+    <button
+        class="year"
+        data-year="2008">
+        2008
+    </button>
+
+    <button
+        class="year"
+        data-year="2018">
+        2018
+    </button>
+
+    <button
+        class="year"
+        data-year="2026">
+        2026
+    </button>
+
+</nav>
+
+
+<!-- =====================================================
+     DETAIL
+===================================================== -->
+
+<section id="detail">
+
+    <div class="detail-inner">
+
+        <div class="detail-header">
+
+            <div
+                class="detail-year"
+                id="detailYear">
+                1998
+            </div>
+
+            <button
+                class="close-detail"
+                id="closeDetail"
+                data-i18n="return">
+                ↩ RETURN
+            </button>
+
+        </div>
+
+
+        <div class="detail-grid">
+
+
+            <!-- FASHION -->
+
+            <article class="detail-card">
+
+                <div
+                    class="card-label"
+                    data-i18n="fashion">
+                    FASHION
+                </div>
+
+                <h3
+                    class="card-title"
+                    id="fashionTitle">
+                    What people wore
+                </h3>
+
+                <p
+                    class="card-text"
+                    id="fashionText">
+                </p>
+
+                <div
+                    class="clothes"
+                    id="clothes">
+                </div>
+
+            </article>
+
+
+            <!-- EVERYDAY LIFE -->
+
+            <article class="detail-card">
+
+                <div
+                    class="card-label"
+                    data-i18n="life">
+                    EVERYDAY LIFE
+                </div>
+
+                <h3
+                    class="card-title"
+                    id="lifeTitle">
+                    How people lived
+                </h3>
+
+                <p
+                    class="card-text"
+                    id="lifeText">
+                </p>
+
+            </article>
+
+
+            <!-- WORK -->
+
+            <article class="detail-card">
+
+                <div
+                    class="card-label"
+                    data-i18n="work">
+                    WORK & MONEY
+                </div>
+
+                <h3
+                    class="card-title"
+                    id="workTitle">
+                    How people earned money
+                </h3>
+
+                <p
+                    class="card-text"
+                    id="workText">
+                </p>
+
+            </article>
+
+
+            <!-- PRODUCTS -->
+
+            <article class="detail-card">
+
+                <div
+                    class="card-label"
+                    data-i18n="products">
+                    PRODUCTS & TECHNOLOGY
+                </div>
+
+                <h3
+                    class="card-title"
+                    id="productsTitle">
+                    What existed
+                </h3>
+
+                <div
+                    class="products"
+                    id="products">
+                </div>
+
+            </article>
+
+
+            <!-- CELEBRITIES -->
+
+            <article class="detail-card">
+
+                <div
+                    class="card-label"
+                    data-i18n="people">
+                    PEOPLE
+                </div>
+
+                <h3
+                    class="card-title"
+                    id="peopleTitle">
+                    Names everyone knew
+                </h3>
+
+                <div
+                    class="people"
+                    id="people">
+                </div>
+
+            </article>
+
+
+            <!-- MUSIC -->
+
+            <article class="detail-card">
+
+                <div
+                    class="card-label"
+                    data-i18n="music">
+                    MUSIC
+                </div>
+
+                <h3
+                    class="card-title"
+                    id="musicTitle">
+                    What people listened to
+                </h3>
+
+                <p
+                    class="card-text"
+                    id="musicText">
+                </p>
+
+            </article>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     TRANSITION
+===================================================== -->
+
+<div id="eraTransition"></div>
+
 
 </div>
 
 
 <script>
+
 
 /* =========================================================
    TRANSLATIONS
@@ -1517,148 +1748,422 @@ button{
 
 const translations = {
 
-  en: {
+    en:{
 
-    caseFile:"CASE FILE 017 — MISSING PERSON",
+        introText:
+        "What did the world feel like before you were here? Step into another year and experience its music, clothes, technology, work and culture.",
 
-    begin:"BEGIN INVESTIGATION",
+        enter:
+        "ENTER THE MACHINE",
 
-    incoming:"INCOMING CALL",
+        return:
+        "↩ RETURN",
 
-    answer:"ANSWER",
+        fashion:
+        "FASHION",
 
-    return:"RETURN",
+        life:
+        "EVERYDAY LIFE",
 
-    clues:"CLUES",
+        work:
+        "WORK & MONEY",
 
-    clueFound:"CLUE DISCOVERED",
+        products:
+        "PRODUCTS & TECHNOLOGY",
 
-    caseClosed:"CASE FILE 017",
+        people:
+        "PEOPLE",
 
-    endingTitle:"SHE LEFT A TRACE.",
+        music:
+        "MUSIC"
 
-    restart:"REOPEN CASE",
+    },
 
-    pictureNote:"You were here before.",
+    hy:{
 
-    intro:
-      "At 11:47 PM, Elena Vardanyan disappeared from her apartment. Her phone called you once. When you answered, nobody spoke. The line remained open for exactly seventeen seconds.",
+        introText:
+        "Ինչպիսի՞ն էր աշխարհը, երբ դու դեռ այստեղ չէիր։ Մուտք գործիր մեկ այլ տարի և զգա դրա երաժշտությունը, հագուստը, տեխնոլոգիաները, աշխատանքը և մշակույթը։",
 
-    callMessage:
-      "If you're hearing this, I didn't make it home. Don't call the police yet. Look at the photograph. The time matters.",
+        enter:
+        "ՄՈՒՏՔ ԳՈՐԾԵԼ ԺԱՄԱՆԱԿԱՅԻՆ ՄԵՔԵՆԱ",
 
-    windowClue:
-      "Someone was watching the building.",
+        return:
+        "↩ ՎԵՐԱԴԱՌՆԱԼ",
 
-    laptopClue:
-      "The last file was deleted at 23:41.",
+        fashion:
+        "ՆՈՐԱՁԵՎՈՒԹՅՈՒՆ",
 
-    suitcaseClue:
-      "A second passport. Elena was preparing to leave.",
+        life:
+        "ԱՌՕՐՅԱ ԿՅԱՆՔ",
 
-    photoClue:
-      "23 — 11 — 47. The time of the call.",
+        work:
+        "ԱՇԽԱՏԱՆՔ ԵՎ ԵԿԱՄՈՒՏ",
 
-    doorClue:
-      "The lock was opened from the inside.",
+        products:
+        "ԱՊՐԱՆՔՆԵՐ ԵՎ ՏԵԽՆՈԼՈԳԻԱ",
 
-    powerClue:
-      "The apartment's power was deliberately switched off.",
+        people:
+        "ՄԱՐԴԻԿ",
 
-    laptopSecret:
-      "TRANSFER LOCATION: PLATFORM 4 — 00:20",
+        music:
+        "ԵՐԱԺՇՏՈՒԹՅՈՒՆ"
 
-    ending:
-      "The clues point to a planned disappearance. Elena knew someone was following her and left a trail through the apartment. The message was not a cry for help. It was a set of instructions. Someone was waiting for her at Platform 4."
-  },
-
-  hy: {
-
-    caseFile:"ԳՈՐԾ 017 — ԱՆՀԵՏ ԿՈՐԱԾ ԱՆՁ",
-
-    begin:"ՍԿՍԵԼ ՀԵՏԱՔՆՆՈՒԹՅՈՒՆԸ",
-
-    incoming:"ՄՈՒՏՔԱՅԻՆ ԶԱՆԳ",
-
-    answer:"ՊԱՏԱՍԽԱՆԵԼ",
-
-    return:"ՎԵՐԱԴԱՌՆԱԼ",
-
-    clues:"ՀԵՏՔԵՐ",
-
-    clueFound:"ՀԵՏՔԸ ՀԱՅՏՆԱԲԵՐՎԱԾ Է",
-
-    caseClosed:"ԳՈՐԾ 017",
-
-    endingTitle:"ՆԱ ՀԵՏՔ Է ԹՈՂԵԼ։",
-
-    restart:"ԿՐԿԻՆ ԲԱՑԵԼ ԳՈՐԾԸ",
-
-    pictureNote:"Դու արդեն այստեղ եղել էիր։",
-
-    intro:
-      "Ժամը 23:47-ին Էլենա Վարդանյանն անհետացավ իր բնակարանից։ Նրա հեռախոսը մեկ անգամ զանգահարեց քեզ։ Երբ պատասխանեցիր, ոչ ոք չխոսեց։ Կապը բաց մնաց ուղիղ տասնյոթ վայրկյան։",
-
-    callMessage:
-      "Եթե լսում ես սա, ես տուն չեմ հասել։ Դեռ ոստիկանություն մի զանգիր։ Նայիր լուսանկարին։ Ժամանակը կարևոր է։",
-
-    windowClue:
-      "Ինչ-որ մեկը հետևում էր շենքին։",
-
-    laptopClue:
-      "Վերջին ֆայլը ջնջվել է 23:41-ին։",
-
-    suitcaseClue:
-      "Երկրորդ անձնագիր։ Էլենան պատրաստվում էր հեռանալ։",
-
-    photoClue:
-      "23 — 11 — 47։ Զանգի ժամը։",
-
-    doorClue:
-      "Դուռը բացվել է ներսից։",
-
-    powerClue:
-      "Բնակարանի հոսանքը միտումնավոր անջատվել էր։",
-
-    laptopSecret:
-      "ՏԵՂԸ՝ ԿԱՅԱՐԱՆ 4 — 00:20",
-
-    ending:
-      "Հետքերը ցույց են տալիս, որ անհետացումը նախապես ծրագրված էր։ Էլենան գիտեր, որ ինչ-որ մեկը հետևում էր իրեն և բնակարանում հետքերի շղթա էր թողել։ Հաղորդագրությունը օգնության խնդրանք չէր։ Այն հրահանգների շարք էր։ Ինչ-որ մեկը սպասում էր նրան չորրորդ հարթակում։"
-  }
+    }
 
 };
 
-let lang = "en";
+
+let language="en";
 
 
 /* =========================================================
-   STATE
+   ERA DATA
 ========================================================= */
 
-const state = {
+const eras = {
 
-  clues:new Set(),
+1998:{
 
-  currentFocus:null,
+    caption:{
+        en:"THE WORLD BEFORE THE MILLENNIUM",
+        hy:"ԱՇԽԱՐՀԸ ՆԱԽՔԱՆ ՆՈՐ ՀԱԶԱՐԱՄՅԱԿԸ"
+    },
 
-  power:false,
+    category:{
+        en:"1998 / CULTURE",
+        hy:"1998 / ՄՇԱԿՈՒՅԹ"
+    },
 
-  phoneRead:false,
+    title:{
+        en:"BEFORE EVERYTHING WENT ONLINE.",
+        hy:"ՄԻՆՉԵՎ ԱՄԵՆ ԻՆՉ ՕՆԼԱՅՆ ԴԱՐՁԱՎ։"
+    },
 
-  laptopOpened:false,
+    description:{
+        en:
+        "Music lived on CDs and cassettes. People waited for photographs to be developed. Mobile phones were becoming smaller, while the internet was still something many people connected to rather than lived inside.",
+        hy:
+        "Երաժշտությունը պահվում էր CD-ների և կասետների վրա։ Լուսանկարները պետք էր սպասել, մինչև դրանք տպվեն։ Բջջային հեռախոսները փոքրանում էին, իսկ ինտերնետը դեռ մի վայր էր, որին մարդիկ միանում էին, ոչ թե ապրում դրա մեջ։"
+    },
 
-  suitcaseOpened:false,
+    fashion:{
+        en:
+        "Capri pants, urban sportswear, white shirts, grey tailoring, combat trousers, trainers and understated luxury were visible trends in 1998.",
+        hy:
+        "1998-ին տարածված էին կապրի տաբատները, քաղաքային սպորտային հագուստը, սպիտակ վերնաշապիկները, մոխրագույն կոստյումները, cargo տաբատները և սպորտային կոշիկները։"
+    },
 
-  pictureSeen:false,
+    life:{
+        en:
+        "People rented movies, listened to radio and CDs, took photographs on film, met friends without constantly messaging them and used landlines at home.",
+        hy:
+        "Մարդիկ վարձակալում էին ֆիլմեր, լսում ռադիո և CD-ներ, լուսանկարում էին ժապավենային ֆոտոխցիկներով, հանդիպում էին ընկերների հետ առանց մշտական հաղորդագրությունների և տանը օգտագործում էին ֆիքսված հեռախոսներ։"
+    },
 
-  windowSeen:false,
+    work:{
+        en:
+        "Office workers, teachers, retail employees, factory workers, drivers, tradespeople and service workers were common occupations. Many jobs depended on physical workplaces, paper documents and face-to-face communication.",
+        hy:
+        "Տարածված էին գրասենյակային աշխատողի, ուսուցչի, վաճառողի, գործարանի աշխատողի, վարորդի, արհեստավորի և սպասարկման ոլորտի աշխատանքները։ Շատ աշխատանքներ հիմնված էին ֆիզիկական աշխատավայրի, թղթային փաստաթղթերի և անմիջական շփման վրա։"
+    },
 
-  doorSeen:false,
+    products:[
 
-  breakerSolved:false,
+        ["📼","VHS tapes"],
 
-  endingShown:false
+        ["💿","CD players"],
+
+        ["📞","Landline phones"],
+
+        ["📱","Nokia phones"],
+
+        ["📷","Film cameras"],
+
+        ["🖥️","CRT computers"]
+
+    ],
+
+    people:[
+        "Cher",
+        "Céline Dion",
+        "Leonardo DiCaprio",
+        "Madonna",
+        "Will Smith",
+        "Jennifer Aniston"
+    ],
+
+    music:{
+        en:
+        "1998 was filled with pop, R&B, dance and rock hits. Cher's “Believe” and Céline Dion's “My Heart Will Go On” were among the year's major hits.",
+        hy:
+        "1998-ը լի էր փոփ, R&B, dance և ռոք հիթերով։ Cher-ի «Believe»-ը և Céline Dion-ի «My Heart Will Go On»-ը տարվա խոշոր հիթերից էին։"
+    },
+
+    track:
+        "1998 — Cher / Believe",
+
+    audio:
+        "music/1998.mp3"
+
+},
+
+
+2008:{
+
+    caption:{
+        en:"THE YEAR SOCIAL MEDIA BECAME EVERYWHERE",
+        hy:"ՏԱՐԻՆ, ԵՐԲ ՍՈՑԻԱԼԱԿԱՆ ՄԵԴԻԱՆ ԴԱՐՁԱՎ ԱՄԵՆՈՒՐ"
+    },
+
+    category:{
+        en:"2008 / DIGITAL CULTURE",
+        hy:"2008 / ԹՎԱՅԻՆ ՄՇԱԿՈՒՅԹ"
+    },
+
+    title:{
+        en:"THE INTERNET STARTED FOLLOWING YOU.",
+        hy:"ԻՆՏԵՐՆԵՏԸ ՍԿՍԵՑ ՀԵՏԵՎԵԼ ՔԵԶ։"
+    },
+
+    description:{
+        en:
+        "Facebook was becoming ubiquitous, MP3 players were common and smartphones were beginning to change how people communicated.",
+        hy:
+        "Facebook-ը դառնում էր ամենուր տարածված, MP3 նվագարկիչները սովորական էին, իսկ սմարթֆոնները սկսում էին փոխել մարդկանց հաղորդակցվելու ձևը։"
+    },
+
+    fashion:{
+        en:
+        "Maxi dresses, bright jeans, cropped leggings, jumpsuits, oversized sunglasses and statement accessories defined much of the mainstream style.",
+        hy:
+        "Մաքսի զգեստները, վառ գույների ջինսերը, կարճ լեգինսները, կոմբինեզոնները, մեծ արևային ակնոցները և արտահայտիչ աքսեսուարները բնորոշ էին ժամանակաշրջանի նորաձևությանը։"
+    },
+
+    life:{
+        en:
+        "People increasingly shared photos online, used Facebook, watched YouTube and carried digital music libraries on MP3 players.",
+        hy:
+        "Մարդիկ ավելի ու ավելի շատ էին լուսանկարներ հրապարակում առցանց, օգտագործում Facebook և YouTube և իրենց երաժշտությունը պահում MP3 նվագարկիչներում։"
+    },
+
+    work:{
+        en:
+        "Traditional office, retail, manufacturing and service jobs remained important, while digital marketing, web development and online media were growing areas.",
+        hy:
+        "Ավանդական գրասենյակային, առևտրային, արտադրական և սպասարկման աշխատանքները շարունակում էին կարևոր լինել, իսկ թվային մարքեթինգը, վեբ մշակումը և օնլայն մեդիան աճող ոլորտներ էին։"
+    },
+
+    products:[
+
+        ["📱","iPhone 3G"],
+
+        ["🎧","iPod"],
+
+        ["💻","Laptops"],
+
+        ["📺","Flat-screen TVs"],
+
+        ["🎮","Nintendo Wii"],
+
+        ["📸","Digital cameras"]
+
+    ],
+
+    people:[
+        "Rihanna",
+        "Beyoncé",
+        "Lady Gaga",
+        "Katy Perry",
+        "Angelina Jolie",
+        "Robert Downey Jr."
+    ],
+
+    music:{
+        en:
+        "2008's music landscape included Alicia Keys, Rihanna, Coldplay, Leona Lewis, Lil Wayne and many others.",
+        hy:
+        "2008-ի երաժշտական դաշտում մեծ անուններ էին Alicia Keys-ը, Rihanna-ն, Coldplay-ը, Leona Lewis-ը, Lil Wayne-ը և շատ ուրիշներ։"
+    },
+
+    track:
+        "2008 — Alicia Keys / No One",
+
+    audio:
+        "music/2008.mp3"
+
+},
+
+
+2018:{
+
+    caption:{
+        en:"THE AGE OF THE FEED",
+        hy:"FEED-Ի ԴԱՐԱՇՐՋԱՆԸ"
+    },
+
+    category:{
+        en:"2018 / SOCIAL MEDIA",
+        hy:"2018 / ՍՈՑԻԱԼԱԿԱՆ ՄԵԴԻԱ"
+    },
+
+    title:{
+        en:"EVERYONE HAD A CAMERA.",
+        hy:"ԲՈԼՈՐՆ ՈՒՆԵԻՆ ՏԵՍԱԽՑԻԿ։"
+    },
+
+    description:{
+        en:
+        "Instagram had become a major cultural force. Smartphones were cameras, maps, music players, shopping platforms and social spaces at the same time.",
+        hy:
+        "Instagram-ը դարձել էր մշակույթի կարևոր մաս։ Սմարթֆոնը միաժամանակ տեսախցիկ էր, քարտեզ, երաժշտական նվագարկիչ, գնումների հարթակ և սոցիալական միջավայր։"
+    },
+
+    fashion:{
+        en:
+        "Logomania, bike shorts, tiny sunglasses, cropped hoodies, cargo pants, dad sneakers and 90s-inspired clothing were highly visible.",
+        hy:
+        "Տարածված էին լոգոմանիան, bike shorts-ը, փոքր արևային ակնոցները, cropped hoodie-ները, cargo տաբատները, dad sneakers-ը և 90-ականների ոճի վերադարձը։"
+    },
+
+    life:{
+        en:
+        "People documented daily life through Instagram Stories, streamed music, ordered products online and relied heavily on smartphones.",
+        hy:
+        "Մարդիկ առօրյան փաստագրում էին Instagram Stories-ով, երաժշտություն էին լսում streaming ծառայություններով, ապրանքներ էին պատվիրում օնլայն և մեծապես կախված էին սմարթֆոններից։"
+    },
+
+    work:{
+        en:
+        "Traditional professions remained widespread, while influencer marketing, content creation, app-based work, e-commerce and freelance digital work expanded.",
+        hy:
+        "Ավանդական մասնագիտությունները շարունակում էին տարածված լինել, իսկ influencer marketing-ը, content creation-ը, app-երի միջոցով աշխատանքը, e-commerce-ը և freelance թվային աշխատանքը ընդլայնվում էին։"
+    },
+
+    products:[
+
+        ["📱","iPhone X"],
+
+        ["⌚","Apple Watch"],
+
+        ["🎧","AirPods"],
+
+        ["📸","Instagram"],
+
+        ["🛒","Online shopping"],
+
+        ["🎵","Streaming"]
+
+    ],
+
+    people:[
+        "Drake",
+        "Ariana Grande",
+        "Rihanna",
+        "Beyoncé",
+        "Kim Kardashian",
+        "BTS"
+    ],
+
+    music:{
+        en:
+        "Streaming dominated music discovery. Drake's “God's Plan” was Spotify's top song globally in its 2018 year review.",
+        hy:
+        "Streaming-ը մեծապես փոխել էր երաժշտության բացահայտումը։ Spotify-ի 2018 թվականի ամփոփման մեջ Drake-ի «God's Plan»-ը աշխարհի ամենաշատ լսված երգն էր։"
+    },
+
+    track:
+        "2018 — Drake / God's Plan",
+
+    audio:
+        "music/2018.mp3"
+
+},
+
+
+2026:{
+
+    caption:{
+        en:"THE PRESENT",
+        hy:"ՆԵՐԿԱ ԺԱՄԱՆԱԿ"
+    },
+
+    category:{
+        en:"2026 / NOW",
+        hy:"2026 / ՀԻՄԱ"
+    },
+
+    title:{
+        en:"THE MACHINE IS ALREADY INSIDE YOUR POCKET.",
+        hy:"ՄԵՔԵՆԱՆ ԱՐԴԵՆ ՔՈ ԳՐՊԱՆՈՒՄ Է։"
+    },
+
+    description:{
+        en:
+        "AI assistants, short-form video, instant communication, digital payments and connected devices have made technology almost invisible.",
+        hy:
+        "AI օգնականները, կարճ տեսանյութերը, ակնթարթային հաղորդակցությունը, թվային վճարումները և միացված սարքերը տեխնոլոգիան գրեթե անտեսանելի են դարձրել։"
+    },
+
+    fashion:{
+        en:
+        "Streetwear, relaxed tailoring, vintage-inspired pieces, technical clothing and personal micro-trends coexist. Fashion moves rapidly through social platforms.",
+        hy:
+        "Streetwear-ը, ազատ կարված կոստյումները, vintage ոճը, տեխնիկական հագուստը և անհատական micro-trend-երը գոյակցում են։ Նորաձևությունը արագ տարածվում է սոցիալական հարթակներով։"
+    },
+
+    life:{
+        en:
+        "People work, shop, learn, communicate and entertain themselves through connected devices. Remote and hybrid routines are common in many fields.",
+        hy:
+        "Մարդիկ աշխատում, գնումներ կատարում, սովորում, շփվում և ժամանց են կազմակերպում միացված սարքերի միջոցով։ Շատ ոլորտներում տարածված են remote և hybrid աշխատանքային ռեժիմները։"
+    },
+
+    work:{
+        en:
+        "Technology supports remote work, freelancing, e-commerce, software, digital marketing, content creation, AI-related work and many traditional professions.",
+        hy:
+        "Տեխնոլոգիան աջակցում է remote աշխատանքին, freelance-ին, e-commerce-ին, ծրագրավորմանը, թվային մարքեթինգին, content creation-ին, AI ոլորտի աշխատանքներին և ավանդական մասնագիտություններին։"
+    },
+
+    products:[
+
+        ["🤖","AI assistants"],
+
+        ["📱","Smartphones"],
+
+        ["🥽","Spatial devices"],
+
+        ["⌚","Wearables"],
+
+        ["🚗","Electric cars"],
+
+        ["🧠","Generative AI"]
+
+    ],
+
+    people:[
+        "Taylor Swift",
+        "Beyoncé",
+        "Drake",
+        "Zendaya",
+        "Timothée Chalamet",
+        "The Weeknd"
+    ],
+
+    music:{
+        en:
+        "The current era is shaped by streaming, algorithmic discovery, global pop and constantly changing online music culture.",
+        hy:
+        "Ներկայիս դարաշրջանը ձևավորվում է streaming-ի, ալգորիթմների, համաշխարհային փոփի և արագ փոփոխվող օնլայն երաժշտական մշակույթի միջոցով։"
+    },
+
+    track:
+        "2026 — Your current-era track",
+
+    audio:
+        "music/2026.mp3"
+
+}
 
 };
 
@@ -1667,836 +2172,703 @@ const state = {
    DOM
 ========================================================= */
 
-const intro = document.getElementById("intro");
-const callScene = document.getElementById("callScene");
-const world = document.getElementById("world");
-const focus = document.getElementById("focus");
-const focusContent = document.getElementById("focusContent");
-const returnBtn = document.getElementById("returnBtn");
-const clueCount = document.getElementById("clueCount");
-const clueFlash = document.getElementById("clueFlash");
+const app =
+document.getElementById("app");
+
+const intro =
+document.getElementById("intro");
+
+const startBtn =
+document.getElementById("startBtn");
+
+const scene =
+document.getElementById("scene");
+
+const detail =
+document.getElementById("detail");
+
+const transition =
+document.getElementById("eraTransition");
+
+const audio =
+document.getElementById("audio");
+
+const musicBtn =
+document.getElementById("musicBtn");
+
+let currentYear=1998;
+
+let playing=false;
 
 
 /* =========================================================
-   LANGUAGE
+   TRANSLATION
 ========================================================= */
 
-function t(key){
-  return translations[lang][key] || key;
+function applyLanguage(){
+
+    document.documentElement.lang =
+        language==="hy"
+        ? "hy"
+        : "en";
+
+    document
+        .querySelectorAll("[data-i18n]")
+        .forEach(el=>{
+
+            const key =
+                el.dataset.i18n;
+
+            if(
+                translations[language][key]
+            ){
+
+                el.textContent =
+                    translations[
+                        language
+                    ][key];
+
+            }
+
+        });
+
+    renderEra(currentYear,false);
 }
 
-function updateLanguage(){
 
-  document.documentElement.lang = lang === "hy" ? "hy" : "en";
+/* =========================================================
+   LANGUAGE BUTTONS
+========================================================= */
 
-  document.querySelectorAll("[data-i18n]").forEach(el=>{
-    const key = el.dataset.i18n;
-    if(translations[lang][key]){
-      el.textContent = translations[lang][key];
+document
+.getElementById("enBtn")
+.onclick=()=>{
+
+    language="en";
+
+    document
+    .getElementById("enBtn")
+    .classList.add("active");
+
+    document
+    .getElementById("hyBtn")
+    .classList.remove("active");
+
+    applyLanguage();
+};
+
+
+document
+.getElementById("hyBtn")
+.onclick=()=>{
+
+    language="hy";
+
+    document
+    .getElementById("hyBtn")
+    .classList.add("active");
+
+    document
+    .getElementById("enBtn")
+    .classList.remove("active");
+
+    applyLanguage();
+};
+
+
+/* =========================================================
+   START
+========================================================= */
+
+startBtn.onclick=()=>{
+
+    intro.classList.add("hide");
+
+    setTimeout(()=>{
+
+        document
+        .getElementById("info")
+        .classList.add("visible");
+
+        document
+        .getElementById("discovery")
+        .classList.add("show");
+
+    },900);
+
+};
+
+
+/* =========================================================
+   ERA RENDER
+========================================================= */
+
+function renderEra(year,animate=true){
+
+    const era=eras[year];
+
+    if(!era) return;
+
+    currentYear=year;
+
+    if(animate){
+
+        transition.classList.add("go");
+
+        scene.classList.add("transitioning");
+
+        setTimeout(()=>{
+
+            updateEraContent(era);
+
+            scene.classList.remove(
+                "transitioning"
+            );
+
+            setTimeout(()=>{
+
+                transition.classList.remove("go");
+
+            },250);
+
+        },600);
+
+    }else{
+
+        updateEraContent(era);
+
     }
-  });
 
-  document.getElementById("introText").textContent = t("intro");
-
-  if(state.currentFocus){
-    renderFocus(state.currentFocus);
-  }
-
-  if(state.endingShown){
-    document.getElementById("endingText").textContent = t("ending");
-  }
-
-  document.getElementById("enBtn").classList.toggle("active",lang==="en");
-  document.getElementById("hyBtn").classList.toggle("active",lang==="hy");
-}
-
-document.getElementById("enBtn").onclick=()=>{
-  lang="en";
-  updateLanguage();
-};
-
-document.getElementById("hyBtn").onclick=()=>{
-  lang="hy";
-  updateLanguage();
-};
-
-
-/* =========================================================
-   RAIN
-========================================================= */
-
-function createRain(){
-
-  const rain = document.getElementById("rain");
-
-  for(let i=0;i<90;i++){
-
-    const d=document.createElement("div");
-
-    d.className="drop";
-
-    d.style.left=Math.random()*100+"%";
-    d.style.animationDuration=(.45+Math.random()*.7)+"s";
-    d.style.animationDelay=(-Math.random()*2)+"s";
-    d.style.opacity=.15+Math.random()*.5;
-
-    rain.appendChild(d);
-  }
-}
-
-createRain();
-
-
-/* =========================================================
-   AUDIO
-========================================================= */
-
-let audioCtx=null;
-let master=null;
-
-function startAudio(){
-
-  if(audioCtx) return;
-
-  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-
-  master=audioCtx.createGain();
-  master.gain.value=.08;
-  master.connect(audioCtx.destination);
-
-  const osc=audioCtx.createOscillator();
-  const gain=audioCtx.createGain();
-
-  osc.type="sine";
-  osc.frequency.value=42;
-  gain.gain.value=.35;
-
-  osc.connect(gain);
-  gain.connect(master);
-
-  osc.start();
-
-  createRainSound();
-}
-
-function createRainSound(){
-
-  const bufferSize=audioCtx.sampleRate*2;
-  const buffer=audioCtx.createBuffer(
-    1,
-    bufferSize,
-    audioCtx.sampleRate
-  );
-
-  const data=buffer.getChannelData(0);
-
-  for(let i=0;i<bufferSize;i++){
-    data[i]=(Math.random()*2-1)*.25;
-  }
-
-  const source=audioCtx.createBufferSource();
-  source.buffer=buffer;
-  source.loop=true;
-
-  const filter=audioCtx.createBiquadFilter();
-  filter.type="lowpass";
-  filter.frequency.value=1500;
-
-  const gain=audioCtx.createGain();
-  gain.gain.value=.13;
-
-  source.connect(filter);
-  filter.connect(gain);
-  gain.connect(master);
-
-  source.start();
 }
 
 
 /* =========================================================
-   SPEECH
+   UPDATE ERA
 ========================================================= */
 
-function speak(text){
+function updateEraContent(era){
 
-  if(!("speechSynthesis" in window)) return;
+    /* colors */
 
-  speechSynthesis.cancel();
+    const colors={
 
-  const u=new SpeechSynthesisUtterance(text);
+        1998:"#c59b68",
 
-  u.lang=lang==="hy" ? "hy-AM" : "en-US";
-  u.rate=.85;
-  u.pitch=.65;
-  u.volume=.7;
+        2008:"#78a8c8",
 
-  speechSynthesis.speak(u);
-}
+        2018:"#d46b9a",
 
+        2026:"#8c7cff"
 
-/* =========================================================
-   INTRO
-========================================================= */
+    };
 
-document.getElementById("enterBtn").onclick=()=>{
+    const glows={
 
-  startAudio();
+        1998:"rgba(197,155,104,.18)",
 
-  intro.classList.add("hidden");
+        2008:"rgba(120,168,200,.18)",
 
-  setTimeout(()=>{
+        2018:"rgba(212,107,154,.18)",
 
-    callScene.classList.remove("hidden");
+        2026:"rgba(140,124,255,.20)"
 
-    speak(
-      lang==="en"
-      ? "You have one new call."
-      : "Դուք ունեք մեկ նոր զանգ։"
+    };
+
+    app.style.setProperty(
+        "--era-color",
+        colors[currentYear]
     );
 
-  },900);
-
-};
-
-
-/* =========================================================
-   ANSWER PHONE
-========================================================= */
-
-document.getElementById("answerBtn").onclick=()=>{
-
-  startAudio();
-
-  callScene.classList.add("hidden");
-
-  setTimeout(()=>{
-
-    world.classList.add("visible");
-
-    speak(t("callMessage"));
-
-  },700);
-
-};
+    app.style.setProperty(
+        "--era-glow",
+        glows[currentYear]
+    );
 
 
-/* =========================================================
-   CLUE SYSTEM
-========================================================= */
+    /* year */
 
-function discoverClue(id){
+    document
+    .getElementById("yearText")
+    .textContent=currentYear;
 
-  if(state.clues.has(id)) return;
+    document
+    .getElementById("yearCaption")
+    .textContent=
+        era.caption[language];
 
-  state.clues.add(id);
 
-  clueCount.textContent=state.clues.size;
+    /* information */
 
-  clueFlash.classList.add("show");
+    document
+    .getElementById("infoCategory")
+    .textContent=
+        era.category[language];
 
-  setTimeout(()=>{
-    clueFlash.classList.remove("show");
-  },1800);
+    document
+    .getElementById("infoTitle")
+    .textContent=
+        era.title[language];
 
-  if(state.clues.size>=8){
-    setTimeout(showEnding,1200);
-  }
+    document
+    .getElementById("infoDescription")
+    .textContent=
+        era.description[language];
+
+
+    /* details */
+
+    document
+    .getElementById("detailYear")
+    .textContent=currentYear;
+
+    document
+    .getElementById("fashionText")
+    .textContent=
+        era.fashion[language];
+
+    document
+    .getElementById("lifeText")
+    .textContent=
+        era.life[language];
+
+    document
+    .getElementById("workText")
+    .textContent=
+        era.work[language];
+
+    document
+    .getElementById("musicText")
+    .textContent=
+        era.music[language];
+
+
+    /* products */
+
+    const products =
+        document.getElementById("products");
+
+    products.innerHTML="";
+
+    era.products.forEach(product=>{
+
+        const div=
+            document.createElement("div");
+
+        div.className="product";
+
+        div.innerHTML=`
+
+            <div class="product-icon">
+                ${product[0]}
+            </div>
+
+            <div class="product-name">
+                ${product[1]}
+            </div>
+
+        `;
+
+        products.appendChild(div);
+
+    });
+
+
+    /* people */
+
+    const people =
+        document.getElementById("people");
+
+    people.innerHTML="";
+
+    era.people.forEach(person=>{
+
+        const div=
+            document.createElement("div");
+
+        div.className="person";
+
+        div.textContent=person;
+
+        people.appendChild(div);
+
+    });
+
+
+    /* clothes */
+
+    renderClothes(currentYear);
+
+
+    /* music */
+
+    document
+    .getElementById("musicYear")
+    .textContent=currentYear;
+
+    document
+    .getElementById("musicName")
+    .textContent=
+        era.track;
+
+
+    /* CRT */
+
+    document
+    .getElementById("crtText")
+    .innerHTML=
+
+        currentYear===1998
+        ?
+
+`SYSTEM READY<br>
+ARCHIVE 1998<br>
+CONNECTION: DIAL-UP<br>
+<br>
+CLICK TO EXPLORE`
+
+        :
+
+        currentYear===2008
+        ?
+
+`SYSTEM READY<br>
+ARCHIVE 2008<br>
+CONNECTION: BROADBAND<br>
+<br>
+SOCIAL NETWORKS DETECTED`
+
+        :
+
+        currentYear===2018
+        ?
+
+`SYSTEM READY<br>
+ARCHIVE 2018<br>
+CONNECTION: 4G<br>
+<br>
+THE FEED IS ACTIVE`
+
+        :
+
+`SYSTEM READY<br>
+ARCHIVE 2026<br>
+CONNECTION: ALWAYS ON<br>
+<br>
+AI SYSTEMS DETECTED`;
+
+
+    /* timeline active */
+
+    document
+    .querySelectorAll(".year")
+    .forEach(button=>{
+
+        button.classList.toggle(
+            "active",
+            Number(button.dataset.year)
+            ===currentYear
+        );
+
+    });
+
+
+    /* play music */
+
+    loadMusic();
+
 }
 
 
 /* =========================================================
-   FOCUS MANAGEMENT
+   CLOTHES
 ========================================================= */
 
-function openFocus(type){
+function renderClothes(year){
 
-  state.currentFocus=type;
+    const clothes =
+        document.getElementById("clothes");
 
-  renderFocus(type);
+    clothes.innerHTML="";
 
-  focus.classList.add("active");
 
-  returnBtn.classList.add("visible");
-}
+    const data={
 
-function closeFocus(){
+        1998:[
+            ["https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=400&q=80","Capri"],
+            ["https://images.unsplash.com/photo-1596755389378-c31d21fd1273?auto=format&fit=crop&w=400&q=80","White shirt"],
+            ["https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=400&q=80","Streetwear"],
+            ["https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=400&q=80","Combat"]
+        ],
 
-  focus.classList.remove("active");
+        2008:[
+            ["https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=400&q=80","Maxi"],
+            ["https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?auto=format&fit=crop&w=400&q=80","Jeans"],
+            ["https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=400&q=80","Jumpsuit"],
+            ["https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=400&q=80","Accessories"]
+        ],
 
-  setTimeout(()=>{
-    focusContent.innerHTML="";
-  },500);
+        2018:[
+            ["https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=400&q=80","Streetwear"],
+            ["https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=400&q=80","Cargo"],
+            ["https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=400&q=80","Sneakers"],
+            ["https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=400&q=80","Micro bag"]
+        ],
 
-  state.currentFocus=null;
+        2026:[
+            ["https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=400&q=80","Modern"],
+            ["https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=400&q=80","Utility"],
+            ["https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=400&q=80","Layering"],
+            ["https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=400&q=80","Sneakers"]
+        ]
+
+    };
+
+
+    data[year].forEach(item=>{
+
+        const div=
+            document.createElement("div");
+
+        div.className="clothing";
+
+        div.innerHTML=`
+
+            <img
+                src="${item[0]}"
+                alt="${item[1]}"
+                loading="lazy"
+            >
+
+            <span>
+                ${item[1]}
+            </span>
+
+        `;
+
+        clothes.appendChild(div);
+
+    });
+
 }
 
 
 /* =========================================================
-   RETURN BUTTON
+   MUSIC
 ========================================================= */
 
-returnBtn.onclick=()=>{
+function loadMusic(){
 
-  closeFocus();
+    const era=eras[currentYear];
 
-};
+    audio.pause();
+
+    audio.currentTime=0;
+
+    audio.src=era.audio;
+
+    playing=false;
+
+    musicBtn.textContent="▶";
+
+}
 
 
 /* =========================================================
-   RENDER FOCUS
+   MUSIC BUTTON
 ========================================================= */
 
-function renderFocus(type){
+musicBtn.onclick=()=>{
 
-  if(type==="phone"){
+    if(!audio.src) return;
 
-    focusContent.innerHTML=`
+    if(playing){
 
-      <div class="big-phone">
+        audio.pause();
 
-        <div class="big-phone-screen">
+        playing=false;
 
-          <div class="phone-time">
-            23:47
-          </div>
+        musicBtn.textContent="▶";
 
-          <div class="message">
-            ${t("callMessage")}
-            <small>UNKNOWN — 23:47</small>
-          </div>
+    }else{
 
-          <div class="message">
-            ${lang==="en"
-              ? "Look at the photograph."
-              : "Նայիր լուսանկարին։"}
-            <small>UNKNOWN — 23:47</small>
-          </div>
+        audio.play()
+        .then(()=>{
 
-        </div>
+            playing=true;
 
-      </div>
+            musicBtn.textContent="Ⅱ";
 
-    `;
+        })
+        .catch(()=>{
 
-    if(!state.phoneRead){
+            alert(
+                language==="en"
+                ?
+                "Add the corresponding MP3 file inside the music folder."
+                :
+                "Ավելացրու համապատասխան MP3 ֆայլը music թղթապանակում։"
+            );
 
-      state.phoneRead=true;
-
-      discoverClue("phone");
+        });
 
     }
 
-  }
-
-
-  if(type==="laptop"){
-
-    focusContent.innerHTML=`
-
-      <div class="big-laptop">
-
-        <div class="big-monitor">
-
-          <div class="monitor-line"></div>
-
-          <div class="monitor-text">
-USER: ELENA.M
-
-LAST ACCESS: 23:41
-
-FILE SYSTEM:
---------------------------------
-
-/PERSONAL
-/TRAVEL
-/ARCHIVE
-/DELETED
-
---------------------------------
-
-DELETED FILE:
-"TRANSFER_NOTE.txt"
-          </div>
-
-          <div class="monitor-secret" id="secretText">
-            ${t("laptopSecret")}
-          </div>
-
-        </div>
-
-        <div class="keyboard"></div>
-
-      </div>
-
-    `;
-
-    state.laptopOpened=true;
-
-    discoverClue("laptop");
-
-    setTimeout(()=>{
-
-      document.getElementById("secretText")
-        ?.classList.add("show");
-
-    },1200);
-
-  }
-
-
-  if(type==="suitcase"){
-
-    focusContent.innerHTML=`
-
-      <div class="suitcase-inside">
-
-        <div class="evidence-paper">
-          <strong>
-            ${lang==="en" ? "PASSPORT" : "ԱՆՁՆԱԳԻՐ"}
-          </strong>
-          <br><br>
-          ELENA VARDANYAN
-          <br>
-          DOB 16.01.1998
-          <br><br>
-          ${lang==="en"
-            ? "SECOND DOCUMENT"
-            : "ԵՐԿՐՈՐԴ ՓԱՍՏԱԹՈՒՂԹ"}
-        </div>
-
-        <div class="evidence-paper">
-
-          <strong>
-            ${lang==="en" ? "TRAIN TICKET" : "ԳՆԱՑՔԻ ՏՈՄՍ"}
-          </strong>
-
-          <br><br>
-
-          YEREVAN → UNKNOWN
-
-          <br>
-
-          00:20
-
-          <br><br>
-
-          ${lang==="en"
-            ? "PLATFORM 4"
-            : "ՀԱՐԹԱԿ 4"}
-
-        </div>
-
-      </div>
-
-    `;
-
-    state.suitcaseOpened=true;
-
-    discoverClue("suitcase");
-
-  }
-
-
-  if(type==="picture"){
-
-    focusContent.innerHTML=`
-
-      <div class="big-photo">
-
-        <div class="photo-image">
-
-          <div class="photo-writing">
-            23 — 11 — 47
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
-
-    state.pictureSeen=true;
-
-    discoverClue("picture");
-
-  }
-
-
-  if(type==="window"){
-
-    focusContent.innerHTML=`
-
-      <div style="
-        width:80vw;
-        height:70vh;
-        position:relative;
-        background:
-        linear-gradient(90deg,
-          transparent 49.5%,
-          rgba(255,255,255,.12) 50%,
-          transparent 50.5%),
-        linear-gradient(180deg,
-          transparent 49.5%,
-          rgba(255,255,255,.12) 50%,
-          transparent 50.5%),
-        linear-gradient(180deg,#111827,#05070a);
-        border:15px solid #272b30;
-        box-shadow:0 30px 100px #000;
-        overflow:hidden;
-      ">
-
-        <div style="
-          position:absolute;
-          bottom:0;
-          width:100%;
-          height:40%;
-          background:
-          linear-gradient(
-            90deg,
-            #050608 0 10%,
-            #181b20 10% 18%,
-            #050608 18% 30%,
-            #181b20 30% 45%,
-            #060708 45% 58%,
-            #1a1d22 58% 75%,
-            #050608 75% 100%);
-        "></div>
-
-        <div style="
-          position:absolute;
-          bottom:15%;
-          left:50%;
-          transform:translateX(-50%);
-          width:55px;
-          height:180px;
-          background:#020304;
-          clip-path:polygon(
-          40% 0,
-          62% 0,
-          72% 17%,
-          100% 35%,
-          82% 39%,
-          75% 100%,
-          25% 100%,
-          18% 39%,
-          0 35%,
-          28% 17%);
-        "></div>
-
-      </div>
-
-    `;
-
-    state.windowSeen=true;
-
-    discoverClue("window");
-
-  }
-
-
-  if(type==="door"){
-
-    focusContent.innerHTML=`
-
-      <div class="door-focus">
-
-        <div class="lock"></div>
-
-        <div class="lock-code">
-
-          <div class="code-display" id="codeDisplay">
-            • • • •
-          </div>
-
-          <div class="code-buttons">
-
-            ${[1,2,3,4,5,6,7,8,9,0]
-              .map(n=>`
-                <button onclick="enterCode(${n})">
-                  ${n}
-                </button>
-              `).join("")}
-
-            <button onclick="clearCode()">C</button>
-
-          </div>
-
-          <div class="code-result" id="codeResult"></div>
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  if(type==="breaker"){
-
-    focusContent.innerHTML=`
-
-      <div class="big-breaker">
-
-        <div class="big-switch" onclick="breakerSwitch(this)"></div>
-        <div class="big-switch" onclick="breakerSwitch(this)"></div>
-        <div class="big-switch" onclick="breakerSwitch(this)"></div>
-        <div class="big-switch" onclick="breakerSwitch(this)"></div>
-        <div class="big-switch" onclick="breakerSwitch(this)"></div>
-        <div class="big-switch" onclick="breakerSwitch(this)"></div>
-
-      </div>
-
-    `;
-
-  }
-
-}
-
-
-/* =========================================================
-   OBJECT INTERACTIONS
-========================================================= */
-
-
-/* PHONE — after call, phone can be revisited
-   through the room only if the player returns later.
-*/
-
-document.getElementById("lamp").onclick=()=>{
-
-  const lamp=document.getElementById("lamp");
-
-  lamp.classList.toggle("on");
-
-  if(lamp.classList.contains("on")){
-
-    document.getElementById("breaker").classList.add("visible");
-
-  }
-
-};
-
-
-/* WINDOW */
-
-document.getElementById("window").onclick=()=>{
-
-  const w=document.getElementById("window");
-
-  w.classList.add("flash");
-
-  setTimeout(()=>w.classList.remove("flash"),500);
-
-  openFocus("window");
-
-};
-
-
-/* PICTURE */
-
-document.getElementById("picture").onclick=()=>{
-
-  const p=document.getElementById("picture");
-
-  p.classList.toggle("flipped");
-
-  openFocus("picture");
-
-};
-
-
-/* LAPTOP */
-
-document.getElementById("laptop").onclick=()=>{
-
-  const laptop=document.getElementById("laptop");
-
-  laptop.classList.add("open");
-
-  openFocus("laptop");
-
-};
-
-
-/* SUITCASE */
-
-document.getElementById("suitcase").onclick=()=>{
-
-  const suitcase=document.getElementById("suitcase");
-
-  suitcase.classList.add("open");
-
-  openFocus("suitcase");
-
-};
-
-
-/* DOOR */
-
-document.getElementById("door").onclick=()=>{
-
-  openFocus("door");
-
 };
 
 
 /* =========================================================
-   BREAKER
+   AUTO MUSIC AFTER YEAR CLICK
 ========================================================= */
 
-function breakerSwitch(el){
+document
+.querySelectorAll(".year")
+.forEach(button=>{
 
-  el.classList.toggle("active");
+    button.onclick=()=>{
 
-  const active=
-    document.querySelectorAll(".big-switch.active").length;
+        const year=
+            Number(button.dataset.year);
 
-  if(active>=4){
+        renderEra(year,true);
 
-    state.breakerSolved=true;
+        /*
+            Music starts after the player
+            explicitly clicks an era.
+        */
 
-    discoverClue("power");
+        setTimeout(()=>{
 
-    document.getElementById("codeResult")?.remove();
+            audio.play()
+            .then(()=>{
 
-    setTimeout(()=>{
+                playing=true;
 
-      closeFocus();
+                musicBtn.textContent="Ⅱ";
 
-      document.getElementById("lamp")
-        .classList.add("on");
+            })
+            .catch(()=>{
 
-      document.getElementById("breaker")
-        .classList.remove("visible");
+                /*
+                    Browser may reject autoplay.
+                    The music button remains available.
+                */
 
-    },700);
+                playing=false;
 
-  }
+                musicBtn.textContent="▶";
 
-}
+            });
 
+        },750);
 
-/* =========================================================
-   DOOR CODE
-========================================================= */
-
-let code="";
-
-function enterCode(number){
-
-  if(code.length>=4) return;
-
-  code+=number;
-
-  const display=document.getElementById("codeDisplay");
-
-  if(display){
-
-    display.textContent=
-      code.split("")
-      .map(()=> "•")
-      .join(" ");
-
-  }
-
-  if(code.length===4){
-
-    setTimeout(checkCode,250);
-
-  }
-
-}
-
-function clearCode(){
-
-  code="";
-
-  const display=document.getElementById("codeDisplay");
-
-  if(display){
-    display.textContent="• • • •";
-  }
-
-}
-
-function checkCode(){
-
-  const result=document.getElementById("codeResult");
-
-  /*
-    The photograph gives 23-11-47.
-    The relevant four digits are 1147.
-  */
-
-  if(code==="1147"){
-
-    result.textContent=
-      lang==="en"
-      ? "LOCK ACCEPTED."
-      : "ԿՈԴԸ ՃԻՇՏ Է։";
-
-    discoverClue("door");
-
-    setTimeout(()=>{
-
-      closeFocus();
-
-      showEnding();
-
-    },1000);
-
-  }else{
-
-    result.textContent=
-      lang==="en"
-      ? "WRONG CODE."
-      : "ՍԽԱԼ ԿՈԴ։";
-
-    setTimeout(clearCode,700);
-
-  }
-
-}
-
-
-/* =========================================================
-   ENDING
-========================================================= */
-
-function showEnding(){
-
-  if(state.endingShown) return;
-
-  state.endingShown=true;
-
-  document.getElementById("endingText").textContent=t("ending");
-
-  document.getElementById("ending").classList.add("show");
-
-}
-
-
-/* =========================================================
-   KEYBOARD ESC = RETURN
-========================================================= */
-
-document.addEventListener("keydown",e=>{
-
-  if(e.key==="Escape" && state.currentFocus){
-
-    closeFocus();
-
-  }
+    };
 
 });
 
 
 /* =========================================================
-   INITIAL LANGUAGE
+   DETAIL OPEN
 ========================================================= */
 
-updateLanguage();
+document
+.getElementById("crt")
+.onclick=()=>{
+
+    detail.classList.add("open");
+
+};
+
+
+document
+.getElementById("camera")
+.onclick=()=>{
+
+    detail.classList.add("open");
+
+};
+
+
+document
+.getElementById("cassette")
+.onclick=()=>{
+
+    detail.classList.add("open");
+
+};
+
+
+/* vinyl opens music */
+
+document
+.getElementById("vinyl")
+.onclick=()=>{
+
+    if(
+        audio.paused
+    ){
+
+        audio.play()
+        .then(()=>{
+
+            playing=true;
+
+            musicBtn.textContent="Ⅱ";
+
+        });
+
+    }else{
+
+        audio.pause();
+
+        playing=false;
+
+        musicBtn.textContent="▶";
+
+    }
+
+};
+
+
+/* =========================================================
+   CLOSE DETAIL
+========================================================= */
+
+document
+.getElementById("closeDetail")
+.onclick=()=>{
+
+    detail.classList.remove("open");
+
+};
+
+
+/* =========================================================
+   ESC
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    event=>{
+
+        if(
+            event.key==="Escape"
+        ){
+
+            detail.classList.remove(
+                "open"
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   INITIAL
+========================================================= */
+
+applyLanguage();
 
 </script>
 
