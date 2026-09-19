@@ -3,3224 +3,2500 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Last Message — Interactive Mystery</title>
+<title>THE LAST MESSAGE — Interactive Mystery</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap');
 
 :root{
-    --bg:#08090b;
-    --panel:#101216;
-    --panel2:#17191e;
-    --text:#eeeeeb;
-    --muted:#8d9097;
-    --dim:#555960;
-    --red:#9e3131;
-    --red-light:#d85b5b;
-    --cream:#d8d0bd;
-    --line:rgba(255,255,255,.09);
+  --red:#b71925;
+  --red2:#e33a45;
+  --cream:#ddd7ca;
+  --dark:#08090b;
+  --panel:#111317;
+  --line:rgba(255,255,255,.12);
+  --muted:#858991;
 }
 
 *{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
-html{
-    scroll-behavior:smooth;
-}
-
-body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:Inter,sans-serif;
-    overflow-x:hidden;
-}
-
-button,input,textarea{
-    font:inherit;
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#050608;
+  color:white;
+  font-family:"IBM Plex Mono",monospace;
 }
 
 button{
-    cursor:pointer;
+  font:inherit;
+  color:inherit;
+  cursor:pointer;
 }
 
-.hidden{
-    display:none!important;
+#game{
+  width:100%;
+  height:100%;
+  position:relative;
+  overflow:hidden;
+  background:#050608;
 }
 
-/* ===============================
-   FILM GRAIN
-================================ */
+/* =========================================================
+   GLOBAL ATMOSPHERE
+========================================================= */
 
-body:before{
-    content:"";
-    position:fixed;
-    inset:0;
-    z-index:9999;
-    pointer-events:none;
-    opacity:.035;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+.grain{
+  pointer-events:none;
+  position:fixed;
+  inset:-50%;
+  z-index:100;
+  opacity:.075;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+  animation:grain .18s steps(2) infinite;
 }
 
-/* ===============================
-   INTRO
-================================ */
-
-#intro{
-    position:fixed;
-    inset:0;
-    z-index:1000;
-    background:
-        radial-gradient(circle at 50% 40%,rgba(100,20,20,.15),transparent 35%),
-        #050607;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    transition:opacity 1.2s ease;
+@keyframes grain{
+  0%{transform:translate(0,0)}
+  25%{transform:translate(2%,1%)}
+  50%{transform:translate(-1%,2%)}
+  75%{transform:translate(1%,-2%)}
+  100%{transform:translate(-2%,0)}
 }
 
-.intro-content{
-    width:min(850px,90%);
+.vignette{
+  pointer-events:none;
+  position:fixed;
+  inset:0;
+  z-index:90;
+  background:
+    radial-gradient(circle at center,
+      transparent 35%,
+      rgba(0,0,0,.28) 65%,
+      rgba(0,0,0,.82) 100%);
 }
 
-.small-red{
-    color:var(--red-light);
-    font-family:"DM Mono",monospace;
-    font-size:10px;
-    letter-spacing:4px;
-    margin-bottom:30px;
+#rain{
+  pointer-events:none;
+  position:absolute;
+  inset:0;
+  z-index:80;
+  opacity:.38;
+  overflow:hidden;
 }
 
-.intro-time{
-    font-family:"DM Mono",monospace;
-    font-size:13px;
-    color:#666b72;
-    letter-spacing:3px;
-    margin-bottom:25px;
+.drop{
+  position:absolute;
+  width:1px;
+  height:80px;
+  background:linear-gradient(transparent,rgba(180,205,220,.55));
+  transform:rotate(14deg);
+  animation:rain linear infinite;
 }
 
-.intro-title{
-    font-family:"Playfair Display",serif;
-    font-size:clamp(65px,12vw,150px);
-    line-height:.82;
-    font-weight:500;
-    letter-spacing:-6px;
+@keyframes rain{
+  from{transform:translateY(-120px) rotate(14deg)}
+  to{transform:translateY(110vh) rotate(14deg)}
 }
 
-.intro-line{
-    width:65px;
-    height:1px;
-    background:var(--red-light);
-    margin:35px auto;
+/* =========================================================
+   TOP HUD
+========================================================= */
+
+#hud{
+  position:absolute;
+  top:24px;
+  left:28px;
+  right:28px;
+  z-index:120;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  pointer-events:none;
 }
 
-.intro-story{
-    max-width:650px;
-    margin:auto;
-    color:#999da4;
-    font-size:14px;
-    line-height:2;
+.hud-left{
+  display:flex;
+  gap:14px;
+  align-items:center;
 }
 
-.intro-story strong{
-    color:#eee;
+.case-number{
+  font-size:10px;
+  letter-spacing:4px;
+  color:#777b82;
 }
 
-.start{
-    margin-top:40px;
-    padding:17px 35px;
-    border:1px solid rgba(255,255,255,.25);
-    color:white;
-    background:transparent;
-    letter-spacing:3px;
-    font-size:10px;
-    transition:.3s;
+.clue-counter{
+  font-size:10px;
+  letter-spacing:2px;
+  color:#c8c4bb;
 }
 
-.start:hover{
-    background:#eee;
-    color:#08090b;
-}
-
-.intro-footer{
-    position:absolute;
-    bottom:25px;
-    left:0;
-    right:0;
-    color:#45484e;
-    font-family:"DM Mono",monospace;
-    font-size:8px;
-    letter-spacing:2px;
-}
-
-/* ===============================
-   APP
-================================ */
-
-#app{
-    min-height:100vh;
-}
-
-.top{
-    position:sticky;
-    top:0;
-    z-index:100;
-    height:65px;
-    background:rgba(8,9,11,.92);
-    backdrop-filter:blur(18px);
-    border-bottom:1px solid var(--line);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:0 28px;
-}
-
-.brand{
-    font-family:"DM Mono",monospace;
-    font-size:10px;
-    letter-spacing:2px;
-}
-
-.live{
-    display:inline-block;
-    width:6px;
-    height:6px;
-    background:var(--red-light);
-    border-radius:50%;
-    margin-right:10px;
-    box-shadow:0 0 10px var(--red);
-}
-
-.controls{
-    display:flex;
-    gap:8px;
-    align-items:center;
+.hud-right{
+  display:flex;
+  gap:10px;
+  pointer-events:auto;
 }
 
 .lang{
-    border:1px solid var(--line);
-    padding:3px;
-    display:flex;
+  border:1px solid var(--line);
+  background:rgba(5,6,8,.55);
+  padding:8px 11px;
+  font-size:10px;
+  letter-spacing:2px;
+  transition:.25s;
 }
 
-.lang button{
-    border:0;
-    background:transparent;
-    color:#666b73;
-    font-size:9px;
-    padding:7px 10px;
+.lang:hover{
+  border-color:#aaa;
+  background:#15171b;
 }
 
-.lang button.active{
-    background:#272a30;
-    color:white;
+.lang.active{
+  color:white;
+  border-color:var(--red);
 }
 
-.sound{
-    border:1px solid var(--line);
-    color:#8a8e95;
-    background:transparent;
-    padding:8px 12px;
-    font-family:"DM Mono",monospace;
-    font-size:8px;
+/* =========================================================
+   INTRO
+========================================================= */
+
+#intro{
+  position:absolute;
+  inset:0;
+  z-index:200;
+  background:#020304;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:opacity 1.5s ease,visibility 1.5s;
 }
 
-/* ===============================
-   PROGRESS
-================================ */
-
-.progress{
-    height:3px;
-    background:#181a1e;
+#intro.hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
 }
 
-.progress-fill{
-    height:100%;
-    width:0%;
-    background:var(--red);
-    transition:1s;
+.intro-content{
+  width:min(800px,88%);
+  text-align:center;
 }
 
-/* ===============================
-   SCENES
-================================ */
-
-.scene{
-    display:none;
-    min-height:calc(100vh - 68px);
-    animation:fadeScene .7s ease;
+.intro-case{
+  color:#777;
+  letter-spacing:7px;
+  font-size:10px;
+  margin-bottom:30px;
 }
 
-.scene.active{
-    display:block;
+.intro-title{
+  font-family:"Playfair Display",serif;
+  font-size:clamp(48px,9vw,110px);
+  letter-spacing:5px;
+  font-weight:500;
+  line-height:.95;
+  margin-bottom:34px;
 }
 
-@keyframes fadeScene{
-    from{
-        opacity:0;
-        transform:translateY(12px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
+.intro-line{
+  width:0;
+  height:1px;
+  background:#aaa;
+  margin:0 auto 28px;
+  animation:introLine 2s 1s forwards;
 }
 
-.scene-inner{
-    width:min(1250px,92%);
-    margin:auto;
-    padding:65px 0;
+@keyframes introLine{
+  to{width:220px}
 }
 
-.scene-number{
-    color:var(--red-light);
-    font-family:"DM Mono",monospace;
-    font-size:9px;
-    letter-spacing:3px;
-    margin-bottom:14px;
+.intro-text{
+  color:#aaa;
+  font-size:12px;
+  line-height:2;
+  max-width:620px;
+  margin:auto;
+  min-height:72px;
 }
 
-.scene-title{
-    font-family:"Playfair Display",serif;
-    font-size:clamp(42px,6vw,78px);
-    font-weight:500;
-    line-height:1;
+.enter{
+  margin-top:40px;
+  padding:15px 30px;
+  border:1px solid rgba(255,255,255,.25);
+  background:transparent;
+  letter-spacing:4px;
+  font-size:10px;
+  transition:.3s;
 }
 
-.scene-description{
-    color:var(--muted);
-    max-width:600px;
-    line-height:1.8;
-    font-size:13px;
-    margin-top:20px;
+.enter:hover{
+  background:#fff;
+  color:#000;
 }
 
-/* ===============================
-   APARTMENT
-================================ */
+/* =========================================================
+   PHONE CALL
+========================================================= */
 
-.apartment{
-    margin-top:50px;
-    min-height:560px;
-    position:relative;
-    border:1px solid var(--line);
-    overflow:hidden;
-    background:
-        linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px),
-        linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
-        #111316;
-    background-size:50px 50px;
+#callScene{
+  position:absolute;
+  inset:0;
+  z-index:180;
+  background:#020204;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:opacity 1s,visibility 1s;
 }
 
-.window{
-    position:absolute;
-    left:8%;
-    top:12%;
-    width:22%;
-    height:40%;
-    border:10px solid #202329;
-    background:
-        linear-gradient(125deg,transparent 45%,rgba(130,150,180,.08) 46%,transparent 48%),
-        #080a0d;
-    cursor:pointer;
+#callScene.hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
 }
 
-.window:after{
-    content:"";
-    position:absolute;
-    inset:15%;
-    border-left:1px solid rgba(255,255,255,.08);
-    border-right:1px solid rgba(255,255,255,.08);
+.call-phone{
+  width:250px;
+  height:500px;
+  border:8px solid #22252b;
+  border-radius:38px;
+  background:#050608;
+  box-shadow:
+    0 0 80px rgba(255,255,255,.04),
+    inset 0 0 20px rgba(255,255,255,.03);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  animation:phoneShake .18s infinite;
 }
 
-.desk{
-    position:absolute;
-    right:8%;
-    bottom:12%;
-    width:40%;
-    height:25%;
-    background:#27231f;
-    border-top:10px solid #3a342e;
-    cursor:pointer;
-}
-
-.desk:before{
-    content:"";
-    position:absolute;
-    left:8%;
-    right:8%;
-    bottom:-130px;
-    height:130px;
-    border-left:8px solid #24211e;
-    border-right:8px solid #24211e;
-}
-
-.lamp{
-    position:absolute;
-    right:30%;
-    bottom:35%;
-    width:70px;
-    height:80px;
-    cursor:pointer;
-}
-
-.lamp:before{
-    content:"";
-    position:absolute;
-    width:55px;
-    height:25px;
-    background:#4a4032;
-    border-radius:50%;
-    left:7px;
-}
-
-.lamp:after{
-    content:"";
-    position:absolute;
-    width:5px;
-    height:65px;
-    background:#3c3832;
-    left:32px;
-    top:20px;
-}
-
-.sofa{
-    position:absolute;
-    left:8%;
-    bottom:12%;
-    width:35%;
-    height:100px;
-    border-radius:20px 20px 5px 5px;
-    background:#272b30;
-    cursor:pointer;
-}
-
-.door{
-    position:absolute;
-    right:3%;
-    top:12%;
-    width:14%;
-    height:60%;
-    background:#211f1d;
-    border:5px solid #2d2a27;
-    cursor:pointer;
-}
-
-.door-handle{
-    position:absolute;
-    right:15%;
-    top:52%;
-    width:8px;
-    height:8px;
-    border-radius:50%;
-    background:#9a8060;
-}
-
-.click-label{
-    position:absolute;
-    background:#050607;
-    border:1px solid var(--line);
-    padding:7px 10px;
-    color:#b9bdc3;
-    font-family:"DM Mono",monospace;
-    font-size:8px;
-    pointer-events:none;
-    opacity:0;
-    transition:.25s;
-}
-
-.interactive-object:hover .click-label{
-    opacity:1;
-}
-
-/* ===============================
-   DISCOVERY PANEL
-================================ */
-
-.discovery{
-    margin-top:25px;
-    padding:18px;
-    border-left:2px solid var(--red);
-    background:#101216;
-    color:#888e96;
-    font-size:11px;
-    line-height:1.7;
-    min-height:60px;
-}
-
-.discovery strong{
-    color:white;
-}
-
-/* ===============================
-   PHONE
-================================ */
-
-.phone-wrap{
-    margin-top:50px;
-    display:flex;
-    justify-content:center;
-}
-
-.phone{
-    width:310px;
-    height:610px;
-    background:#050608;
-    border:8px solid #27292d;
-    border-radius:40px;
-    box-shadow:0 30px 100px rgba(0,0,0,.5);
-    overflow:hidden;
-    position:relative;
-}
-
-.phone-top{
-    height:45px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-family:"DM Mono",monospace;
-    font-size:8px;
-    color:#666;
+@keyframes phoneShake{
+  0%,100%{transform:rotate(0)}
+  50%{transform:rotate(.7deg)}
 }
 
 .phone-screen{
-    padding:20px;
-    height:555px;
-    overflow:auto;
+  width:calc(100% - 18px);
+  height:calc(100% - 18px);
+  border-radius:29px;
+  background:
+    radial-gradient(circle at 50% 20%,#24282e,#08090c 50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-top:75px;
+}
+
+.incoming{
+  color:#777;
+  font-size:9px;
+  letter-spacing:3px;
+  margin-bottom:16px;
+}
+
+.caller{
+  font-size:21px;
+  margin-bottom:45px;
+}
+
+.call-icon{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#171a1f;
+  border:1px solid #343840;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:23px;
+  animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+  50%{box-shadow:0 0 35px rgba(255,255,255,.12)}
+}
+
+.answer{
+  position:absolute;
+  bottom:65px;
+  border:1px solid #555;
+  background:transparent;
+  padding:12px 24px;
+  font-size:9px;
+  letter-spacing:3px;
+}
+
+.answer:hover{
+  background:white;
+  color:black;
+}
+
+/* =========================================================
+   MAIN ROOM
+========================================================= */
+
+#world{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transform:scale(1.03);
+  transition:opacity 1.3s,transform 2s;
+}
+
+#world.visible{
+  opacity:1;
+  transform:scale(1);
+}
+
+.room{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg,#111317 0%,#0c0e11 55%,#08090a 100%);
+}
+
+/* wall */
+
+.wall{
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  height:67%;
+  background:
+    radial-gradient(circle at 25% 20%,rgba(100,105,110,.07),transparent 28%),
+    linear-gradient(90deg,#16191d,#101216 60%,#14171b);
+}
+
+/* floor */
+
+.floor{
+  position:absolute;
+  left:-10%;
+  bottom:-20%;
+  width:120%;
+  height:48%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,.025) 0 2px,
+      transparent 2px 120px
+    ),
+    linear-gradient(180deg,#111214,#060708);
+  transform:perspective(600px) rotateX(45deg);
+  transform-origin:center top;
+}
+
+/* window */
+
+.window{
+  position:absolute;
+  width:min(31vw,400px);
+  height:min(48vh,500px);
+  top:12%;
+  right:10%;
+  border:12px solid #24272c;
+  background:
+    linear-gradient(90deg,transparent 49%,rgba(255,255,255,.08) 50%,transparent 51%),
+    linear-gradient(180deg,transparent 49%,rgba(255,255,255,.08) 50%,transparent 51%),
+    linear-gradient(180deg,#111827,#070a0e);
+  box-shadow:0 0 40px rgba(0,0,0,.6);
+  overflow:hidden;
+  cursor:pointer;
+}
+
+.window:hover{
+  border-color:#454951;
+}
+
+.city{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:45%;
+  background:
+    linear-gradient(90deg,
+      #060708 0 10%,
+      #15181d 10% 17%,
+      #050608 17% 28%,
+      #181b20 28% 42%,
+      #07080a 42% 52%,
+      #191c21 52% 69%,
+      #050608 69% 80%,
+      #14171c 80% 100%);
+}
+
+.lightning{
+  position:absolute;
+  inset:0;
+  background:white;
+  opacity:0;
+  pointer-events:none;
+}
+
+.window.flash .lightning{
+  animation:lightning .45s;
+}
+
+@keyframes lightning{
+  0%,100%{opacity:0}
+  15%{opacity:.75}
+  20%{opacity:0}
+  40%{opacity:.5}
+  45%{opacity:0}
+}
+
+.silhouette{
+  position:absolute;
+  bottom:14%;
+  left:49%;
+  width:35px;
+  height:110px;
+  opacity:0;
+  background:#020304;
+  clip-path:polygon(40% 0,62% 0,72% 17%,100% 35%,82% 39%,75% 100%,25% 100%,18% 39%,0 35%,28% 17%);
+  transition:.4s;
+}
+
+.window.reveal .silhouette{
+  opacity:.85;
+}
+
+/* lamp */
+
+.lamp{
+  position:absolute;
+  left:17%;
+  bottom:27%;
+  width:130px;
+  height:210px;
+  cursor:pointer;
+}
+
+.lamp-shade{
+  position:absolute;
+  top:0;
+  left:15px;
+  width:100px;
+  height:65px;
+  background:#34363a;
+  clip-path:polygon(17% 0,83% 0,100% 100%,0 100%);
+  border-bottom:3px solid #8c7d65;
+}
+
+.lamp-stem{
+  position:absolute;
+  width:8px;
+  height:120px;
+  left:61px;
+  top:62px;
+  background:#303238;
+}
+
+.lamp-base{
+  position:absolute;
+  bottom:0;
+  left:30px;
+  width:70px;
+  height:15px;
+  border-radius:50%;
+  background:#2a2c30;
+}
+
+.lamp-glow{
+  position:absolute;
+  top:-70px;
+  left:-45px;
+  width:220px;
+  height:220px;
+  background:radial-gradient(circle,rgba(190,145,75,.32),transparent 65%);
+  opacity:0;
+  transition:.5s;
+  pointer-events:none;
+}
+
+.lamp.on .lamp-glow{
+  opacity:1;
+}
+
+.lamp.on .lamp-shade{
+  background:#b18b55;
+  box-shadow:0 -5px 30px rgba(215,165,83,.3);
+}
+
+/* table */
+
+.table{
+  position:absolute;
+  bottom:18%;
+  left:38%;
+  width:300px;
+  height:28px;
+  background:#25272b;
+  box-shadow:0 8px 15px rgba(0,0,0,.4);
+}
+
+.table:before,
+.table:after{
+  content:"";
+  position:absolute;
+  top:20px;
+  width:18px;
+  height:150px;
+  background:#17191c;
+}
+
+.table:before{left:25px}
+.table:after{right:25px}
+
+/* laptop */
+
+.laptop{
+  position:absolute;
+  left:48%;
+  bottom:24%;
+  width:170px;
+  height:110px;
+  cursor:pointer;
+  transition:.3s;
+}
+
+.laptop-screen{
+  position:absolute;
+  left:0;
+  top:0;
+  width:170px;
+  height:95px;
+  background:#080b0d;
+  border:7px solid #272a2f;
+  border-radius:7px 7px 2px 2px;
+  transform-origin:bottom;
+  transform:rotateX(-8deg);
+  transition:.7s;
+  overflow:hidden;
+}
+
+.laptop-screen-content{
+  padding:12px;
+  color:#65717c;
+  font-size:6px;
+  line-height:1.8;
+  opacity:.4;
+}
+
+.laptop-base{
+  position:absolute;
+  bottom:0;
+  left:-15px;
+  width:200px;
+  height:15px;
+  background:#292c30;
+  clip-path:polygon(6% 0,94% 0,100% 100%,0 100%);
+}
+
+.laptop.open .laptop-screen{
+  transform:rotateX(-30deg);
+}
+
+.laptop:hover{
+  transform:translateY(-4px);
+}
+
+/* picture */
+
+.picture{
+  position:absolute;
+  top:19%;
+  left:16%;
+  width:125px;
+  height:155px;
+  border:10px solid #25272a;
+  background:#141619;
+  transform:rotate(-2deg);
+  cursor:pointer;
+  transition:.5s;
+}
+
+.picture:hover{
+  transform:rotate(-2deg) scale(1.04);
+}
+
+.picture-inner{
+  position:absolute;
+  inset:10px;
+  background:
+    radial-gradient(circle at 48% 37%,#777 0 9%,transparent 10%),
+    linear-gradient(140deg,#25282c,#090a0c);
+}
+
+.picture-note{
+  position:absolute;
+  inset:10px;
+  background:#d6d0bf;
+  color:#111;
+  padding:15px;
+  font-size:9px;
+  line-height:1.8;
+  opacity:0;
+  transform:rotateY(180deg);
+  backface-visibility:hidden;
+  transition:.8s;
+}
+
+.picture.flipped .picture-inner{
+  opacity:0;
+}
+
+.picture.flipped .picture-note{
+  opacity:1;
+  transform:rotateY(0);
+}
+
+/* suitcase */
+
+.suitcase{
+  position:absolute;
+  left:27%;
+  bottom:10%;
+  width:190px;
+  height:110px;
+  cursor:pointer;
+  perspective:500px;
+}
+
+.case-bottom{
+  position:absolute;
+  bottom:0;
+  width:190px;
+  height:70px;
+  background:#29221d;
+  border:4px solid #46372c;
+  border-radius:8px;
+}
+
+.case-top{
+  position:absolute;
+  top:0;
+  width:190px;
+  height:70px;
+  background:#332a24;
+  border:4px solid #46372c;
+  border-radius:8px;
+  transform-origin:bottom;
+  transition:.8s;
+}
+
+.suitcase.open .case-top{
+  transform:rotateX(-105deg);
+}
+
+.handle{
+  position:absolute;
+  top:-14px;
+  left:70px;
+  width:50px;
+  height:25px;
+  border:4px solid #4c3c2f;
+  border-bottom:0;
+  border-radius:8px 8px 0 0;
+}
+
+/* door */
+
+.door{
+  position:absolute;
+  left:4%;
+  top:8%;
+  width:160px;
+  height:67%;
+  background:linear-gradient(90deg,#17191c,#202328);
+  border:8px solid #292c31;
+  cursor:pointer;
+}
+
+.door-handle{
+  position:absolute;
+  right:20px;
+  top:50%;
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:#9a815c;
+}
+
+.door:hover{
+  filter:brightness(1.15);
+}
+
+/* breaker */
+
+.breaker{
+  position:absolute;
+  left:5.5%;
+  top:22%;
+  width:105px;
+  height:145px;
+  background:#25282c;
+  border:4px solid #3a3d41;
+  opacity:0;
+  pointer-events:none;
+  transform:translateX(-15px);
+  transition:.5s;
+}
+
+.breaker.visible{
+  opacity:1;
+  pointer-events:auto;
+  transform:none;
+}
+
+.switch{
+  position:absolute;
+  width:14px;
+  height:30px;
+  background:#111;
+  border:2px solid #666;
+  cursor:pointer;
+}
+
+.switch:nth-child(1){left:20px;top:25px}
+.switch:nth-child(2){left:45px;top:25px}
+.switch:nth-child(3){left:70px;top:25px}
+.switch:nth-child(4){left:20px;top:75px}
+.switch:nth-child(5){left:45px;top:75px}
+.switch:nth-child(6){left:70px;top:75px}
+
+.switch.on{
+  background:#b7a06c;
+  box-shadow:0 0 12px rgba(220,180,100,.4);
+}
+
+/* =========================================================
+   INTERACTION HINT
+========================================================= */
+
+.interactive{
+  position:relative;
+}
+
+.interactive:after{
+  content:"";
+  position:absolute;
+  inset:-10px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:50%;
+  opacity:0;
+  transition:.3s;
+  pointer-events:none;
+}
+
+.interactive:hover:after{
+  opacity:1;
+}
+
+/* =========================================================
+   RETURN BUTTON
+========================================================= */
+
+#returnBtn{
+  position:absolute;
+  left:28px;
+  bottom:28px;
+  z-index:150;
+  display:none;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(5,6,8,.65);
+  backdrop-filter:blur(8px);
+  padding:12px 17px;
+  letter-spacing:3px;
+  font-size:9px;
+  transition:.3s;
+}
+
+#returnBtn.visible{
+  display:block;
+}
+
+#returnBtn:hover{
+  background:#fff;
+  color:#000;
+}
+
+/* =========================================================
+   CLOSE-UP WORLD
+========================================================= */
+
+#focus{
+  position:absolute;
+  inset:0;
+  z-index:140;
+  pointer-events:none;
+  opacity:0;
+  background:#050608;
+  transition:opacity .7s;
+}
+
+#focus.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.focus-content{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* phone */
+
+.big-phone{
+  width:340px;
+  height:650px;
+  border:12px solid #292c32;
+  border-radius:48px;
+  background:#050607;
+  box-shadow:0 0 80px rgba(0,0,0,.8);
+  overflow:hidden;
+  transform:translateY(30px);
+  animation:focusIn .7s forwards;
+}
+
+@keyframes focusIn{
+  to{transform:none}
+}
+
+.big-phone-screen{
+  position:absolute;
+  inset:10px;
+  border-radius:36px;
+  background:#0a0d10;
+  overflow:hidden;
+  padding:55px 25px 30px;
+}
+
+.phone-time{
+  text-align:center;
+  color:#8c9299;
+  font-size:10px;
+  margin-bottom:35px;
 }
 
 .message{
-    margin-bottom:16px;
-    max-width:80%;
-    padding:12px;
-    border-radius:10px;
-    font-size:11px;
-    line-height:1.6;
+  background:#1b2026;
+  border-radius:16px 16px 16px 4px;
+  padding:17px;
+  font-size:11px;
+  line-height:1.9;
+  color:#d7d9db;
+  margin-bottom:15px;
 }
 
-.message.received{
-    background:#202329;
-    color:#c2c5ca;
+.message small{
+  display:block;
+  color:#666d74;
+  margin-top:8px;
+  font-size:8px;
 }
 
-.message.sent{
-    margin-left:auto;
-    background:#653030;
-    color:#eee;
+/* laptop focus */
+
+.big-laptop{
+  width:min(850px,85vw);
+  height:500px;
+  position:relative;
 }
 
-.message.locked{
-    cursor:pointer;
-    border:1px dashed #53575d;
-    background:#111419;
+.big-monitor{
+  width:100%;
+  height:420px;
+  background:#0b1013;
+  border:15px solid #24282c;
+  border-radius:15px;
+  box-shadow:0 30px 70px #000;
+  padding:40px;
+  overflow:hidden;
 }
 
-.message.locked:hover{
-    border-color:#a84b4b;
+.monitor-line{
+  width:70%;
+  height:1px;
+  background:#394047;
+  margin-bottom:30px;
 }
 
-/* ===============================
-   DESK / OBJECTS
-================================ */
-
-.object-grid{
-    margin-top:45px;
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
+.monitor-text{
+  color:#83919b;
+  font-size:11px;
+  line-height:2.2;
+  white-space:pre-line;
 }
 
-.object{
-    min-height:180px;
-    background:#101216;
-    border:1px solid var(--line);
-    padding:25px;
-    cursor:pointer;
-    transition:.3s;
+.monitor-secret{
+  margin-top:30px;
+  color:#d5c39d;
+  font-size:14px;
+  opacity:0;
+  transition:1s;
 }
 
-.object:hover{
-    transform:translateY(-5px);
-    border-color:rgba(255,255,255,.2);
+.monitor-secret.show{
+  opacity:1;
 }
 
-.object-icon{
-    font-size:30px;
-    color:#666b73;
-    margin-bottom:35px;
+.keyboard{
+  width:90%;
+  height:45px;
+  margin:auto;
+  background:#202327;
+  clip-path:polygon(4% 0,96% 0,100% 100%,0 100%);
 }
 
-.object h3{
-    font-family:"Playfair Display",serif;
-    font-size:22px;
-    font-weight:500;
+/* breaker focus */
+
+.big-breaker{
+  width:360px;
+  height:500px;
+  background:#22262a;
+  border:10px solid #383d42;
+  box-shadow:0 30px 80px #000;
+  padding:45px;
+  position:relative;
 }
 
-.object p{
-    color:#676d75;
-    font-size:10px;
-    margin-top:8px;
+.big-switch{
+  width:42px;
+  height:80px;
+  background:#090a0c;
+  border:3px solid #62666b;
+  position:absolute;
+  cursor:pointer;
 }
 
-/* ===============================
-   SUSPECTS
-================================ */
+.big-switch:nth-child(1){left:70px;top:110px}
+.big-switch:nth-child(2){left:160px;top:110px}
+.big-switch:nth-child(3){left:250px;top:110px}
+.big-switch:nth-child(4){left:70px;top:250px}
+.big-switch:nth-child(5){left:160px;top:250px}
+.big-switch:nth-child(6){left:250px;top:250px}
 
-.suspects{
-    margin-top:45px;
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:20px;
+.big-switch.active{
+  background:#b99a63;
+  box-shadow:0 0 25px rgba(185,154,99,.4);
 }
 
-.suspect{
-    border:1px solid var(--line);
-    background:#101216;
-    padding:30px;
+/* photo focus */
+
+.big-photo{
+  width:650px;
+  height:450px;
+  background:#d2c8b4;
+  padding:25px;
+  transform:rotate(-2deg);
+  box-shadow:0 40px 80px #000;
 }
 
-.suspect-number{
-    color:var(--red-light);
-    font-family:"DM Mono",monospace;
-    font-size:8px;
-    letter-spacing:2px;
+.photo-image{
+  height:100%;
+  background:
+    radial-gradient(circle at 50% 38%,#555 0 9%,transparent 10%),
+    linear-gradient(145deg,#34383c,#121416);
+  position:relative;
 }
 
-.suspect h3{
-    font-family:"Playfair Display",serif;
-    font-size:30px;
-    margin:12px 0;
+.photo-writing{
+  position:absolute;
+  bottom:20px;
+  right:20px;
+  color:#111;
+  font-size:18px;
+  background:#ded4bd;
+  padding:12px 18px;
+  transform:rotate(-5deg);
 }
 
-.suspect-role{
-    color:#6d727a;
-    font-size:11px;
+/* =========================================================
+   SUITCASE FOCUS
+========================================================= */
+
+.suitcase-inside{
+  width:min(720px,85vw);
+  height:430px;
+  background:#30271f;
+  border:10px solid #4a392c;
+  box-shadow:0 40px 80px #000;
+  padding:40px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+  position:relative;
 }
 
-.statement{
-    margin-top:25px;
-    padding:20px;
-    background:#0a0c0f;
-    border-left:2px solid #30343a;
-    color:#8c9299;
-    font-size:12px;
-    line-height:1.8;
+.evidence-paper{
+  background:#d8d0bd;
+  color:#161616;
+  padding:22px;
+  font-size:10px;
+  line-height:1.9;
+  transform:rotate(-2deg);
 }
 
-.question-buttons{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:20px;
+.evidence-paper:nth-child(2){
+  transform:rotate(2deg);
 }
 
-.question-buttons button{
-    padding:12px;
-    background:transparent;
-    border:1px solid var(--line);
-    color:#8b9098;
-    font-size:9px;
+/* =========================================================
+   DOOR FOCUS
+========================================================= */
+
+.door-focus{
+  width:500px;
+  height:700px;
+  background:linear-gradient(90deg,#16181b,#22252a);
+  border:12px solid #30343a;
+  box-shadow:0 40px 100px #000;
+  position:relative;
 }
 
-.question-buttons button:hover{
-    color:white;
-    border-color:#666;
+.lock{
+  position:absolute;
+  right:60px;
+  top:50%;
+  width:80px;
+  height:80px;
+  border:3px solid #887351;
+  border-radius:50%;
 }
 
-/* ===============================
-   PUZZLE
-================================ */
-
-.puzzle{
-    margin-top:45px;
-    width:min(650px,100%);
-    background:#101216;
-    border:1px solid var(--line);
-    padding:35px;
+.lock-code{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:230px;
+  background:#0c0e11;
+  border:1px solid #45494f;
+  padding:20px;
+  text-align:center;
 }
 
-.puzzle h3{
-    font-family:"Playfair Display",serif;
-    font-size:28px;
-    margin-bottom:15px;
+.code-display{
+  font-size:20px;
+  letter-spacing:8px;
+  margin-bottom:15px;
+  color:#c4b693;
 }
 
-.puzzle p{
-    color:#858a92;
-    font-size:12px;
-    line-height:1.8;
+.code-buttons{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
 }
 
-.code{
-    margin-top:25px;
-    width:100%;
-    padding:16px;
-    background:#080a0d;
-    border:1px solid var(--line);
-    color:white;
-    text-align:center;
-    font-family:"DM Mono",monospace;
-    font-size:18px;
-    letter-spacing:6px;
-    outline:none;
+.code-buttons button{
+  padding:10px;
+  background:#181b1f;
+  border:1px solid #2e3237;
 }
 
-.puzzle button{
-    margin-top:10px;
-    width:100%;
-    padding:15px;
-    background:#e8e8e8;
-    border:0;
-    color:#08090b;
-    font-size:9px;
-    letter-spacing:2px;
+.code-buttons button:hover{
+  background:#30343a;
 }
 
-.puzzle-result{
-    margin-top:15px;
-    font-family:"DM Mono",monospace;
-    font-size:9px;
+.code-result{
+  margin-top:12px;
+  min-height:15px;
+  color:#c7c1b2;
+  font-size:9px;
 }
 
-/* ===============================
-   FINAL
-================================ */
+/* =========================================================
+   FINAL BOARD
+========================================================= */
 
-.final{
-    max-width:800px;
+#ending{
+  position:absolute;
+  inset:0;
+  z-index:210;
+  background:#050608;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
 }
 
-.final-question{
-    margin-top:45px;
-    padding:30px;
-    background:#101216;
-    border:1px solid var(--line);
+#ending.show{
+  display:flex;
 }
 
-.final-question h3{
-    font-family:"Playfair Display",serif;
-    font-size:28px;
-    margin-bottom:20px;
+.ending-inner{
+  width:min(800px,90%);
 }
 
-.answers{
-    display:grid;
-    gap:8px;
+.ending-kicker{
+  color:#777;
+  letter-spacing:5px;
+  font-size:10px;
+  margin-bottom:25px;
 }
 
-.answers button{
-    padding:17px;
-    text-align:left;
-    background:#0a0c0f;
-    border:1px solid var(--line);
-    color:#898e96;
+.ending-title{
+  font-family:"Playfair Display",serif;
+  font-size:clamp(40px,7vw,80px);
+  margin-bottom:30px;
 }
 
-.answers button:hover,
-.answers button.selected{
-    color:white;
-    border-color:var(--red-light);
-    background:#171012;
+.ending-text{
+  color:#9a9da1;
+  line-height:2;
+  font-size:12px;
+  max-width:650px;
+  margin:auto;
 }
 
-.submit{
-    margin-top:25px;
-    padding:16px 28px;
-    background:#e8e8e8;
-    color:#08090b;
-    border:0;
-    font-size:9px;
-    letter-spacing:2px;
+.restart{
+  margin-top:35px;
+  background:transparent;
+  border:1px solid #444;
+  padding:12px 25px;
+  letter-spacing:3px;
+  font-size:9px;
 }
 
-.final-result{
-    display:none;
-    margin-top:30px;
-    padding:30px;
-    border:1px solid var(--line);
-    background:#101216;
+.restart:hover{
+  background:white;
+  color:black;
 }
 
-.final-result.show{
-    display:block;
+/* =========================================================
+   SMALL CLUE FLASH
+========================================================= */
+
+#clueFlash{
+  position:absolute;
+  left:50%;
+  top:80px;
+  transform:translateX(-50%) translateY(-10px);
+  z-index:300;
+  color:#d4c7a7;
+  font-size:10px;
+  letter-spacing:3px;
+  opacity:0;
+  pointer-events:none;
+  transition:.5s;
 }
 
-.final-result h3{
-    font-family:"Playfair Display",serif;
-    font-size:35px;
-    margin-bottom:15px;
+#clueFlash.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
 }
 
-.final-result p{
-    color:#888e96;
-    line-height:1.9;
-    font-size:12px;
-}
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
-/* ===============================
-   NOTES
-================================ */
+@media(max-width:700px){
 
-.notes{
-    margin-top:45px;
-}
-
-textarea{
-    width:100%;
-    min-height:350px;
-    resize:vertical;
-    background:#101216;
-    border:1px solid var(--line);
-    color:#aaaeb5;
-    padding:25px;
-    outline:none;
-    font-family:"DM Mono",monospace;
-    font-size:11px;
-    line-height:2;
-}
-
-textarea:focus{
-    border-color:#555;
-}
-
-/* ===============================
-   MODAL
-================================ */
-
-.modal{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.85);
-    backdrop-filter:blur(15px);
-    z-index:500;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-}
-
-.modal.show{
-    display:flex;
-}
-
-.modal-box{
-    width:min(700px,100%);
-    max-height:90vh;
-    overflow:auto;
-    background:#111419;
-    border:1px solid rgba(255,255,255,.14);
-    padding:40px;
-    position:relative;
-    animation:modal .35s ease;
-}
-
-@keyframes modal{
-    from{
-        opacity:0;
-        transform:translateY(20px) scale(.97);
-    }
-    to{
-        opacity:1;
-        transform:none;
-    }
-}
-
-.close{
-    position:absolute;
-    right:20px;
+  #hud{
     top:15px;
-    border:0;
-    background:none;
-    color:#777c84;
-    font-size:25px;
-}
+    left:15px;
+    right:15px;
+  }
 
-.modal-label{
-    color:var(--red-light);
-    font-family:"DM Mono",monospace;
-    font-size:8px;
-    letter-spacing:3px;
-    margin-bottom:15px;
-}
+  .window{
+    width:38vw;
+    height:36vh;
+    right:5%;
+  }
 
-.modal-title{
-    font-family:"Playfair Display",serif;
-    font-size:38px;
-    margin-bottom:20px;
-}
+  .lamp{
+    left:7%;
+    transform:scale(.75);
+    transform-origin:bottom;
+  }
 
-.modal-content{
-    color:#888e96;
-    font-size:12px;
-    line-height:1.9;
-}
+  .picture{
+    left:25%;
+    transform:scale(.7) rotate(-2deg);
+  }
 
-.paper{
-    margin-top:20px;
-    background:#d8d0bd;
-    color:#202020;
-    padding:25px;
-    font-family:"DM Mono",monospace;
-    font-size:10px;
-    line-height:2;
-}
+  .table{
+    left:30%;
+    width:220px;
+  }
 
-/* ===============================
-   FOOTER
-================================ */
+  .laptop{
+    left:43%;
+    transform:scale(.75);
+    transform-origin:bottom;
+  }
 
-.next{
-    margin-top:45px;
-    display:flex;
-    justify-content:flex-end;
-}
+  .suitcase{
+    left:20%;
+    transform:scale(.8);
+    transform-origin:bottom;
+  }
 
-.next button{
-    background:transparent;
-    border:1px solid var(--line);
-    color:#858a92;
-    padding:13px 18px;
-    font-size:9px;
-    letter-spacing:2px;
-}
+  .door{
+    left:1%;
+    width:120px;
+  }
 
-.next button:hover{
-    color:white;
-    border-color:#777;
-}
+  .big-phone{
+    width:280px;
+    height:560px;
+  }
 
-/* ===============================
-   MOBILE
-================================ */
+  .big-photo{
+    width:85vw;
+    height:55vw;
+  }
 
-@media(max-width:750px){
+  .door-focus{
+    width:80vw;
+    height:85vh;
+  }
 
-    .top{
-        padding:0 15px;
-    }
+  .suitcase-inside{
+    height:55vh;
+    grid-template-columns:1fr;
+    overflow:auto;
+  }
 
-    .brand{
-        font-size:8px;
-    }
+  .big-laptop{
+    height:auto;
+  }
 
-    .scene-inner{
-        padding:40px 0;
-    }
-
-    .apartment{
-        min-height:500px;
-    }
-
-    .window{
-        left:5%;
-        width:32%;
-        height:35%;
-    }
-
-    .desk{
-        right:5%;
-        width:48%;
-    }
-
-    .sofa{
-        left:5%;
-        width:42%;
-    }
-
-    .door{
-        width:18%;
-    }
-
-    .object-grid,
-    .suspects{
-        grid-template-columns:1fr;
-    }
-
-    .phone{
-        width:285px;
-        height:570px;
-    }
-
-    .phone-screen{
-        height:515px;
-    }
-
-    .modal-box{
-        padding:25px;
-    }
-
-}
-
-/* ===============================
-   REDUCED MOTION
-================================ */
-
-@media(prefers-reduced-motion:reduce){
-
-    *,
-    *:before,
-    *:after{
-        animation-duration:.01ms!important;
-        transition-duration:.01ms!important;
-    }
+  .big-monitor{
+    height:55vh;
+    padding:20px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- =====================================================
-     INTRO
-===================================================== -->
+<div id="game">
 
-<div id="intro">
+<div class="grain"></div>
+<div class="vignette"></div>
+<div id="rain"></div>
 
-    <div class="intro-content">
-
-        <div class="small-red"
-             data-i18n="classified">
-            CONFIDENTIAL INVESTIGATION
-        </div>
-
-        <div class="intro-time">
-            11:47 PM
-        </div>
-
-        <h1 class="intro-title">
-            THE<br>LAST<br>MESSAGE
-        </h1>
-
-        <div class="intro-line"></div>
-
-        <p class="intro-story"
-           data-i18n="introStory">
-            At 11:47 PM, a phone rang.
-            When you answered, nobody spoke.
-            Then a woman's voice whispered:
-            <br><br>
-            <strong>
-                "If you're hearing this, I didn't make it home."
-            </strong>
-            <br><br>
-            The call lasted seven seconds.
-            Then it disappeared.
-        </p>
-
-        <button class="start"
-                id="startButton"
-                data-i18n="start">
-            ANSWER THE CALL
-        </button>
-
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-left">
+    <div class="case-number">CASE 017</div>
+    <div class="clue-counter">
+      <span data-i18n="clues">CLUES</span>
+      <span id="clueCount">0</span>/8
     </div>
+  </div>
 
-    <div class="intro-footer">
-        CASE 021 // PRIVATE INVESTIGATION // AUDIO LOG RECOVERED
-    </div>
-
+  <div class="hud-right">
+    <button class="lang active" id="enBtn">EN</button>
+    <button class="lang" id="hyBtn">ՀԱՅ</button>
+  </div>
 </div>
 
 
-<!-- =====================================================
-     APP
-===================================================== -->
+<!-- INTRO -->
+<section id="intro">
 
-<div id="app" class="hidden">
+  <div class="intro-content">
 
-    <header class="top">
-
-        <div class="brand">
-            <span class="live"></span>
-            <span data-i18n="caseActive">
-                CASE 021 / ACTIVE
-            </span>
-        </div>
-
-        <div class="controls">
-
-            <div class="lang">
-                <button id="enBtn" class="active">
-                    EN
-                </button>
-
-                <button id="hyBtn">
-                    ՀԱՅ
-                </button>
-            </div>
-
-            <button class="sound"
-                    id="soundBtn">
-                SOUND ON
-            </button>
-
-        </div>
-
-    </header>
-
-    <div class="progress">
-        <div class="progress-fill"
-             id="progressFill">
-        </div>
+    <div class="intro-case" data-i18n="caseFile">
+      CASE FILE 017 — MISSING PERSON
     </div>
 
+    <h1 class="intro-title">THE LAST<br>MESSAGE</h1>
 
-    <!-- =================================================
-         SCENE 1
-    ================================================== -->
+    <div class="intro-line"></div>
 
-    <section class="scene active"
-             id="scene1">
+    <div class="intro-text" id="introText"></div>
 
-        <div class="scene-inner">
+    <button class="enter" id="enterBtn" data-i18n="begin">
+      BEGIN INVESTIGATION
+    </button>
 
-            <div class="scene-number"
-                 data-i18n="scene1">
-                SCENE 01 / THE APARTMENT
-            </div>
+  </div>
 
-            <h2 class="scene-title"
-                data-i18n="scene1Title">
-                Something is wrong.
-            </h2>
-
-            <p class="scene-description"
-               data-i18n="scene1Desc">
-                You arrive at Elena's apartment at midnight.
-                She should have been home two hours ago.
-                Look around. Every object may contain a clue.
-            </p>
+</section>
 
 
-            <div class="apartment">
+<!-- PHONE CALL -->
+<section id="callScene" class="hidden">
 
-                <div class="window interactive-object"
-                     data-object="window">
+  <div class="call-phone">
 
-                    <span class="click-label"
-                          data-i18n="window">
-                        EXAMINE WINDOW
-                    </span>
+    <div class="phone-screen">
 
-                </div>
+      <div class="incoming" data-i18n="incoming">
+        INCOMING CALL
+      </div>
 
+      <div class="caller">
+        UNKNOWN
+      </div>
 
-                <div class="desk interactive-object"
-                     data-object="desk">
+      <div class="call-icon">
+        ☎
+      </div>
 
-                    <span class="click-label"
-                          data-i18n="desk">
-                        EXAMINE DESK
-                    </span>
+      <button class="answer" id="answerBtn" data-i18n="answer">
+        ANSWER
+      </button>
 
-                </div>
+    </div>
 
+  </div>
 
-                <div class="lamp interactive-object"
-                     data-object="lamp">
-
-                    <span class="click-label"
-                          data-i18n="lamp">
-                        EXAMINE LAMP
-                    </span>
-
-                </div>
+</section>
 
 
-                <div class="sofa interactive-object"
-                     data-object="sofa">
+<!-- MAIN WORLD -->
+<section id="world">
 
-                    <span class="click-label"
-                          data-i18n="sofa">
-                        EXAMINE SOFA
-                    </span>
+  <div class="room">
 
-                </div>
+    <div class="wall"></div>
+    <div class="floor"></div>
 
+    <!-- DOOR -->
+    <div
+      class="door interactive"
+      id="door"
+      title="Door">
+      <div class="door-handle"></div>
+    </div>
 
-                <div class="door interactive-object"
-                     data-object="door">
+    <!-- PICTURE -->
+    <div
+      class="picture interactive"
+      id="picture">
 
-                    <div class="door-handle"></div>
+      <div class="picture-inner"></div>
 
-                    <span class="click-label"
-                          data-i18n="door">
-                        EXAMINE DOOR
-                    </span>
+      <div class="picture-note">
+        <strong>23 — 11 — 47</strong><br><br>
+        <span data-i18n="pictureNote">
+          You were here before.
+        </span>
+      </div>
 
-                </div>
+    </div>
 
-            </div>
+    <!-- WINDOW -->
+    <div
+      class="window interactive"
+      id="window">
 
+      <div class="city"></div>
+      <div class="silhouette"></div>
+      <div class="lightning"></div>
 
-            <div class="discovery"
-                 id="discovery"
-                 data-i18n="discoveryDefault">
-                Nothing discovered yet. Search the apartment.
-            </div>
+    </div>
 
+    <!-- LAMP -->
+    <div class="lamp interactive" id="lamp">
 
-            <div class="next">
+      <div class="lamp-glow"></div>
+      <div class="lamp-shade"></div>
+      <div class="lamp-stem"></div>
+      <div class="lamp-base"></div>
 
-                <button id="toPhone"
-                        disabled
-                        data-i18n="continuePhone">
-                    CONTINUE →
-                </button>
+    </div>
 
-            </div>
+    <!-- TABLE -->
+    <div class="table"></div>
 
+    <!-- LAPTOP -->
+    <div class="laptop interactive" id="laptop">
+
+      <div class="laptop-screen">
+        <div class="laptop-screen-content">
+          SYSTEM OFFLINE<br>
+          CONNECTION LOST<br><br>
+          USER: ELENA.M<br>
+          LAST ACCESS: 23:41<br><br>
+          [CLICK TO RESTORE]
         </div>
+      </div>
 
-    </section>
+      <div class="laptop-base"></div>
 
+    </div>
 
-    <!-- =================================================
-         SCENE 2 PHONE
-    ================================================== -->
+    <!-- SUITCASE -->
+    <div class="suitcase interactive" id="suitcase">
 
-    <section class="scene"
-             id="scene2">
+      <div class="handle"></div>
+      <div class="case-top"></div>
+      <div class="case-bottom"></div>
 
-        <div class="scene-inner">
+    </div>
 
-            <div class="scene-number"
-                 data-i18n="scene2">
-                SCENE 02 / THE PHONE
-            </div>
+    <!-- BREAKER PANEL -->
+    <div class="breaker" id="breaker">
 
-            <h2 class="scene-title"
-                data-i18n="phoneTitle">
-                Seven seconds.
-            </h2>
+      <div class="switch"></div>
+      <div class="switch"></div>
+      <div class="switch"></div>
+      <div class="switch"></div>
+      <div class="switch"></div>
+      <div class="switch"></div>
 
-            <p class="scene-description"
-               data-i18n="phoneDesc">
-                Elena's phone was found on the kitchen counter.
-                The last outgoing call was made at 11:47 PM.
-            </p>
+    </div>
 
+  </div>
 
-            <div class="phone-wrap">
+</section>
 
-                <div class="phone">
 
-                    <div class="phone-top">
-                        11:48 PM
-                    </div>
+<!-- FOCUS AREA -->
+<section id="focus">
 
-                    <div class="phone-screen">
+  <div class="focus-content" id="focusContent"></div>
 
-                        <div class="message received">
-                            Are you still coming?
-                        </div>
+</section>
 
-                        <div class="message sent">
-                            I think someone knows.
-                        </div>
 
-                        <div class="message received">
-                            What do you mean?
-                        </div>
+<!-- RETURN -->
+<button id="returnBtn">
+  ↩ <span data-i18n="return">RETURN</span>
+</button>
 
-                        <div class="message sent">
-                            Don't call me.
-                        </div>
 
-                        <div class="message locked"
-                             id="voiceMessage"
-                             data-i18n="lockedVoice">
-                            🔒 TAP TO LISTEN TO FINAL VOICE MESSAGE
-                        </div>
-
-                        <div class="message locked"
-                             id="deletedMessage"
-                             data-i18n="deleted">
-                            🔒 DELETED MESSAGE
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="discovery"
-                 id="phoneDiscovery"
-                 data-i18n="phoneDefault">
-                There are two locked items.
-            </div>
-
-
-            <div class="next">
-
-                <button id="toObjects"
-                        disabled
-                        data-i18n="continue">
-                    CONTINUE →
-                </button>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         SCENE 3
-    ================================================== -->
-
-    <section class="scene"
-             id="scene3">
-
-        <div class="scene-inner">
-
-            <div class="scene-number"
-                 data-i18n="scene3">
-                SCENE 03 / THE DESK
-            </div>
-
-            <h2 class="scene-title"
-                data-i18n="deskTitle">
-                What was she hiding?
-            </h2>
-
-            <p class="scene-description"
-               data-i18n="deskDesc">
-                You return to the apartment and examine the objects
-                you could not see clearly before.
-            </p>
-
-
-            <div class="object-grid">
-
-                <div class="object"
-                     data-object2="laptop">
-
-                    <div class="object-icon">
-                        ▣
-                    </div>
-
-                    <h3 data-i18n="laptop">
-                        Laptop
-                    </h3>
-
-                    <p data-i18n="laptopDesc">
-                        Recently used.
-                    </p>
-
-                </div>
-
-
-                <div class="object"
-                     data-object2="drawer">
-
-                    <div class="object-icon">
-                        ▤
-                    </div>
-
-                    <h3 data-i18n="drawer">
-                        Locked Drawer
-                    </h3>
-
-                    <p data-i18n="drawerDesc">
-                        Something is inside.
-                    </p>
-
-                </div>
-
-
-                <div class="object"
-                     data-object2="photo">
-
-                    <div class="object-icon">
-                        ▧
-                    </div>
-
-                    <h3 data-i18n="photo">
-                        Photograph
-                    </h3>
-
-                    <p data-i18n="photoDesc">
-                        Taken three days ago.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="discovery"
-                 id="objectDiscovery"
-                 data-i18n="objectDefault">
-                Examine all three objects.
-            </div>
-
-
-            <div class="next">
-
-                <button id="toSuspects"
-                        disabled
-                        data-i18n="continue">
-                    CONTINUE →
-                </button>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         SCENE 4 SUSPECTS
-    ================================================== -->
-
-    <section class="scene"
-             id="scene4">
-
-        <div class="scene-inner">
-
-            <div class="scene-number"
-                 data-i18n="scene4">
-                SCENE 04 / STATEMENTS
-            </div>
-
-            <h2 class="scene-title"
-                data-i18n="suspectTitle">
-                Two stories.
-            </h2>
-
-            <p class="scene-description"
-               data-i18n="suspectDesc">
-                Two people spoke to Elena that night.
-                Their statements don't completely match the evidence.
-            </p>
-
-
-            <div class="suspects">
-
-                <div class="suspect">
-
-                    <div class="suspect-number">
-                        PERSON 01
-                    </div>
-
-                    <h3>
-                        Mariam Petrosyan
-                    </h3>
-
-                    <div class="suspect-role">
-                        Elena's colleague
-                    </div>
-
-                    <div class="statement"
-                         data-i18n="mariamStatement">
-                        "I spoke with Elena at 10:15.
-                        She seemed nervous, but I left before 11.
-                        I never went to her apartment."
-                    </div>
-
-                    <div class="question-buttons">
-
-                        <button data-question="mariam1"
-                                data-i18n="ask1">
-                            ASK ABOUT THE CALL
-                        </button>
-
-                        <button data-question="mariam2"
-                                data-i18n="ask2">
-                            ASK ABOUT ELENA
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <div class="suspect">
-
-                    <div class="suspect-number">
-                        PERSON 02
-                    </div>
-
-                    <h3>
-                        David Aramian
-                    </h3>
-
-                    <div class="suspect-role">
-                        Building systems engineer
-                    </div>
-
-                    <div class="statement"
-                         data-i18n="davidStatement">
-                        "I was fixing a security problem.
-                        I didn't speak with Elena that evening.
-                        I left the building at 10:40."
-                    </div>
-
-                    <div class="question-buttons">
-
-                        <button data-question="david1"
-                                data-i18n="ask3">
-                            ASK ABOUT SECURITY
-                        </button>
-
-                        <button data-question="david2"
-                                data-i18n="ask4">
-                            ASK ABOUT 10:40
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="discovery"
-                 id="suspectDiscovery"
-                 data-i18n="suspectDefault">
-                Ask questions and compare their answers with the evidence.
-            </div>
-
-
-            <div class="next">
-
-                <button id="toPuzzle"
-                        disabled
-                        data-i18n="continue">
-                    CONTINUE →
-                </button>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         SCENE 5 PUZZLE
-    ================================================== -->
-
-    <section class="scene"
-             id="scene5">
-
-        <div class="scene-inner">
-
-            <div class="scene-number"
-                 data-i18n="scene5">
-                SCENE 05 / THE HIDDEN FILE
-            </div>
-
-            <h2 class="scene-title"
-                data-i18n="puzzleTitle">
-                A password.
-            </h2>
-
-            <p class="scene-description"
-               data-i18n="puzzleDesc">
-                The laptop contains one encrypted file.
-                Elena left a clue somewhere in the apartment.
-            </p>
-
-
-            <div class="puzzle">
-
-                <h3 data-i18n="decryptTitle">
-                    SECURITY FILE
-                </h3>
-
-                <p data-i18n="decryptDesc">
-                    The password has four characters.
-                    The clue reads:
-                    "Look at the time when everything changed."
-                </p>
-
-                <input
-                    class="code"
-                    id="password"
-                    maxlength="4"
-                    placeholder="____"
-                    autocomplete="off"
-                >
-
-                <button id="decrypt"
-                        data-i18n="decrypt">
-                    DECRYPT FILE
-                </button>
-
-                <div class="puzzle-result"
-                     id="puzzleResult">
-                </div>
-
-            </div>
-
-
-            <div class="next">
-
-                <button id="toFinal"
-                        disabled
-                        data-i18n="continue">
-                    CONTINUE →
-                </button>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         SCENE 6 FINAL
-    ================================================== -->
-
-    <section class="scene"
-             id="scene6">
-
-        <div class="scene-inner">
-
-            <div class="scene-number"
-                 data-i18n="scene6">
-                FINAL / YOUR DEDUCTION
-            </div>
-
-            <h2 class="scene-title"
-                data-i18n="finalTitle">
-                What really happened?
-            </h2>
-
-            <p class="scene-description"
-               data-i18n="finalDesc">
-                You have enough evidence.
-                Now reconstruct the night.
-            </p>
-
-
-            <div class="final">
-
-                <div class="final-question">
-
-                    <h3 data-i18n="q1">
-                        Who knew Elena was planning to disappear?
-                    </h3>
-
-                    <div class="answers">
-
-                        <button data-answer="mariam">
-                            Mariam
-                        </button>
-
-                        <button data-answer="david">
-                            David
-                        </button>
-
-                        <button data-answer="nobody"
-                                data-i18n="nobody">
-                            Nobody
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <div class="final-question">
-
-                    <h3 data-i18n="q2">
-                        Why did Elena leave?
-                    </h3>
-
-                    <div class="answers">
-
-                        <button data-answer="escape"
-                                data-i18n="escape">
-                            She was trying to escape someone.
-                        </button>
-
-                        <button data-answer="planned"
-                                data-i18n="planned">
-                            She planned the disappearance herself.
-                        </button>
-
-                        <button data-answer="accident"
-                                data-i18n="accident">
-                            It was an accident.
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <button class="submit"
-                        id="submitFinal"
-                        data-i18n="submit">
-                    SUBMIT DEDUCTION
-                </button>
-
-
-                <div class="final-result"
-                     id="finalResult">
-
-                    <h3 id="finalResultTitle"></h3>
-
-                    <p id="finalResultText"></p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         NOTES
-    ================================================== -->
-
-    <section class="scene"
-             id="notesScene">
-
-        <div class="scene-inner">
-
-            <div class="scene-number">
-                PRIVATE NOTES
-            </div>
-
-            <h2 class="scene-title"
-                data-i18n="notesTitle">
-                Your investigation.
-            </h2>
-
-            <p class="scene-description"
-               data-i18n="notesDesc">
-                Write anything you notice.
-            </p>
-
-            <div class="notes">
-
-                <textarea
-                    id="notes"
-                    data-placeholder-en="Write your theories here..."
-                    data-placeholder-hy="Գրեք ձեր տեսությունները այստեղ..."
-                    placeholder="Write your theories here..."
-                ></textarea>
-
-            </div>
-
-        </div>
-
-    </section>
-
+<!-- CLUE FLASH -->
+<div id="clueFlash">
+  <span data-i18n="clueFound">CLUE DISCOVERED</span>
 </div>
 
 
-<!-- =====================================================
-     MODAL
-===================================================== -->
+<!-- ENDING -->
+<section id="ending">
 
-<div class="modal"
-     id="modal">
+  <div class="ending-inner">
 
-    <div class="modal-box">
-
-        <button class="close"
-                id="closeModal">
-            ×
-        </button>
-
-        <div class="modal-label"
-             id="modalLabel">
-        </div>
-
-        <h2 class="modal-title"
-            id="modalTitle">
-        </h2>
-
-        <div class="modal-content"
-             id="modalContent">
-        </div>
-
+    <div class="ending-kicker" data-i18n="caseClosed">
+      CASE FILE 017
     </div>
+
+    <div class="ending-title" data-i18n="endingTitle">
+      SHE LEFT A TRACE.
+    </div>
+
+    <div class="ending-text" id="endingText"></div>
+
+    <button class="restart" onclick="location.reload()" data-i18n="restart">
+      REOPEN CASE
+    </button>
+
+  </div>
+
+</section>
 
 </div>
 
 
 <script>
 
-/* =====================================================
+/* =========================================================
    TRANSLATIONS
-===================================================== */
+========================================================= */
 
 const translations = {
 
-en:{
+  en: {
 
-classified:"CONFIDENTIAL INVESTIGATION",
+    caseFile:"CASE FILE 017 — MISSING PERSON",
 
-introStory:`
-At 11:47 PM, a phone rang.
-When you answered, nobody spoke.
-Then a woman's voice whispered:
-<br><br>
-<strong>"If you're hearing this, I didn't make it home."</strong>
-<br><br>
-The call lasted seven seconds.
-Then it disappeared.
-`,
+    begin:"BEGIN INVESTIGATION",
 
-start:"ANSWER THE CALL",
+    incoming:"INCOMING CALL",
 
-caseActive:"CASE 021 / ACTIVE",
+    answer:"ANSWER",
 
-scene1:"SCENE 01 / THE APARTMENT",
-scene1Title:"Something is wrong.",
-scene1Desc:"You arrive at Elena's apartment at midnight. She should have been home two hours ago. Look around. Every object may contain a clue.",
+    return:"RETURN",
 
-window:"EXAMINE WINDOW",
-desk:"EXAMINE DESK",
-lamp:"EXAMINE LAMP",
-sofa:"EXAMINE SOFA",
-door:"EXAMINE DOOR",
+    clues:"CLUES",
 
-discoveryDefault:"Nothing discovered yet. Search the apartment.",
-continuePhone:"CONTINUE →",
-continue:"CONTINUE →",
+    clueFound:"CLUE DISCOVERED",
 
-scene2:"SCENE 02 / THE PHONE",
-phoneTitle:"Seven seconds.",
-phoneDesc:"Elena's phone was found on the kitchen counter. The last outgoing call was made at 11:47 PM.",
+    caseClosed:"CASE FILE 017",
 
-lockedVoice:"🔒 TAP TO LISTEN TO FINAL VOICE MESSAGE",
-deleted:"🔒 DELETED MESSAGE",
-phoneDefault:"There are two locked items.",
+    endingTitle:"SHE LEFT A TRACE.",
 
-scene3:"SCENE 03 / THE DESK",
-deskTitle:"What was she hiding?",
-deskDesc:"You return to the apartment and examine the objects you could not see clearly before.",
+    restart:"REOPEN CASE",
 
-laptop:"Laptop",
-laptopDesc:"Recently used.",
-drawer:"Locked Drawer",
-drawerDesc:"Something is inside.",
-photo:"Photograph",
-photoDesc:"Taken three days ago.",
+    pictureNote:"You were here before.",
 
-objectDefault:"Examine all three objects.",
+    intro:
+      "At 11:47 PM, Elena Vardanyan disappeared from her apartment. Her phone called you once. When you answered, nobody spoke. The line remained open for exactly seventeen seconds.",
 
-scene4:"SCENE 04 / STATEMENTS",
-suspectTitle:"Two stories.",
-suspectDesc:"Two people spoke to Elena that night. Their statements don't completely match the evidence.",
+    callMessage:
+      "If you're hearing this, I didn't make it home. Don't call the police yet. Look at the photograph. The time matters.",
 
-mariamStatement:`"I spoke with Elena at 10:15. She seemed nervous, but I left before 11. I never went to her apartment."`,
+    windowClue:
+      "Someone was watching the building.",
 
-davidStatement:`"I was fixing a security problem. I didn't speak with Elena that evening. I left the building at 10:40."`,
+    laptopClue:
+      "The last file was deleted at 23:41.",
 
-ask1:"ASK ABOUT THE CALL",
-ask2:"ASK ABOUT ELENA",
-ask3:"ASK ABOUT SECURITY",
-ask4:"ASK ABOUT 10:40",
+    suitcaseClue:
+      "A second passport. Elena was preparing to leave.",
 
-suspectDefault:"Ask questions and compare their answers with the evidence.",
+    photoClue:
+      "23 — 11 — 47. The time of the call.",
 
-scene5:"SCENE 05 / THE HIDDEN FILE",
-puzzleTitle:"A password.",
-puzzleDesc:"The laptop contains one encrypted file. Elena left a clue somewhere in the apartment.",
+    doorClue:
+      "The lock was opened from the inside.",
 
-decryptTitle:"SECURITY FILE",
-decryptDesc:`The password has four characters. The clue reads: "Look at the time when everything changed."`,
-decrypt:"DECRYPT FILE",
+    powerClue:
+      "The apartment's power was deliberately switched off.",
 
-scene6:"FINAL / YOUR DEDUCTION",
-finalTitle:"What really happened?",
-finalDesc:"You have enough evidence. Now reconstruct the night.",
+    laptopSecret:
+      "TRANSFER LOCATION: PLATFORM 4 — 00:20",
 
-q1:"Who knew Elena was planning to disappear?",
-q2:"Why did Elena leave?",
+    ending:
+      "The clues point to a planned disappearance. Elena knew someone was following her and left a trail through the apartment. The message was not a cry for help. It was a set of instructions. Someone was waiting for her at Platform 4."
+  },
 
-nobody:"Nobody",
-escape:"She was trying to escape someone.",
-planned:"She planned the disappearance herself.",
-accident:"It was an accident.",
+  hy: {
 
-submit:"SUBMIT DEDUCTION",
+    caseFile:"ԳՈՐԾ 017 — ԱՆՀԵՏ ԿՈՐԱԾ ԱՆՁ",
 
-notesTitle:"Your investigation.",
-notesDesc:"Write anything you notice.",
+    begin:"ՍԿՍԵԼ ՀԵՏԱՔՆՆՈՒԹՅՈՒՆԸ",
 
-correctTitle:"CASE SOLVED",
-correctText:`Elena had been planning her disappearance for several days. The strange messages were deliberately left behind. She knew someone was monitoring her communications.
+    incoming:"ՄՈՒՏՔԱՅԻՆ ԶԱՆԳ",
 
-The person who knew enough to discover her plan was Mariam — but Mariam was not responsible for Elena's disappearance.
+    answer:"ՊԱՏԱՍԽԱՆԵԼ",
 
-Elena created the final phone call herself and used the security outage as cover. She left through a maintenance route that was not visible from the main cameras.
+    return:"ՎԵՐԱԴԱՌՆԱԼ",
 
-The real mystery was not who took Elena.
+    clues:"ՀԵՏՔԵՐ",
 
-It was why she needed to disappear.`,
+    clueFound:"ՀԵՏՔԸ ՀԱՅՏՆԱԲԵՐՎԱԾ Է",
 
-wrongTitle:"NOT ENOUGH EVIDENCE",
-wrongText:"Your conclusion doesn't explain all of the clues. Revisit the phone, the statements and the encrypted file.",
+    caseClosed:"ԳՈՐԾ 017",
 
-voiceTitle:"THE FINAL VOICE MESSAGE",
-voiceText:`The recording is only seven seconds long.
+    endingTitle:"ՆԱ ՀԵՏՔ Է ԹՈՂԵԼ։",
 
-Elena whispers:
+    restart:"ԿՐԿԻՆ ԲԱՑԵԼ ԳՈՐԾԸ",
 
-<br><br>
-<strong>"Don't look for me. Look for what I left behind."</strong>
-<br><br>
-Then there is the sound of a door closing.`,
+    pictureNote:"Դու արդեն այստեղ եղել էիր։",
 
-deletedTitle:"DELETED MESSAGE",
-deletedText:`RECOVERED FROM DEVICE CACHE
+    intro:
+      "Ժամը 23:47-ին Էլենա Վարդանյանն անհետացավ իր բնակարանից։ Նրա հեռախոսը մեկ անգամ զանգահարեց քեզ։ Երբ պատասխանեցիր, ոչ ոք չխոսեց։ Կապը բաց մնաց ուղիղ տասնյոթ վայրկյան։",
 
-<br><br>
+    callMessage:
+      "Եթե լսում ես սա, ես տուն չեմ հասել։ Դեռ ոստիկանություն մի զանգիր։ Նայիր լուսանկարին։ Ժամանակը կարևոր է։",
 
-<strong>10:58 PM</strong><br>
-Mariam: "Are you sure?"
+    windowClue:
+      "Ինչ-որ մեկը հետևում էր շենքին։",
 
-<br><br>
+    laptopClue:
+      "Վերջին ֆայլը ջնջվել է 23:41-ին։",
 
-<strong>10:59 PM</strong><br>
-Elena: "You promised you wouldn't tell anyone."
+    suitcaseClue:
+      "Երկրորդ անձնագիր։ Էլենան պատրաստվում էր հեռանալ։",
 
-<br><br>
+    photoClue:
+      "23 — 11 — 47։ Զանգի ժամը։",
 
-The rest of the conversation is permanently deleted.`,
+    doorClue:
+      "Դուռը բացվել է ներսից։",
 
-windowTitle:"THE WINDOW",
-windowText:`The window is locked from the inside.
-
-<br><br>
-
-But there are fresh scratches around the frame.
-
-<br><br>
-
-Someone tried to open it recently.`,
-
-deskTitleModal:"THE DESK",
-deskText:`There is a small piece of paper underneath the desk.
-
-<br><br>
-
-<strong>11:47</strong>
-
-<br><br>
-
-The same time as the mysterious call.
-
-<br><br>
-
-You should remember it.`,
-
-lampTitle:"THE LAMP",
-lampText:`The lamp is still warm.
-
-<br><br>
-
-Someone was sitting here recently.
-
-<br><br>
-
-You find a tiny piece of red thread caught beneath the base.`,
-
-sofaTitle:"THE SOFA",
-sofaText:`Nothing obvious.
-
-<br><br>
-
-But underneath the cushion you find a key.
-
-<br><br>
-
-The key is labeled:
-<strong>17B</strong>`,
-
-doorTitle:"THE DOOR",
-doorText:`The front door was locked.
-
-<br><br>
-
-There are no signs of forced entry.
-
-<br><br>
-
-Whoever left the apartment had a key.`,
-
-laptopTitle:"THE LAPTOP",
-laptopText:`The laptop is still running.
-
-<br><br>
-
-One file is encrypted.
-
-<br><br>
-
-The filename:
-
-<br><br>
-
-<strong>IF_I_DONT_RETURN.txt</strong>`,
-
-drawerTitle:"THE LOCKED DRAWER",
-drawerText:`The key from the sofa opens the drawer.
-
-<br><br>
-
-Inside you find a passport, cash and a second phone.
-
-<br><br>
-
-Someone was preparing to leave.`,
-
-photoTitle:"THE PHOTOGRAPH",
-photoText:`A photograph of Elena and Mariam.
-
-<br><br>
-
-Written on the back:
-
-<br><br>
-
-<strong>"Thank you for helping me."</strong>
-
-<br><br>
-
-The date is three days before the disappearance.`,
-
-mariam1:`Mariam pauses before answering.
-
-<br><br>
-
-"I received one message from Elena. She said she was scared."
-
-<br><br>
-
-When asked why she didn't report it, Mariam says:
-
-<br><br>
-
-<strong>"Because she asked me not to."</strong>`,
-
-mariam2:`Mariam admits Elena had been acting strangely for several days.
-
-<br><br>
-
-She says Elena asked her for help finding somewhere to stay.
-
-<br><br>
-
-Mariam refuses to say where.`,
-
-david1:`David says the security outage was caused by a storm.
-
-<br><br>
-
-But the system record says the outage was manually triggered.`,
-
-david2:`David claims he left at 10:40.
-
-<br><br>
-
-However, the security system records an administrative login at 11:32.
-
-<br><br>
-
-The login belongs to David.`,
-
-decryptSuccess:`ACCESS GRANTED.
-
-<br><br>
-
-The file contains one sentence:
-
-<br><br>
-
-<strong>"The person who knows is not the person who did it."</strong>
-
-<br><br>
-
-And one final location:
-
-<strong>17B</strong>`,
-
-decryptWrong:"ACCESS DENIED. Think about the time.",
-
-finalUnlocked:"The evidence has been connected.",
-
-},
-
-hy:{
-
-classified:"ԳԱՂՏՆԻ ՀԵՏԱՔՆՆՈՒԹՅՈՒՆ",
-
-introStory:`
-Ժամը 23:47-ին հեռախոսը զանգեց։
-Երբ պատասխանեցիք, ոչ ոք չխոսեց։
-Հետո կնոջ ձայնը շշնջաց.
-<br><br>
-<strong>«Եթե լսում ես սա, ես տուն չեմ հասել»։</strong>
-<br><br>
-Զանգը տևեց յոթ վայրկյան։
-Հետո այն անհետացավ։
-`,
-
-start:"ՊԱՏԱՍԽԱՆԵԼ ԶԱՆԳԻՆ",
-
-caseActive:"ԳՈՐԾ 021 / ԱԿՏԻՎ",
-
-scene1:"ՏԵՍԱՐԱՆ 01 / ԲՆԱԿԱՐԱՆԸ",
-scene1Title:"Ինչ-որ բան այն չէ։",
-scene1Desc:"Կեսգիշերին հասնում եք Էլենայի բնակարան։ Նա պետք է տուն հասած լիներ երկու ժամ առաջ։ Նայեք շուրջը։ Յուրաքանչյուր առարկա կարող է հուշում լինել։",
-
-window:"ՈՒՍՈՒՄՆԱՍԻՐԵԼ ՊԱՏՈՒՀԱՆԸ",
-desk:"ՈՒՍՈՒՄՆԱՍԻՐԵԼ ՍԵՂԱՆԸ",
-lamp:"ՈՒՍՈՒՄՆԱՍԻՐԵԼ ԼԱՄՊԸ",
-sofa:"ՈՒՍՈՒՄՆԱՍԻՐԵԼ ԲԱԶՄՈՑԸ",
-door:"ՈՒՍՈՒՄՆԱՍԻՐԵԼ ԴՈՒՌԸ",
-
-discoveryDefault:"Դեռ ոչինչ չեք հայտնաբերել։ Փնտրեք բնակարանում։",
-continuePhone:"ՇԱՐՈՒՆԱԿԵԼ →",
-continue:"ՇԱՐՈՒՆԱԿԵԼ →",
-
-scene2:"ՏԵՍԱՐԱՆ 02 / ՀԵՌԱԽՈՍԸ",
-phoneTitle:"Յոթ վայրկյան։",
-phoneDesc:"Էլենայի հեռախոսը հայտնաբերվել է խոհանոցի սեղանին։ Վերջին ելքային զանգը կատարվել է 23:47-ին։",
-
-lockedVoice:"🔒 ՍԵՂՄԵՔ՝ ՎԵՐՋԻՆ ՁԱՅՆԱԳՐՈՒԹՅՈՒՆԸ ԼՍԵԼՈՒ ՀԱՄԱՐ",
-deleted:"🔒 ՋՆՋՎԱԾ ՀԱՂՈՐԴԱԳՐՈՒԹՅՈՒՆ",
-phoneDefault:"Երկու փակված տարր կա։",
-
-scene3:"ՏԵՍԱՐԱՆ 03 / ՍԵՂԱՆԸ",
-deskTitle:"Ի՞նչ էր նա թաքցնում։",
-deskDesc:"Վերադառնում եք բնակարան և ուսումնասիրում այն առարկաները, որոնք սկզբում չէիք նկատել։",
-
-laptop:"Նոթբուք",
-laptopDesc:"Վերջերս օգտագործվել է։",
-drawer:"Փակված դարակ",
-drawerDesc:"Ներսում ինչ-որ բան կա։",
-photo:"Լուսանկար",
-photoDesc:"Լուսանկարվել է երեք օր առաջ։",
-
-objectDefault:"Ուսումնասիրեք բոլոր երեք առարկաները։",
-
-scene4:"ՏԵՍԱՐԱՆ 04 / ՑՈՒՑՄՈՒՆՔՆԵՐ",
-suspectTitle:"Երկու պատմություն։",
-suspectDesc:"Այդ գիշեր Էլենայի հետ խոսել են երկու մարդ։ Նրանց պատմությունները ամբողջությամբ չեն համապատասխանում ապացույցներին։",
-
-mariamStatement:`«Ես Էլենայի հետ խոսեցի 22:15-ին։ Նա անհանգիստ էր, բայց ես հեռացա մինչև 23:00-ն։ Ես երբեք նրա բնակարան չեմ գնացել»։`,
-
-davidStatement:`«Ես անվտանգության համակարգի խնդիր էի վերացնում։ Այդ երեկո Էլենայի հետ չեմ խոսել։ Շենքից հեռացել եմ 22:40-ին»։`,
-
-ask1:"ՀԱՐՑՆԵԼ ԶԱՆԳԻ ՄԱՍԻՆ",
-ask2:"ՀԱՐՑՆԵԼ ԷԼԵՆԱՅԻ ՄԱՍԻՆ",
-ask3:"ՀԱՐՑՆԵԼ ԱՆՎՏԱՆԳՈՒԹՅԱՆ ՄԱՍԻՆ",
-ask4:"ՀԱՐՑՆԵԼ 22:40-Ի ՄԱՍԻՆ",
-
-suspectDefault:"Հարցեր տվեք և համեմատեք նրանց պատասխանները ապացույցների հետ։",
-
-scene5:"ՏԵՍԱՐԱՆ 05 / ԳԱՂՏՆԻ ՖԱՅԼԸ",
-puzzleTitle:"Գաղտնաբառ։",
-puzzleDesc:"Նոթբուքում կա մեկ կոդավորված ֆայլ։ Էլենան բնակարանում հուշում է թողել։",
-
-decryptTitle:"ԱՆՎՏԱՆԳՈՒԹՅԱՆ ՖԱՅԼ",
-decryptDesc:`Գաղտնաբառը բաղկացած է չորս նիշից։ Հուշումն ասում է. «Նայիր այն ժամանակին, երբ ամեն ինչ փոխվեց»։`,
-decrypt:"ԲԱՑԵԼ ՖԱՅԼԸ",
-
-scene6:"ՎԵՐՋ / ՁԵՐ ԵԶՐԱԿԱՑՈՒԹՅՈՒՆԸ",
-finalTitle:"Ի՞նչ է իրականում տեղի ունեցել։",
-finalDesc:"Դուք բավականաչափ ապացույցներ ունեք։ Այժմ վերականգնեք այդ գիշերվա իրադարձությունները։",
-
-q1:"Ո՞վ գիտեր, որ Էլենան պատրաստվում էր անհետանալ։",
-q2:"Ինչո՞ւ Էլենան հեռացավ։",
-
-nobody:"Ոչ ոք",
-escape:"Նա փորձում էր փախչել ինչ-որ մեկից։",
-planned:"Նա ինքն էր ծրագրել իր անհետացումը։",
-accident:"Դա դժբախտ պատահար էր։",
-
-submit:"ՆԵՐԿԱՅԱՑՆԵԼ ԵԶՐԱԿԱՑՈՒԹՅՈՒՆԸ",
-
-notesTitle:"Ձեր հետաքննությունը։",
-notesDesc:"Գրեք այն ամենը, ինչ նկատում եք։",
-
-correctTitle:"ԳՈՐԾԸ ԲԱՑԱՀԱՅՏՎԱԾ Է",
-correctText:`Էլենան մի քանի օր շարունակ ծրագրում էր իր անհետացումը։ Տարօրինակ հաղորդագրությունները դիտավորյալ էին թողնված։ Նա գիտեր, որ ինչ-որ մեկը հետևում էր իր հաղորդակցություններին։
-
-Էլենայի ծրագրի մասին բավականաչափ տեղեկություն ուներ Մարիամը, սակայն Մարիամը պատասխանատու չէր Էլենայի անհետացման համար։
-
-Էլենան ինքն էր ստեղծել վերջին զանգը և օգտագործել անվտանգության խափանումը որպես քողարկում։ Նա դուրս էր եկել սպասարկման անցուղով, որը հիմնական տեսախցիկները չէին տեսնում։
-
-Իրական առեղծվածը այն չէր, թե ով տարավ Էլենային։
-
-Այլ այն էր, թե ինչու էր նա ստիպված անհետանալ։`,
-
-wrongTitle:"ԱՊԱՑՈՒՅՑՆԵՐԸ ԲԱՎԱՐԱՐ ՉԵՆ",
-wrongText:"Ձեր եզրակացությունը չի բացատրում բոլոր հուշումները։ Նորից ուսումնասիրեք հեռախոսը, ցուցմունքները և կոդավորված ֆայլը։",
-
-voiceTitle:"ՎԵՐՋԻՆ ՁԱՅՆԱԳՐՈՒԹՅՈՒՆԸ",
-voiceText:`Ձայնագրությունը տևում է ընդամենը յոթ վայրկյան։
-
-Էլենան շշնջում է.
-
-<br><br>
-<strong>«Ինձ մի փնտրիր։ Փնտրիր այն, ինչ թողել եմ»։</strong>
-<br><br>
-Հետո լսվում է փակվող դռան ձայնը։`,
-
-deletedTitle:"ՋՆՋՎԱԾ ՀԱՂՈՐԴԱԳՐՈՒԹՅՈՒՆ",
-deletedText:`ՎԵՐԱԿԱՆԳՆՎԵԼ Է ՀԵՌԱԽՈՍԻ ՀԻՇՈՂՈՒԹՅՈՒՆԻՑ
-
-<br><br>
-
-<strong>22:58</strong><br>
-Մարիամ. «Վստա՞հ ես»։
-
-<br><br>
-
-<strong>22:59</strong><br>
-Էլենա. «Դու խոստացել էիր, որ ոչ ոքի չես ասի»։
-
-<br><br>
-
-Զրույցի մնացած մասը ընդմիշտ ջնջված է։`,
-
-windowTitle:"ՊԱՏՈՒՀԱՆԸ",
-windowText:`Պատուհանը ներսից փակված է։
-
-<br><br>
-
-Սակայն շրջանակի շուրջը թարմ քերծվածքներ կան։
-
-<br><br>
-
-Ինչ-որ մեկը վերջերս փորձել է այն բացել։`,
-
-deskTitleModal:"ՍԵՂԱՆԸ",
-deskText:`Սեղանի տակ մի փոքրիկ թուղթ կա։
-
-<br><br>
-
-<strong>23:47</strong>
-
-<br><br>
-
-Նույն ժամը, ինչ խորհրդավոր զանգի ժամանակ։
-
-<br><br>
-
-Դուք պետք է հիշեք այն։`,
-
-lampTitle:"ԼԱՄՊԸ",
-lampText:`Լամպը դեռ տաք է։
-
-<br><br>
-
-Ինչ-որ մեկը վերջերս նստած է եղել այստեղ։
-
-<br><br>
-
-Լամպի տակ գտնում եք կարմիր թելի փոքր կտոր։`,
-
-sofaTitle:"ԲԱԶՄՈՑԸ",
-sofaText:`Ոչինչ ակնհայտ չկա։
-
-<br><br>
-
-Բայց բարձի տակ գտնում եք բանալի։
-
-<br><br>
-
-Բանալիի վրա գրված է.
-<strong>17B</strong>`,
-
-doorTitle:"ԴՈՒՌԸ",
-doorText:`Մուտքի դուռը փակ էր։
-
-<br><br>
-
-Կոտրման նշաններ չկան։
-
-<br><br>
-
-Բնակարանից դուրս եկած մարդը բանալի ուներ։`,
-
-laptopTitle:"ՆՈԹԲՈՒՔԸ",
-laptopText:`Նոթբուքը դեռ միացված է։
-
-<br><br>
-
-Մեկ ֆայլ կոդավորված է։
-
-<br><br>
-
-Ֆայլի անունը.
-
-<br><br>
-
-<strong>IF_I_DONT_RETURN.txt</strong>`,
-
-drawerTitle:"ՓԱԿՎԱԾ ԴԱՐԱԿԸ",
-drawerText:`Բազմոցից գտած բանալին բացում է դարակը։
-
-<br><br>
-
-Ներսում գտնում եք անձնագիր, կանխիկ գումար և երկրորդ հեռախոս։
-
-<br><br>
-
-Ինչ-որ մեկը պատրաստվում էր հեռանալ։`,
-
-photoTitle:"ԼՈՒՍԱՆԿԱՐԸ",
-photoText:`Էլենայի և Մարիամի լուսանկարը։
-
-<br><br>
-
-Հետևի կողմում գրված է.
-
-<br><br>
-
-<strong>«Շնորհակալ եմ, որ օգնեցիր ինձ»։</strong>
-
-<br><br>
-
-Ամսաթիվը անհետանալուց երեք օր առաջ է։`,
-
-mariam1:`Մարիամը մի պահ լռում է։
-
-<br><br>
-
-«Ես Էլենայից մեկ հաղորդագրություն ստացա։ Նա ասաց, որ վախենում է»։
-
-<br><br>
-
-Երբ հարցնում եք, թե ինչու չի հայտնել ոստիկանությանը, Մարիամն ասում է.
-
-<br><br>
-
-<strong>«Որովհետև նա խնդրեց, որ չասեմ»։</strong>`,
-
-mariam2:`Մարիամը խոստովանում է, որ Էլենան մի քանի օր տարօրինակ էր պահում իրեն։
-
-<br><br>
-
-Նա ասում է, որ Էլենան խնդրել էր օգնել իրեն բնակվելու վայր գտնել։
-
-<br><br>
-
-Մարիամը հրաժարվում է ասել, թե որտեղ։`,
-
-david1:`Դավիթն ասում է, որ անվտանգության խափանումը փոթորկի հետևանք էր։
-
-<br><br>
-
-Սակայն համակարգի գրանցամատյանը ցույց է տալիս, որ խափանումը ձեռքով էր ակտիվացվել։`,
-
-david2:`Դավիթը պնդում է, որ 22:40-ին հեռացել է։
-
-<br><br>
-
-Սակայն անվտանգության համակարգը 23:32-ին գրանցել է ադմինիստրատիվ մուտք։
-
-<br><br>
-
-Մուտքը պատկանում է Դավիթին։`,
-
-decryptSuccess:`ՄՈՒՏՔԸ ԹՈՒՅԼԱՏՐՎԱԾ Է։
-
-<br><br>
-
-Ֆայլում կա մեկ նախադասություն.
-
-<br><br>
-
-<strong>«Նա, ով գիտի, այն մարդը չէ, ով արել է դա»։</strong>
-
-<br><br>
-
-Եվ մեկ վերջնական տեղադրություն.
-
-<strong>17B</strong>`,
-
-decryptWrong:"ՄՈՒՏՔԸ ՄԵՐԺՎԱԾ Է։ Մտածեք ժամանակի մասին։"
-
-}
+    powerClue:
+      "Բնակարանի հոսանքը միտումնավոր անջատվել էր։",
+
+    laptopSecret:
+      "ՏԵՂԸ՝ ԿԱՅԱՐԱՆ 4 — 00:20",
+
+    ending:
+      "Հետքերը ցույց են տալիս, որ անհետացումը նախապես ծրագրված էր։ Էլենան գիտեր, որ ինչ-որ մեկը հետևում էր իրեն և բնակարանում հետքերի շղթա էր թողել։ Հաղորդագրությունը օգնության խնդրանք չէր։ Այն հրահանգների շարք էր։ Ինչ-որ մեկը սպասում էր նրան չորրորդ հարթակում։"
+  }
 
 };
 
+let lang = "en";
 
-/* =====================================================
+
+/* =========================================================
    STATE
-===================================================== */
-
-let language = "en";
+========================================================= */
 
 const state = {
-    apartmentClues: new Set(),
-    phoneClues: new Set(),
-    objectClues: new Set(),
-    suspectClues: new Set(),
-    puzzleSolved:false,
-    finalAnswers:[null,null]
+
+  clues:new Set(),
+
+  currentFocus:null,
+
+  power:false,
+
+  phoneRead:false,
+
+  laptopOpened:false,
+
+  suitcaseOpened:false,
+
+  pictureSeen:false,
+
+  windowSeen:false,
+
+  doorSeen:false,
+
+  breakerSolved:false,
+
+  endingShown:false
+
 };
 
 
-/* =====================================================
-   TRANSLATION
-===================================================== */
+/* =========================================================
+   DOM
+========================================================= */
+
+const intro = document.getElementById("intro");
+const callScene = document.getElementById("callScene");
+const world = document.getElementById("world");
+const focus = document.getElementById("focus");
+const focusContent = document.getElementById("focusContent");
+const returnBtn = document.getElementById("returnBtn");
+const clueCount = document.getElementById("clueCount");
+const clueFlash = document.getElementById("clueFlash");
+
+
+/* =========================================================
+   LANGUAGE
+========================================================= */
 
 function t(key){
-
-    return translations[language][key] || key;
-
+  return translations[lang][key] || key;
 }
 
+function updateLanguage(){
 
-function translatePage(){
+  document.documentElement.lang = lang === "hy" ? "hy" : "en";
 
-    document.querySelectorAll("[data-i18n]")
-        .forEach(element => {
-
-            const key = element.dataset.i18n;
-
-            if(translations[language][key]){
-                element.innerHTML = translations[language][key];
-            }
-
-        });
-
-    const notes =
-        document.getElementById("notes");
-
-    if(notes){
-        notes.placeholder =
-            language === "en"
-            ? notes.dataset.placeholderEn
-            : notes.dataset.placeholderHy;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.dataset.i18n;
+    if(translations[lang][key]){
+      el.textContent = translations[lang][key];
     }
+  });
 
-    document.getElementById("enBtn")
-        .classList.toggle("active",language==="en");
+  document.getElementById("introText").textContent = t("intro");
 
-    document.getElementById("hyBtn")
-        .classList.toggle("active",language==="hy");
+  if(state.currentFocus){
+    renderFocus(state.currentFocus);
+  }
 
-    updateDynamicText();
+  if(state.endingShown){
+    document.getElementById("endingText").textContent = t("ending");
+  }
 
+  document.getElementById("enBtn").classList.toggle("active",lang==="en");
+  document.getElementById("hyBtn").classList.toggle("active",lang==="hy");
+}
+
+document.getElementById("enBtn").onclick=()=>{
+  lang="en";
+  updateLanguage();
+};
+
+document.getElementById("hyBtn").onclick=()=>{
+  lang="hy";
+  updateLanguage();
+};
+
+
+/* =========================================================
+   RAIN
+========================================================= */
+
+function createRain(){
+
+  const rain = document.getElementById("rain");
+
+  for(let i=0;i<90;i++){
+
+    const d=document.createElement("div");
+
+    d.className="drop";
+
+    d.style.left=Math.random()*100+"%";
+    d.style.animationDuration=(.45+Math.random()*.7)+"s";
+    d.style.animationDelay=(-Math.random()*2)+"s";
+    d.style.opacity=.15+Math.random()*.5;
+
+    rain.appendChild(d);
+  }
+}
+
+createRain();
+
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+let audioCtx=null;
+let master=null;
+
+function startAudio(){
+
+  if(audioCtx) return;
+
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+
+  master=audioCtx.createGain();
+  master.gain.value=.08;
+  master.connect(audioCtx.destination);
+
+  const osc=audioCtx.createOscillator();
+  const gain=audioCtx.createGain();
+
+  osc.type="sine";
+  osc.frequency.value=42;
+  gain.gain.value=.35;
+
+  osc.connect(gain);
+  gain.connect(master);
+
+  osc.start();
+
+  createRainSound();
+}
+
+function createRainSound(){
+
+  const bufferSize=audioCtx.sampleRate*2;
+  const buffer=audioCtx.createBuffer(
+    1,
+    bufferSize,
+    audioCtx.sampleRate
+  );
+
+  const data=buffer.getChannelData(0);
+
+  for(let i=0;i<bufferSize;i++){
+    data[i]=(Math.random()*2-1)*.25;
+  }
+
+  const source=audioCtx.createBufferSource();
+  source.buffer=buffer;
+  source.loop=true;
+
+  const filter=audioCtx.createBiquadFilter();
+  filter.type="lowpass";
+  filter.frequency.value=1500;
+
+  const gain=audioCtx.createGain();
+  gain.gain.value=.13;
+
+  source.connect(filter);
+  filter.connect(gain);
+  gain.connect(master);
+
+  source.start();
 }
 
 
-function setLanguage(lang){
+/* =========================================================
+   SPEECH
+========================================================= */
 
-    language = lang;
+function speak(text){
 
-    document.documentElement.lang =
-        lang === "hy" ? "hy" : "en";
+  if(!("speechSynthesis" in window)) return;
 
-    translatePage();
+  speechSynthesis.cancel();
 
+  const u=new SpeechSynthesisUtterance(text);
+
+  u.lang=lang==="hy" ? "hy-AM" : "en-US";
+  u.rate=.85;
+  u.pitch=.65;
+  u.volume=.7;
+
+  speechSynthesis.speak(u);
 }
 
 
-/* =====================================================
-   NAVIGATION
-===================================================== */
-
-const scenes = [
-    "scene1",
-    "scene2",
-    "scene3",
-    "scene4",
-    "scene5",
-    "scene6"
-];
-
-let currentScene = 0;
-
-
-function goToScene(index){
-
-    if(index < 0 || index >= scenes.length){
-        return;
-    }
-
-    scenes.forEach(id => {
-
-        document.getElementById(id)
-            .classList.remove("active");
-
-    });
-
-    document.getElementById(scenes[index])
-        .classList.add("active");
-
-    currentScene = index;
-
-    document.getElementById("progressFill")
-        .style.width =
-        ((index)/(scenes.length-1))*100 + "%";
-
-    window.scrollTo({
-        top:0,
-        behavior:"smooth"
-    });
-
-    playTone("transition");
-
-}
-
-
-/* =====================================================
+/* =========================================================
    INTRO
-===================================================== */
+========================================================= */
 
-document.getElementById("startButton")
-.addEventListener("click",()=>{
+document.getElementById("enterBtn").onclick=()=>{
 
-    initAudio();
+  startAudio();
 
-    const intro =
-        document.getElementById("intro");
+  intro.classList.add("hidden");
 
-    intro.style.opacity="0";
+  setTimeout(()=>{
+
+    callScene.classList.remove("hidden");
+
+    speak(
+      lang==="en"
+      ? "You have one new call."
+      : "Դուք ունեք մեկ նոր զանգ։"
+    );
+
+  },900);
+
+};
+
+
+/* =========================================================
+   ANSWER PHONE
+========================================================= */
+
+document.getElementById("answerBtn").onclick=()=>{
+
+  startAudio();
+
+  callScene.classList.add("hidden");
+
+  setTimeout(()=>{
+
+    world.classList.add("visible");
+
+    speak(t("callMessage"));
+
+  },700);
+
+};
+
+
+/* =========================================================
+   CLUE SYSTEM
+========================================================= */
+
+function discoverClue(id){
+
+  if(state.clues.has(id)) return;
+
+  state.clues.add(id);
+
+  clueCount.textContent=state.clues.size;
+
+  clueFlash.classList.add("show");
+
+  setTimeout(()=>{
+    clueFlash.classList.remove("show");
+  },1800);
+
+  if(state.clues.size>=8){
+    setTimeout(showEnding,1200);
+  }
+}
+
+
+/* =========================================================
+   FOCUS MANAGEMENT
+========================================================= */
+
+function openFocus(type){
+
+  state.currentFocus=type;
+
+  renderFocus(type);
+
+  focus.classList.add("active");
+
+  returnBtn.classList.add("visible");
+}
+
+function closeFocus(){
+
+  focus.classList.remove("active");
+
+  setTimeout(()=>{
+    focusContent.innerHTML="";
+  },500);
+
+  state.currentFocus=null;
+}
+
+
+/* =========================================================
+   RETURN BUTTON
+========================================================= */
+
+returnBtn.onclick=()=>{
+
+  closeFocus();
+
+};
+
+
+/* =========================================================
+   RENDER FOCUS
+========================================================= */
+
+function renderFocus(type){
+
+  if(type==="phone"){
+
+    focusContent.innerHTML=`
+
+      <div class="big-phone">
+
+        <div class="big-phone-screen">
+
+          <div class="phone-time">
+            23:47
+          </div>
+
+          <div class="message">
+            ${t("callMessage")}
+            <small>UNKNOWN — 23:47</small>
+          </div>
+
+          <div class="message">
+            ${lang==="en"
+              ? "Look at the photograph."
+              : "Նայիր լուսանկարին։"}
+            <small>UNKNOWN — 23:47</small>
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+    if(!state.phoneRead){
+
+      state.phoneRead=true;
+
+      discoverClue("phone");
+
+    }
+
+  }
+
+
+  if(type==="laptop"){
+
+    focusContent.innerHTML=`
+
+      <div class="big-laptop">
+
+        <div class="big-monitor">
+
+          <div class="monitor-line"></div>
+
+          <div class="monitor-text">
+USER: ELENA.M
+
+LAST ACCESS: 23:41
+
+FILE SYSTEM:
+--------------------------------
+
+/PERSONAL
+/TRAVEL
+/ARCHIVE
+/DELETED
+
+--------------------------------
+
+DELETED FILE:
+"TRANSFER_NOTE.txt"
+          </div>
+
+          <div class="monitor-secret" id="secretText">
+            ${t("laptopSecret")}
+          </div>
+
+        </div>
+
+        <div class="keyboard"></div>
+
+      </div>
+
+    `;
+
+    state.laptopOpened=true;
+
+    discoverClue("laptop");
 
     setTimeout(()=>{
 
-        intro.classList.add("hidden");
+      document.getElementById("secretText")
+        ?.classList.add("show");
 
-        document.getElementById("app")
-            .classList.remove("hidden");
+    },1200);
 
-        playTone("start");
+  }
+
+
+  if(type==="suitcase"){
+
+    focusContent.innerHTML=`
+
+      <div class="suitcase-inside">
+
+        <div class="evidence-paper">
+          <strong>
+            ${lang==="en" ? "PASSPORT" : "ԱՆՁՆԱԳԻՐ"}
+          </strong>
+          <br><br>
+          ELENA VARDANYAN
+          <br>
+          DOB 16.01.1998
+          <br><br>
+          ${lang==="en"
+            ? "SECOND DOCUMENT"
+            : "ԵՐԿՐՈՐԴ ՓԱՍՏԱԹՈՒՂԹ"}
+        </div>
+
+        <div class="evidence-paper">
+
+          <strong>
+            ${lang==="en" ? "TRAIN TICKET" : "ԳՆԱՑՔԻ ՏՈՄՍ"}
+          </strong>
+
+          <br><br>
+
+          YEREVAN → UNKNOWN
+
+          <br>
+
+          00:20
+
+          <br><br>
+
+          ${lang==="en"
+            ? "PLATFORM 4"
+            : "ՀԱՐԹԱԿ 4"}
+
+        </div>
+
+      </div>
+
+    `;
+
+    state.suitcaseOpened=true;
+
+    discoverClue("suitcase");
+
+  }
+
+
+  if(type==="picture"){
+
+    focusContent.innerHTML=`
+
+      <div class="big-photo">
+
+        <div class="photo-image">
+
+          <div class="photo-writing">
+            23 — 11 — 47
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+    state.pictureSeen=true;
+
+    discoverClue("picture");
+
+  }
+
+
+  if(type==="window"){
+
+    focusContent.innerHTML=`
+
+      <div style="
+        width:80vw;
+        height:70vh;
+        position:relative;
+        background:
+        linear-gradient(90deg,
+          transparent 49.5%,
+          rgba(255,255,255,.12) 50%,
+          transparent 50.5%),
+        linear-gradient(180deg,
+          transparent 49.5%,
+          rgba(255,255,255,.12) 50%,
+          transparent 50.5%),
+        linear-gradient(180deg,#111827,#05070a);
+        border:15px solid #272b30;
+        box-shadow:0 30px 100px #000;
+        overflow:hidden;
+      ">
+
+        <div style="
+          position:absolute;
+          bottom:0;
+          width:100%;
+          height:40%;
+          background:
+          linear-gradient(
+            90deg,
+            #050608 0 10%,
+            #181b20 10% 18%,
+            #050608 18% 30%,
+            #181b20 30% 45%,
+            #060708 45% 58%,
+            #1a1d22 58% 75%,
+            #050608 75% 100%);
+        "></div>
+
+        <div style="
+          position:absolute;
+          bottom:15%;
+          left:50%;
+          transform:translateX(-50%);
+          width:55px;
+          height:180px;
+          background:#020304;
+          clip-path:polygon(
+          40% 0,
+          62% 0,
+          72% 17%,
+          100% 35%,
+          82% 39%,
+          75% 100%,
+          25% 100%,
+          18% 39%,
+          0 35%,
+          28% 17%);
+        "></div>
+
+      </div>
+
+    `;
+
+    state.windowSeen=true;
+
+    discoverClue("window");
+
+  }
+
+
+  if(type==="door"){
+
+    focusContent.innerHTML=`
+
+      <div class="door-focus">
+
+        <div class="lock"></div>
+
+        <div class="lock-code">
+
+          <div class="code-display" id="codeDisplay">
+            • • • •
+          </div>
+
+          <div class="code-buttons">
+
+            ${[1,2,3,4,5,6,7,8,9,0]
+              .map(n=>`
+                <button onclick="enterCode(${n})">
+                  ${n}
+                </button>
+              `).join("")}
+
+            <button onclick="clearCode()">C</button>
+
+          </div>
+
+          <div class="code-result" id="codeResult"></div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  if(type==="breaker"){
+
+    focusContent.innerHTML=`
+
+      <div class="big-breaker">
+
+        <div class="big-switch" onclick="breakerSwitch(this)"></div>
+        <div class="big-switch" onclick="breakerSwitch(this)"></div>
+        <div class="big-switch" onclick="breakerSwitch(this)"></div>
+        <div class="big-switch" onclick="breakerSwitch(this)"></div>
+        <div class="big-switch" onclick="breakerSwitch(this)"></div>
+        <div class="big-switch" onclick="breakerSwitch(this)"></div>
+
+      </div>
+
+    `;
+
+  }
+
+}
+
+
+/* =========================================================
+   OBJECT INTERACTIONS
+========================================================= */
+
+
+/* PHONE — after call, phone can be revisited
+   through the room only if the player returns later.
+*/
+
+document.getElementById("lamp").onclick=()=>{
+
+  const lamp=document.getElementById("lamp");
+
+  lamp.classList.toggle("on");
+
+  if(lamp.classList.contains("on")){
+
+    document.getElementById("breaker").classList.add("visible");
+
+  }
+
+};
+
+
+/* WINDOW */
+
+document.getElementById("window").onclick=()=>{
+
+  const w=document.getElementById("window");
+
+  w.classList.add("flash");
+
+  setTimeout(()=>w.classList.remove("flash"),500);
+
+  openFocus("window");
+
+};
+
+
+/* PICTURE */
+
+document.getElementById("picture").onclick=()=>{
+
+  const p=document.getElementById("picture");
+
+  p.classList.toggle("flipped");
+
+  openFocus("picture");
+
+};
+
+
+/* LAPTOP */
+
+document.getElementById("laptop").onclick=()=>{
+
+  const laptop=document.getElementById("laptop");
+
+  laptop.classList.add("open");
+
+  openFocus("laptop");
+
+};
+
+
+/* SUITCASE */
+
+document.getElementById("suitcase").onclick=()=>{
+
+  const suitcase=document.getElementById("suitcase");
+
+  suitcase.classList.add("open");
+
+  openFocus("suitcase");
+
+};
+
+
+/* DOOR */
+
+document.getElementById("door").onclick=()=>{
+
+  openFocus("door");
+
+};
+
+
+/* =========================================================
+   BREAKER
+========================================================= */
+
+function breakerSwitch(el){
+
+  el.classList.toggle("active");
+
+  const active=
+    document.querySelectorAll(".big-switch.active").length;
+
+  if(active>=4){
+
+    state.breakerSolved=true;
+
+    discoverClue("power");
+
+    document.getElementById("codeResult")?.remove();
+
+    setTimeout(()=>{
+
+      closeFocus();
+
+      document.getElementById("lamp")
+        .classList.add("on");
+
+      document.getElementById("breaker")
+        .classList.remove("visible");
+
+    },700);
+
+  }
+
+}
+
+
+/* =========================================================
+   DOOR CODE
+========================================================= */
+
+let code="";
+
+function enterCode(number){
+
+  if(code.length>=4) return;
+
+  code+=number;
+
+  const display=document.getElementById("codeDisplay");
+
+  if(display){
+
+    display.textContent=
+      code.split("")
+      .map(()=> "•")
+      .join(" ");
+
+  }
+
+  if(code.length===4){
+
+    setTimeout(checkCode,250);
+
+  }
+
+}
+
+function clearCode(){
+
+  code="";
+
+  const display=document.getElementById("codeDisplay");
+
+  if(display){
+    display.textContent="• • • •";
+  }
+
+}
+
+function checkCode(){
+
+  const result=document.getElementById("codeResult");
+
+  /*
+    The photograph gives 23-11-47.
+    The relevant four digits are 1147.
+  */
+
+  if(code==="1147"){
+
+    result.textContent=
+      lang==="en"
+      ? "LOCK ACCEPTED."
+      : "ԿՈԴԸ ՃԻՇՏ Է։";
+
+    discoverClue("door");
+
+    setTimeout(()=>{
+
+      closeFocus();
+
+      showEnding();
 
     },1000);
 
-});
+  }else{
 
+    result.textContent=
+      lang==="en"
+      ? "WRONG CODE."
+      : "ՍԽԱԼ ԿՈԴ։";
 
-/* =====================================================
-   APARTMENT
-===================================================== */
+    setTimeout(clearCode,700);
 
-const apartmentData = {
-
-window:["windowTitle","windowText"],
-desk:["deskTitleModal","deskText"],
-lamp:["lampTitle","lampText"],
-sofa:["sofaTitle","sofaText"],
-door:["doorTitle","doorText"]
-
-};
-
-
-document.querySelectorAll("[data-object]")
-.forEach(object=>{
-
-    object.addEventListener("click",()=>{
-
-        const key =
-            object.dataset.object;
-
-        const data =
-            apartmentData[key];
-
-        state.apartmentClues.add(key);
-
-        openModal(
-            t(data[0]),
-            t(data[1])
-        );
-
-        updateDiscovery();
-
-        playTone("click");
-
-    });
-
-});
-
-
-function updateDiscovery(){
-
-    const count =
-        state.apartmentClues.size;
-
-    const el =
-        document.getElementById("discovery");
-
-    if(count===0){
-
-        el.innerHTML =
-            t("discoveryDefault");
-
-    }else if(count<3){
-
-        el.innerHTML =
-            language==="en"
-            ? `<strong>${count}/5 clues found.</strong> Keep searching.`
-            : `<strong>${count}/5 հուշում գտնված է։</strong> Շարունակեք փնտրել։`;
-
-    }else{
-
-        el.innerHTML =
-            language==="en"
-            ? `<strong>${count}/5 clues found.</strong> Something is beginning to make sense.`
-            : `<strong>${count}/5 հուշում գտնված է։</strong> Պատկերը սկսում է պարզ դառնալ։`;
-
-    }
-
-    document.getElementById("toPhone").disabled =
-        count < 3;
+  }
 
 }
 
 
-/* =====================================================
-   PHONE
-===================================================== */
+/* =========================================================
+   ENDING
+========================================================= */
 
-document.getElementById("voiceMessage")
-.addEventListener("click",()=>{
+function showEnding(){
 
-    state.phoneClues.add("voice");
+  if(state.endingShown) return;
 
-    openModal(
-        t("voiceTitle"),
-        t("voiceText")
-    );
+  state.endingShown=true;
 
-    updatePhone();
+  document.getElementById("endingText").textContent=t("ending");
 
-});
-
-
-document.getElementById("deletedMessage")
-.addEventListener("click",()=>{
-
-    state.phoneClues.add("deleted");
-
-    openModal(
-        t("deletedTitle"),
-        t("deletedText")
-    );
-
-    updatePhone();
-
-});
-
-
-function updatePhone(){
-
-    const count =
-        state.phoneClues.size;
-
-    document.getElementById("phoneDiscovery")
-        .innerHTML =
-        language==="en"
-        ? `<strong>${count}/2 phone clues recovered.</strong>`
-        : `<strong>${count}/2 հեռախոսային հուշում վերականգնված է։</strong>`;
-
-    document.getElementById("toObjects").disabled =
-        count < 2;
+  document.getElementById("ending").classList.add("show");
 
 }
 
 
-/* =====================================================
-   OBJECTS
-===================================================== */
-
-const objectData = {
-
-laptop:["laptopTitle","laptopText"],
-drawer:["drawerTitle","drawerText"],
-photo:["photoTitle","photoText"]
-
-};
-
-
-document.querySelectorAll("[data-object2]")
-.forEach(object=>{
-
-    object.addEventListener("click",()=>{
-
-        const key =
-            object.dataset.object2;
-
-        state.objectClues.add(key);
-
-        const data =
-            objectData[key];
-
-        openModal(
-            t(data[0]),
-            t(data[1])
-        );
-
-        updateObjects();
-
-    });
-
-});
-
-
-function updateObjects(){
-
-    const count =
-        state.objectClues.size;
-
-    document.getElementById("objectDiscovery")
-        .innerHTML =
-        language==="en"
-        ? `<strong>${count}/3 objects examined.</strong>`
-        : `<strong>${count}/3 առարկա ուսումնասիրված է։</strong>`;
-
-    document.getElementById("toSuspects").disabled =
-        count < 3;
-
-}
-
-
-/* =====================================================
-   SUSPECT QUESTIONS
-===================================================== */
-
-const questionData = {
-
-mariam1:"mariam1",
-mariam2:"mariam2",
-david1:"david1",
-david2:"david2"
-
-};
-
-
-document.querySelectorAll("[data-question]")
-.forEach(button=>{
-
-    button.addEventListener("click",()=>{
-
-        const key =
-            button.dataset.question;
-
-        state.suspectClues.add(key);
-
-        openModal(
-            language==="en"
-            ? "STATEMENT"
-            : "ՑՈՒՑՄՈՒՆՔ",
-            t(questionData[key])
-        );
-
-        updateSuspects();
-
-    });
-
-});
-
-
-function updateSuspects(){
-
-    const count =
-        state.suspectClues.size;
-
-    document.getElementById("suspectDiscovery")
-        .innerHTML =
-        language==="en"
-        ? `<strong>${count}/4 statements examined.</strong>`
-        : `<strong>${count}/4 ցուցմունք ուսումնասիրված է։</strong>`;
-
-    document.getElementById("toPuzzle").disabled =
-        count < 2;
-
-}
-
-
-/* =====================================================
-   PUZZLE
-===================================================== */
-
-document.getElementById("decrypt")
-.addEventListener("click",()=>{
-
-    const input =
-        document.getElementById("password");
-
-    const result =
-        document.getElementById("puzzleResult");
-
-    /*
-       Correct password = 1147
-       But input allows four characters.
-    */
-
-    if(input.value.trim()==="1147"){
-
-        state.puzzleSolved=true;
-
-        result.style.color="#789b83";
-
-        result.innerHTML =
-            t("decryptSuccess");
-
-        document.getElementById("toFinal")
-            .disabled=false;
-
-        playTone("success");
-
-    }else{
-
-        result.style.color="#b65353";
-
-        result.textContent =
-            t("decryptWrong");
-
-        playTone("error");
-
-    }
-
-});
-
-
-/* =====================================================
-   FINAL ANSWERS
-===================================================== */
-
-document.querySelectorAll("[data-answer]")
-.forEach(button=>{
-
-    button.addEventListener("click",()=>{
-
-        const buttons =
-            button.parentElement
-                .querySelectorAll("button");
-
-        buttons.forEach(b =>
-            b.classList.remove("selected")
-        );
-
-        button.classList.add("selected");
-
-        const question =
-            button.closest(".final-question");
-
-        const index =
-            [...document.querySelectorAll(".final-question")]
-            .indexOf(question);
-
-        state.finalAnswers[index] =
-            button.dataset.answer;
-
-    });
-
-});
-
-
-document.getElementById("submitFinal")
-.addEventListener("click",()=>{
-
-    const result =
-        document.getElementById("finalResult");
-
-    const title =
-        document.getElementById("finalResultTitle");
-
-    const text =
-        document.getElementById("finalResultText");
-
-    if(
-        state.finalAnswers[0] === "mariam" &&
-        state.finalAnswers[1] === "planned"
-    ){
-
-        title.textContent =
-            t("correctTitle");
-
-        text.innerHTML =
-            t("correctText");
-
-        playTone("success");
-
-    }else{
-
-        title.textContent =
-            t("wrongTitle");
-
-        text.innerHTML =
-            t("wrongText");
-
-        playTone("error");
-
-    }
-
-    result.classList.add("show");
-
-});
-
-
-/* =====================================================
-   NEXT BUTTONS
-===================================================== */
-
-document.getElementById("toPhone")
-.addEventListener("click",()=>{
-    goToScene(1);
-});
-
-document.getElementById("toObjects")
-.addEventListener("click",()=>{
-    goToScene(2);
-});
-
-document.getElementById("toSuspects")
-.addEventListener("click",()=>{
-    goToScene(3);
-});
-
-document.getElementById("toPuzzle")
-.addEventListener("click",()=>{
-    goToScene(4);
-});
-
-document.getElementById("toFinal")
-.addEventListener("click",()=>{
-    goToScene(5);
-});
-
-
-/* =====================================================
-   MODAL
-===================================================== */
-
-function openModal(title,content){
-
-    document.getElementById("modalTitle")
-        .textContent=title;
-
-    document.getElementById("modalContent")
-        .innerHTML=content;
-
-    document.getElementById("modal")
-        .classList.add("show");
-
-}
-
-
-function closeModal(){
-
-    document.getElementById("modal")
-        .classList.remove("show");
-
-}
-
-
-document.getElementById("closeModal")
-.addEventListener("click",closeModal);
-
-
-document.getElementById("modal")
-.addEventListener("click",e=>{
-
-    if(e.target.id==="modal"){
-        closeModal();
-    }
-
-});
-
+/* =========================================================
+   KEYBOARD ESC = RETURN
+========================================================= */
 
 document.addEventListener("keydown",e=>{
 
-    if(e.key==="Escape"){
-        closeModal();
-    }
+  if(e.key==="Escape" && state.currentFocus){
+
+    closeFocus();
+
+  }
 
 });
 
 
-/* =====================================================
-   NOTES
-===================================================== */
-
-const notes =
-    document.getElementById("notes");
-
-notes.value =
-    localStorage.getItem("case021_notes") || "";
-
-notes.addEventListener("input",()=>{
-
-    localStorage.setItem(
-        "case021_notes",
-        notes.value
-    );
-
-});
-
-
-/* =====================================================
-   AUDIO
-===================================================== */
-
-let audioContext=null;
-let ambient=null;
-let ambientGain=null;
-let soundOn=true;
-
-
-function initAudio(){
-
-    if(audioContext) return;
-
-    audioContext =
-        new (window.AudioContext ||
-        window.webkitAudioContext)();
-
-    ambient =
-        audioContext.createOscillator();
-
-    ambientGain =
-        audioContext.createGain();
-
-    ambient.type="sine";
-
-    ambient.frequency.value=42;
-
-    ambientGain.gain.value=.012;
-
-    ambient.connect(ambientGain);
-
-    ambientGain.connect(
-        audioContext.destination
-    );
-
-    ambient.start();
-
-}
-
-
-function playTone(type){
-
-    if(!soundOn) return;
-
-    initAudio();
-
-    const osc =
-        audioContext.createOscillator();
-
-    const gain =
-        audioContext.createGain();
-
-    osc.connect(gain);
-    gain.connect(
-        audioContext.destination
-    );
-
-    if(type==="click"){
-
-        osc.frequency.value=170;
-
-        gain.gain.setValueAtTime(
-            .04,
-            audioContext.currentTime
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            audioContext.currentTime+.15
-        );
-
-        osc.start();
-        osc.stop(
-            audioContext.currentTime+.15
-        );
-
-    }
-
-    if(type==="transition"){
-
-        osc.frequency.value=55;
-
-        gain.gain.setValueAtTime(
-            .03,
-            audioContext.currentTime
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            120,
-            audioContext.currentTime+.5
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            audioContext.currentTime+.7
-        );
-
-        osc.start();
-        osc.stop(
-            audioContext.currentTime+.7
-        );
-
-    }
-
-    if(type==="start"){
-
-        osc.frequency.value=70;
-
-        gain.gain.setValueAtTime(
-            .05,
-            audioContext.currentTime
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            300,
-            audioContext.currentTime+1
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            audioContext.currentTime+1.2
-        );
-
-        osc.start();
-        osc.stop(
-            audioContext.currentTime+1.2
-        );
-
-    }
-
-    if(type==="success"){
-
-        osc.frequency.value=300;
-
-        gain.gain.setValueAtTime(
-            .05,
-            audioContext.currentTime
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            700,
-            audioContext.currentTime+.5
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            audioContext.currentTime+.8
-        );
-
-        osc.start();
-        osc.stop(
-            audioContext.currentTime+.8
-        );
-
-    }
-
-    if(type==="error"){
-
-        osc.frequency.value=100;
-
-        gain.gain.setValueAtTime(
-            .05,
-            audioContext.currentTime
-        );
-
-        osc.frequency.exponentialRampToValueAtTime(
-            55,
-            audioContext.currentTime+.3
-        );
-
-        gain.gain.exponentialRampToValueAtTime(
-            .001,
-            audioContext.currentTime+.4
-        );
-
-        osc.start();
-        osc.stop(
-            audioContext.currentTime+.4
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   SOUND BUTTON
-===================================================== */
-
-document.getElementById("soundBtn")
-.addEventListener("click",()=>{
-
-    soundOn=!soundOn;
-
-    const button =
-        document.getElementById("soundBtn");
-
-    button.textContent =
-        soundOn
-        ? "SOUND ON"
-        : "SOUND OFF";
-
-    if(soundOn){
-
-        initAudio();
-
-    }else{
-
-        if(ambientGain){
-
-            ambientGain.gain.value=0;
-
-        }
-
-    }
-
-});
-
-
-/* =====================================================
-   LANGUAGE BUTTONS
-===================================================== */
-
-document.getElementById("enBtn")
-.addEventListener("click",()=>{
-    setLanguage("en");
-});
-
-document.getElementById("hyBtn")
-.addEventListener("click",()=>{
-    setLanguage("hy");
-});
-
-
-/* =====================================================
-   DYNAMIC TRANSLATION
-===================================================== */
-
-function updateDynamicText(){
-
-    updateDiscovery();
-    updatePhone();
-    updateObjects();
-    updateSuspects();
-
-}
-
-
-/* =====================================================
-   INIT
-===================================================== */
-
-translatePage();
+/* =========================================================
+   INITIAL LANGUAGE
+========================================================= */
+
+updateLanguage();
 
 </script>
 
